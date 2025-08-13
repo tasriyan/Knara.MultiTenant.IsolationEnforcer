@@ -8,18 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="CachedTenantLookupService.cs" />
-    <Compile Remove="cross_tenant_operations.cs" />
-    <Compile Remove="performance_monitor.cs" />
-    <Compile Remove="service_extensions.cs" />
-    <Compile Remove="tenant_dbcontext.cs" />
-    <Compile Remove="tenant_middleware.cs" />
-    <Compile Remove="tenant_repository.cs" />
-    <Compile Remove="tenant_repository_impl.cs" />
-    <Compile Remove="test_entities.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
       <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
