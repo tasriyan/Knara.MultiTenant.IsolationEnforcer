@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="CachedTenantLookupService.cs" />
+    <Compile Remove="cross_tenant_operations.cs" />
+    <Compile Remove="performance_monitor.cs" />
+    <Compile Remove="service_extensions.cs" />
+    <Compile Remove="tenant_dbcontext.cs" />
+    <Compile Remove="tenant_middleware.cs" />
+    <Compile Remove="tenant_repository.cs" />
+    <Compile Remove="tenant_repository_impl.cs" />
+    <Compile Remove="test_entities.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+      <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.14.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.8" />
+  </ItemGroup>
+
+</Project>
