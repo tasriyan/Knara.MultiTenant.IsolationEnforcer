@@ -21,37 +21,22 @@ public class DefaultTenantDataProvider : ITenantDataProvider
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
-	// This assumes you have a Tenants/Companies table with Domain and Id columns
-	public async Task<Guid?> GetActiveTenantIdByDomainAsync(string domain, CancellationToken cancellationToken)
-	{
-		try
-		{
-			var query = _context.Set<TenantEntity>()
-				.Where(t => t.Domain == domain && t.IsActive)
-				.Select(t => t.Id);
-
-			return await query.FirstOrDefaultAsync(cancellationToken);
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Error retrieving tenant ID for domain {Domain}", domain);
-			return null;
-		}
-	}
-
 	// This overload allows for additional filtering via a predicate
 	public async Task<Guid?> GetActiveTenantIdByDomainAsync(string domain, 
-				System.Linq.Expressions.Expression<Func<TenantEntity, bool>> predicate,  
-				CancellationToken cancellationToken)
+				System.Linq.Expressions.Expression<Func<TenantEntity, bool>>? predicate = null,  
+				CancellationToken cancellationToken = default)
 	{
 		try
 		{
+			// This assumes you have a Tenants/Companies table with Domain and Id columns
 			var query = _context.Set<TenantEntity>()
-				.Where(t => t.Domain == domain && t.IsActive)
-				.Where(predicate)
-				.Select(t => t.Id);
+				.Where(t => t.Domain == domain && t.IsActive);
 
-			return await query.FirstOrDefaultAsync(cancellationToken);
+			// additional filtering via a predicate
+			if (predicate != null) 
+				query = query.Where(predicate);
+
+			return await query.Select(t => t.Id).FirstOrDefaultAsync(cancellationToken);
 		}
 		catch (Exception ex)
 		{

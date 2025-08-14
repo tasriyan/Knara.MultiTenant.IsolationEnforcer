@@ -39,7 +39,7 @@ public class TenantLookupService(
 			}
 		}
 
-		var tenantId = await _dataProvider.GetActiveTenantIdByDomainAsync(domain, cancellationToken);
+		var tenantId = await _dataProvider.GetActiveTenantIdByDomainAsync(domain, cancellationToken: cancellationToken);
 		if (tenantId.HasValue && _options.CacheTenantResolution)
 		{
 			var cacheOptions = new MemoryCacheEntryOptions
