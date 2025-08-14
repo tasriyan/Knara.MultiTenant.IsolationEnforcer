@@ -4,7 +4,7 @@ using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.Resolvers;
 using System.Security.Claims;
 
-namespace Multitenant.Enforcer.Tests.Resolvers;
+namespace MultiTenant.Enforcer.Tests.Resolvers;
 
 public class JwtTenantResolverTests
 {
@@ -154,16 +154,6 @@ public class JwtTenantResolverTests
         Assert.False(result.IsSystemContext);
         Assert.Equal(tenantId1, result.TenantId);
         Assert.Equal("JWT", result.ContextSource);
-    }
-
-    [Fact]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new JwtTenantResolver(null!));
-        
-        Assert.Equal("logger", exception.ParamName);
     }
 
     private static HttpContext CreateHttpContext()

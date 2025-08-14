@@ -4,7 +4,7 @@ using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.Resolvers;
 using System.Security.Claims;
 
-namespace Multitenant.Enforcer.Tests.Resolvers;
+namespace MultiTenant.Enforcer.Tests.Resolvers;
 
 public class SubdomainTenantResolverTests
 {

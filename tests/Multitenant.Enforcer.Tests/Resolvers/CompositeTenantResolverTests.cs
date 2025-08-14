@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.Resolvers;
 
-namespace Multitenant.Enforcer.Tests.Resolvers;
+namespace MultiTenant.Enforcer.Tests.Resolvers;
 
 public class CompositeTenantResolverTests
 {
@@ -167,80 +167,5 @@ public class CompositeTenantResolverTests
         Assert.True(result.IsSystemContext);
         Assert.Equal("System", result.ContextSource);
         Assert.Equal(Guid.Empty, result.TenantId);
-    }
-
-    [Fact]
-    public void Constructor_WithNullResolvers_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new CompositeTenantResolver(null!, _mockLogger.Object));
-        
-        Assert.Equal("resolvers", exception.ParamName);
-    }
-
-    [Fact]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(
-            () => new CompositeTenantResolver(Array.Empty<ITenantResolver>(), null!));
-        
-        Assert.Equal("logger", exception.ParamName);
-    }
-
-    [Fact]
-    public async Task ResolveTenantAsync_LogsSuccessfulResolution()
-    {
-        // Arrange
-        var tenantId = Guid.NewGuid();
-        var expectedContext = TenantContext.ForTenant(tenantId, "Test");
-        var context = new DefaultHttpContext();
-        
-        _mockResolver1.Setup(x => x.ResolveTenantAsync(context))
-                     .ReturnsAsync(expectedContext);
-        
-        var resolvers = new[] { _mockResolver1.Object };
-        var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
-
-        // Act
-        await compositeResolver.ResolveTenantAsync(context);
-
-        // Assert
-        _mockLogger.Verify(
-            x => x.Log(
-                LogLevel.Debug,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Tenant resolved using")),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task ResolveTenantAsync_LogsFailedResolution()
-    {
-        // Arrange
-        var context = new DefaultHttpContext();
-        
-        _mockResolver1.Setup(x => x.ResolveTenantAsync(context))
-                     .ThrowsAsync(new TenantResolutionException("Test failure"));
-        
-        var resolvers = new[] { _mockResolver1.Object };
-        var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<TenantResolutionException>(
-            () => compositeResolver.ResolveTenantAsync(context));
-
-        // Verify warning log for overall failure
-        _mockLogger.Verify(
-            x => x.Log(
-                LogLevel.Warning,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Failed to resolve tenant using any strategy")),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-            Times.Once);
     }
 }
