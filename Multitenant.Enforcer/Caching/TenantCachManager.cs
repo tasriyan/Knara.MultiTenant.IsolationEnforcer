@@ -4,21 +4,21 @@ using Microsoft.Extensions.Options;
 
 namespace Multitenant.Enforcer.Caching;
 
-public interface ICacheService
+public interface ITenantCacheManager
 {
 	Task InvalidateDomainCacheAsync(string domain, CancellationToken cancellationToken);
 	Task InvalidateTenantCacheAsync(Guid tenantId, CancellationToken cancellationToken);
 	Task<int> PrewarmCacheAsync(CancellationToken cancellationToken);
 }
 
-public class CacheService(
-	ITenantLookupCache cache,
-	ILogger<CacheService> logger,
+public class TenantCachManager(
+	ITenantCache cache,
+	ILogger<TenantCachManager> logger,
 	IOptions<MultiTenantOptions> options,
-	ITenantDataProvider dataProvider) : ICacheService
+	ITenantDataProvider dataProvider) : ITenantCacheManager
 {
-	private readonly ITenantLookupCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-	private readonly ILogger<CacheService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+	private readonly ITenantCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+	private readonly ILogger<TenantCachManager> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	private readonly MultiTenantOptions _options = options.Value;
 	private readonly ITenantDataProvider _dataProvider = dataProvider ?? throw new ArgumentNullException(nameof(dataProvider));
 

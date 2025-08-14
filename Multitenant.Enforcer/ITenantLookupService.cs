@@ -13,12 +13,12 @@ public interface ITenantLookupService
 }
 
 public class TenantLookupService(
-	ITenantLookupCache cache,
+	ITenantCache cache,
 	ILogger<TenantLookupService> logger,
 	IOptions<MultiTenantOptions> options,
 	ITenantDataProvider dataProvider) : ITenantLookupService
 {
-	private readonly ITenantLookupCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+	private readonly ITenantCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
 	private readonly ILogger<TenantLookupService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	private readonly MultiTenantOptions _options = options.Value;
 	private readonly ITenantDataProvider _dataProvider = dataProvider ?? throw new ArgumentNullException(nameof(dataProvider));
