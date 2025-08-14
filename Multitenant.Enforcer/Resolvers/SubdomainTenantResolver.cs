@@ -14,7 +14,7 @@ public class SubdomainTenantResolver(
 	private readonly ILogger<SubdomainTenantResolver> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	private readonly ITenantLookupService _tenantLookupService = tenantLookupService ?? throw new ArgumentNullException(nameof(tenantLookupService));
 
-	public async Task<TenantContext> ResolveTenantAsync(HttpContext context)
+	public async Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken)
 	{
 		// Check for system admin in JWT first
 		if (context.User.HasClaim("role", "SystemAdmin"))
@@ -33,7 +33,7 @@ public class SubdomainTenantResolver(
 				"Subdomain");
 		}
 
-		var tenantId = await _tenantLookupService.GetTenantIdByDomainAsync(subdomain);
+		var tenantId = await _tenantLookupService.GetTenantIdByDomainAsync(subdomain, cancellationToken);
 		if (tenantId == null)
 		{
 			throw new TenantResolutionException(

@@ -12,7 +12,7 @@ public class CompositeTenantResolver(ITenantResolver[] resolvers, ILogger<Compos
 	private readonly ITenantResolver[] _resolvers = resolvers ?? throw new ArgumentNullException(nameof(resolvers));
 	private readonly ILogger<CompositeTenantResolver> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-	public async Task<TenantContext> ResolveTenantAsync(HttpContext context)
+	public async Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken)
 	{
 		var exceptions = new List<Exception>();
 
@@ -20,7 +20,7 @@ public class CompositeTenantResolver(ITenantResolver[] resolvers, ILogger<Compos
 		{
 			try
 			{
-				var result = await resolver.ResolveTenantAsync(context);
+				var result = await resolver.ResolveTenantAsync(context, cancellationToken);
 				_logger.LogDebug("Tenant resolved using {ResolverType}: {TenantId}",
 					resolver.GetType().Name, result.TenantId);
 				return result;

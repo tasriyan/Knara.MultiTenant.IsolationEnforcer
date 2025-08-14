@@ -14,5 +14,5 @@ public interface ITenantResolver
 	/// </summary>
 	/// <param name="context">The HTTP context</param>
 	/// <returns>The resolved tenant context</returns>
-	Task<TenantContext> ResolveTenantAsync(HttpContext context);
+	Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken);
 }

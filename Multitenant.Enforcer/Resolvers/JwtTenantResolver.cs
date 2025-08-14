@@ -11,10 +11,8 @@ public class JwtTenantResolver(ILogger<JwtTenantResolver> logger) : ITenantResol
 {
 	private readonly ILogger<JwtTenantResolver> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-	public async Task<TenantContext> ResolveTenantAsync(HttpContext context)
+	public async Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken)
 	{
-		await Task.CompletedTask; // Make async for consistency
-
 		var user = context.User;
 
 		// Check for system admin access first
