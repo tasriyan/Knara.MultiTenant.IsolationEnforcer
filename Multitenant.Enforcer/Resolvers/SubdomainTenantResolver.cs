@@ -25,7 +25,7 @@ public class SubdomainTenantResolver(
 		var host = context.Request.Host.Host;
 		var subdomain = ExtractSubdomain(host);
 
-		if (string.IsNullOrEmpty(subdomain))
+		if (string.IsNullOrWhiteSpace(subdomain))
 		{
 			throw new TenantResolutionException(
 				"No subdomain found in request",
@@ -52,7 +52,7 @@ public class SubdomainTenantResolver(
 	{
 		var parts = host.Split('.');
 
-		if (parts.Length >= 2 && parts[0] != "www" && parts[0] != "localhost")
+		if (parts.Length >= 3 && parts[0] != "www" && parts[0] != "localhost")
 		{
 			return parts[0];
 		}
