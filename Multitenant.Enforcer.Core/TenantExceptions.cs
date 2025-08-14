@@ -1,8 +1,5 @@
-// MultiTenant.Enforcer.Core/Exceptions/TenantExceptions.cs
-using System;
+namespace Multitenant.Enforcer.Core;
 
-namespace MultiTenant.Enforcer.Core
-{
     /// <summary>
     /// Base exception for all multi-tenant isolation related errors.
     /// </summary>
@@ -156,4 +153,3 @@ namespace MultiTenant.Enforcer.Core
             ConfigurationKey = configurationKey;
         }
     }
-}

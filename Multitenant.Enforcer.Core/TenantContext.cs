@@ -1,7 +1,5 @@
-using System;
+namespace Multitenant.Enforcer.Core;
 
-namespace MultiTenant.Enforcer.Core
-{
     public interface ITenantContext
     {
         /// <summary>
@@ -60,4 +58,3 @@ namespace MultiTenant.Enforcer.Core
             return new TenantContext(Guid.Empty, true, source);
         }
     }
-}

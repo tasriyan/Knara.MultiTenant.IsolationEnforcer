@@ -1,7 +1,5 @@
-using System;
+namespace Multitenant.Enforcer.Core;
 
-namespace MultiTenant.Enforcer.Core
-{
     /// <summary>
     /// Interface that marks an entity as requiring tenant isolation.
     /// All entities implementing this interface will be automatically protected by the enforcer.
@@ -25,4 +23,3 @@ namespace MultiTenant.Enforcer.Core
         // Marker interface - no additional properties required
         // Analyzer will require explicit authorization for cross-tenant operations
     }
-}
