@@ -12,9 +12,7 @@ namespace Multitenant.Enforcer.Core;
 [Shared]
 public class TenantIsolationCodeFixProvider : CodeFixProvider
 {
-	private const string UseTenantRepositoryTitle = "Use ITenantRepository instead";
 	private const string AddCrossTenantAttributeTitle = "Add [AllowCrossTenantAccess] attribute";
-	private const string InjectTenantRepositoryTitle = "Inject ITenantRepository through constructor";
 
 	public sealed override ImmutableArray<string> FixableDiagnosticIds =>
 		ImmutableArray.Create(
@@ -37,45 +35,9 @@ public class TenantIsolationCodeFixProvider : CodeFixProvider
 
 			switch (diagnostic.Id)
 			{
-				case "MTI001": // DirectDbSetAccess
-					await RegisterDbSetAccessFix(context, root, node, diagnostic);
-					break;
-
 				case "MTI002": // MissingCrossTenantAttribute
 					await RegisterCrossTenantAttributeFix(context, root, node, diagnostic);
 					break;
-
-				case "MTI004": // TenantEntityWithoutRepository
-					await RegisterRepositoryInjectionFix(context, root, node, diagnostic);
-					break;
-			}
-		}
-	}
-
-	private static async Task RegisterDbSetAccessFix(CodeFixContext context, SyntaxNode root, SyntaxNode node, Diagnostic diagnostic)
-	{
-		// Fix for direct DbSet access - replace with repository call
-		if (node is MemberAccessExpressionSyntax memberAccess)
-		{
-			var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken);
-			var entityType = ExtractEntityTypeFromDiagnostic(diagnostic);
-
-			if (entityType != null)
-			{
-				var action = CodeAction.Create(
-					title: UseTenantRepositoryTitle,
-					createChangedDocument: c => ReplaceDbSetWithRepository(context.Document, root, memberAccess, entityType, c),
-					equivalenceKey: UseTenantRepositoryTitle);
-
-				context.RegisterCodeFix(action, diagnostic);
-
-				// Also offer to inject the repository if not already available
-				var constructorAction = CodeAction.Create(
-					title: InjectTenantRepositoryTitle,
-					createChangedDocument: c => AddRepositoryInjection(context.Document, root, entityType, c),
-					equivalenceKey: InjectTenantRepositoryTitle);
-
-				context.RegisterCodeFix(constructorAction, diagnostic);
 			}
 		}
 	}
@@ -93,111 +55,6 @@ public class TenantIsolationCodeFixProvider : CodeFixProvider
 
 			context.RegisterCodeFix(action, diagnostic);
 		}
-	}
-
-	private static async Task RegisterRepositoryInjectionFix(CodeFixContext context, SyntaxNode root, SyntaxNode node, Diagnostic diagnostic)
-	{
-		var entityType = ExtractEntityTypeFromDiagnostic(diagnostic);
-		if (entityType != null)
-		{
-			var action = CodeAction.Create(
-				title: InjectTenantRepositoryTitle,
-				createChangedDocument: c => AddRepositoryInjection(context.Document, root, entityType, c),
-				equivalenceKey: InjectTenantRepositoryTitle);
-
-			context.RegisterCodeFix(action, diagnostic);
-		}
-	}
-
-	private static async Task<Document> ReplaceDbSetWithRepository(
-		Document document,
-		SyntaxNode root,
-		MemberAccessExpressionSyntax memberAccess,
-		string entityType,
-		CancellationToken cancellationToken)
-	{
-		// Replace _context.Set<Entity>() or _context.Entities with _entityRepository
-		var repositoryFieldName = $"_{char.ToLower(entityType[0])}{entityType.Substring(1)}Repository";
-
-		// Create the replacement expression
-		var replacement = SyntaxFactory.IdentifierName(repositoryFieldName);
-
-		// If the original was a method call like Set<Entity>(), replace the entire invocation
-		SyntaxNode newRoot;
-
-		if (memberAccess.Expression is InvocationExpressionSyntax invocation)
-		{
-			newRoot = root.ReplaceNode(invocation, replacement);
-		}
-		else
-			newRoot = root.ReplaceNode(memberAccess, replacement);
-
-		// Add using statement if needed
-		newRoot = AddUsingIfNeeded(newRoot, "MultiTenant.Enforcer.EntityFramework");
-
-		return document.WithSyntaxRoot(newRoot);
-	}
-
-	private static async Task<Document> AddRepositoryInjection(
-		Document document,
-		SyntaxNode root,
-		string entityType,
-		CancellationToken cancellationToken)
-	{
-		var classDeclaration = root.DescendantNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
-		if (classDeclaration == null) return document;
-
-		var repositoryFieldName = $"_{char.ToLower(entityType[0])}{entityType.Substring(1)}Repository";
-		var repositoryTypeName = $"ITenantRepository<{entityType}>";
-
-		// Add private readonly field
-		var field = SyntaxFactory.FieldDeclaration(
-			SyntaxFactory.VariableDeclaration(
-				SyntaxFactory.IdentifierName(repositoryTypeName))
-			.WithVariables(
-				SyntaxFactory.SingletonSeparatedList(
-					SyntaxFactory.VariableDeclarator(
-						SyntaxFactory.Identifier(repositoryFieldName)))))
-		.WithModifiers(
-			SyntaxFactory.TokenList(
-				SyntaxFactory.Token(SyntaxKind.PrivateKeyword),
-				SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword)));
-
-		// Add constructor parameter
-		var constructor = classDeclaration.Members.OfType<ConstructorDeclarationSyntax>().FirstOrDefault();
-		if (constructor != null)
-		{
-			var parameter = SyntaxFactory.Parameter(
-				SyntaxFactory.Identifier(char.ToLower(entityType[0]) + entityType.Substring(1) + "Repository"))
-				.WithType(SyntaxFactory.IdentifierName(repositoryTypeName));
-
-			var newParameterList = constructor.ParameterList.AddParameters(parameter);
-
-			// Add assignment in constructor body
-			var assignment = SyntaxFactory.ExpressionStatement(
-				SyntaxFactory.AssignmentExpression(
-					SyntaxKind.SimpleAssignmentExpression,
-					SyntaxFactory.IdentifierName(repositoryFieldName),
-					SyntaxFactory.IdentifierName(parameter.Identifier.ValueText)));
-
-			var newBody = constructor.Body?.AddStatements(assignment) ??
-						 SyntaxFactory.Block(assignment);
-
-			var newConstructor = constructor
-				.WithParameterList(newParameterList)
-				.WithBody(newBody);
-
-			var newClass = classDeclaration
-				.ReplaceNode(constructor, newConstructor)
-				.AddMembers(field);
-
-			var newRoot = root.ReplaceNode(classDeclaration, newClass);
-			newRoot = AddUsingIfNeeded(newRoot, "MultiTenant.Enforcer.EntityFramework");
-
-			return document.WithSyntaxRoot(newRoot);
-		}
-
-		return document;
 	}
 
 	private static async Task<Document> AddCrossTenantAccessAttribute(
