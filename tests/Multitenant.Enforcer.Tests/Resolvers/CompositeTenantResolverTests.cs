@@ -28,21 +28,21 @@ public class CompositeTenantResolverTests
         var expectedContext = TenantContext.ForTenant(tenantId, "Resolver1");
         var context = new DefaultHttpContext();
         
-        _mockResolver1.Setup(x => x.ResolveTenantAsync(context))
+        _mockResolver1.Setup(x => x.ResolveTenantAsync(context, default))
                      .ReturnsAsync(expectedContext);
         
         var resolvers = new[] { _mockResolver1.Object, _mockResolver2.Object };
         var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
 
         // Act
-        var result = await compositeResolver.ResolveTenantAsync(context);
+        var result = await compositeResolver.ResolveTenantAsync(context, default);
 
         // Assert
         Assert.Equal(expectedContext.TenantId, result.TenantId);
         Assert.Equal(expectedContext.ContextSource, result.ContextSource);
         
-        _mockResolver1.Verify(x => x.ResolveTenantAsync(context), Times.Once);
-        _mockResolver2.Verify(x => x.ResolveTenantAsync(context), Times.Never);
+        _mockResolver1.Verify(x => x.ResolveTenantAsync(context, default), Times.Once);
+        _mockResolver2.Verify(x => x.ResolveTenantAsync(context, default), Times.Never);
     }
 
     [Fact]
@@ -53,24 +53,24 @@ public class CompositeTenantResolverTests
         var expectedContext = TenantContext.ForTenant(tenantId, "Resolver2");
         var context = new DefaultHttpContext();
         
-        _mockResolver1.Setup(x => x.ResolveTenantAsync(context))
+        _mockResolver1.Setup(x => x.ResolveTenantAsync(context, default))
                      .ThrowsAsync(new TenantResolutionException("Resolver1 failed"));
         
-        _mockResolver2.Setup(x => x.ResolveTenantAsync(context))
+        _mockResolver2.Setup(x => x.ResolveTenantAsync(context, default))
                      .ReturnsAsync(expectedContext);
         
         var resolvers = new[] { _mockResolver1.Object, _mockResolver2.Object };
         var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
 
         // Act
-        var result = await compositeResolver.ResolveTenantAsync(context);
+        var result = await compositeResolver.ResolveTenantAsync(context, default);
 
         // Assert
         Assert.Equal(expectedContext.TenantId, result.TenantId);
         Assert.Equal(expectedContext.ContextSource, result.ContextSource);
         
-        _mockResolver1.Verify(x => x.ResolveTenantAsync(context), Times.Once);
-        _mockResolver2.Verify(x => x.ResolveTenantAsync(context), Times.Once);
+        _mockResolver1.Verify(x => x.ResolveTenantAsync(context, default), Times.Once);
+        _mockResolver2.Verify(x => x.ResolveTenantAsync(context, default), Times.Once);
     }
 
     [Fact]
@@ -79,13 +79,13 @@ public class CompositeTenantResolverTests
         // Arrange
         var context = new DefaultHttpContext();
         
-        _mockResolver1.Setup(x => x.ResolveTenantAsync(context))
+        _mockResolver1.Setup(x => x.ResolveTenantAsync(context, default))
                      .ThrowsAsync(new TenantResolutionException("Resolver1 failed"));
         
-        _mockResolver2.Setup(x => x.ResolveTenantAsync(context))
+        _mockResolver2.Setup(x => x.ResolveTenantAsync(context, default))
                      .ThrowsAsync(new TenantResolutionException("Resolver2 failed"));
         
-        _mockResolver3.Setup(x => x.ResolveTenantAsync(context))
+        _mockResolver3.Setup(x => x.ResolveTenantAsync(context, default))
                      .ThrowsAsync(new TenantResolutionException("Resolver3 failed"));
         
         var resolvers = new[] { _mockResolver1.Object, _mockResolver2.Object, _mockResolver3.Object };
@@ -93,14 +93,14 @@ public class CompositeTenantResolverTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<TenantResolutionException>(
-            () => compositeResolver.ResolveTenantAsync(context));
+            () => compositeResolver.ResolveTenantAsync(context, default));
         
         Assert.Contains("All tenant resolution strategies failed", exception.Message);
         Assert.Equal("Composite", exception.ResolutionMethod);
         
-        _mockResolver1.Verify(x => x.ResolveTenantAsync(context), Times.Once);
-        _mockResolver2.Verify(x => x.ResolveTenantAsync(context), Times.Once);
-        _mockResolver3.Verify(x => x.ResolveTenantAsync(context), Times.Once);
+        _mockResolver1.Verify(x => x.ResolveTenantAsync(context, default), Times.Once);
+        _mockResolver2.Verify(x => x.ResolveTenantAsync(context, default), Times.Once);
+        _mockResolver3.Verify(x => x.ResolveTenantAsync(context, default), Times.Once);
     }
 
     [Fact]
@@ -111,10 +111,10 @@ public class CompositeTenantResolverTests
         var expectedContext = TenantContext.ForTenant(tenantId, "Resolver2");
         var context = new DefaultHttpContext();
         
-        _mockResolver1.Setup(x => x.ResolveTenantAsync(context))
+        _mockResolver1.Setup(x => x.ResolveTenantAsync(context, default))
                      .ThrowsAsync(new InvalidOperationException("Unexpected error"));
         
-        _mockResolver2.Setup(x => x.ResolveTenantAsync(context))
+        _mockResolver2.Setup(x => x.ResolveTenantAsync(context, default))
                      .ReturnsAsync(expectedContext);
         
         var resolvers = new[] { _mockResolver1.Object, _mockResolver2.Object };
@@ -122,13 +122,13 @@ public class CompositeTenantResolverTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => compositeResolver.ResolveTenantAsync(context));
+            () => compositeResolver.ResolveTenantAsync(context, default));
         
         // Non-TenantResolutionExceptions should bubble up immediately
         Assert.Equal("Unexpected error", exception.Message);
         
-        _mockResolver1.Verify(x => x.ResolveTenantAsync(context), Times.Once);
-        _mockResolver2.Verify(x => x.ResolveTenantAsync(context), Times.Never);
+        _mockResolver1.Verify(x => x.ResolveTenantAsync(context, default), Times.Once);
+        _mockResolver2.Verify(x => x.ResolveTenantAsync(context, default), Times.Never);
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public class CompositeTenantResolverTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<TenantResolutionException>(
-            () => compositeResolver.ResolveTenantAsync(context));
+            () => compositeResolver.ResolveTenantAsync(context, default));
         
         Assert.Contains("All tenant resolution strategies failed", exception.Message);
         Assert.Equal("Composite", exception.ResolutionMethod);
@@ -154,14 +154,14 @@ public class CompositeTenantResolverTests
         var systemContext = TenantContext.SystemContext("System");
         var context = new DefaultHttpContext();
         
-        _mockResolver1.Setup(x => x.ResolveTenantAsync(context))
+        _mockResolver1.Setup(x => x.ResolveTenantAsync(context, default))
                      .ReturnsAsync(systemContext);
         
         var resolvers = new[] { _mockResolver1.Object, _mockResolver2.Object };
         var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
 
         // Act
-        var result = await compositeResolver.ResolveTenantAsync(context);
+        var result = await compositeResolver.ResolveTenantAsync(context, default);
 
         // Assert
         Assert.True(result.IsSystemContext);

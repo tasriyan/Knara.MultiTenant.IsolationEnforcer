@@ -28,7 +28,7 @@ public class JwtTenantResolverTests
         context.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context);
+        var result = await _resolver.ResolveTenantAsync(context, default);
 
         // Assert
         Assert.True(result.IsSystemContext);
@@ -49,7 +49,7 @@ public class JwtTenantResolverTests
         context.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context);
+        var result = await _resolver.ResolveTenantAsync(context, default);
 
         // Assert
         Assert.False(result.IsSystemContext);
@@ -71,7 +71,7 @@ public class JwtTenantResolverTests
         context.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context);
+        var result = await _resolver.ResolveTenantAsync(context, default);
 
         // Assert - System admin takes precedence
         Assert.True(result.IsSystemContext);
@@ -92,7 +92,7 @@ public class JwtTenantResolverTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<TenantResolutionException>(
-            () => _resolver.ResolveTenantAsync(context));
+            () => _resolver.ResolveTenantAsync(context, default));
         
         Assert.Equal("No tenant information found in JWT token", exception.Message);
         Assert.Equal("JWT token missing tenant_id claim", exception.AttemptedTenantIdentifier);
@@ -109,7 +109,7 @@ public class JwtTenantResolverTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<TenantResolutionException>(
-            () => _resolver.ResolveTenantAsync(context));
+            () => _resolver.ResolveTenantAsync(context, default));
         
         Assert.Equal("No tenant information found in JWT token", exception.Message);
         Assert.Equal("JWT token missing tenant_id claim", exception.AttemptedTenantIdentifier);
@@ -125,7 +125,7 @@ public class JwtTenantResolverTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<TenantResolutionException>(
-            () => _resolver.ResolveTenantAsync(context));
+            () => _resolver.ResolveTenantAsync(context, default));
         
         Assert.Equal("No tenant information found in JWT token", exception.Message);
         Assert.Equal("JWT token missing tenant_id claim", exception.AttemptedTenantIdentifier);
@@ -148,7 +148,7 @@ public class JwtTenantResolverTests
         context.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context);
+        var result = await _resolver.ResolveTenantAsync(context, default);
 
         // Assert - Should use first valid claim (tenant_id)
         Assert.False(result.IsSystemContext);
@@ -156,10 +156,12 @@ public class JwtTenantResolverTests
         Assert.Equal("JWT", result.ContextSource);
     }
 
-    private static HttpContext CreateHttpContext()
+    private static DefaultHttpContext CreateHttpContext()
     {
-        var context = new DefaultHttpContext();
-        context.User = new ClaimsPrincipal(new ClaimsIdentity());
-        return context;
+		var context = new DefaultHttpContext
+		{
+			User = new ClaimsPrincipal(new ClaimsIdentity())
+		};
+		return context;
     }
 }

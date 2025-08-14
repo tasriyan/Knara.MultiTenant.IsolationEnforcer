@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Multitenant.Enforcer;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.Resolvers;
 using System.Security.Claims;
@@ -28,7 +29,7 @@ public class SubdomainTenantResolverTests
         context.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context);
+        var result = await _resolver.ResolveTenantAsync(context, default);
 
         // Assert
         Assert.True(result.IsSystemContext);
@@ -45,11 +46,11 @@ public class SubdomainTenantResolverTests
         var context = CreateHttpContext($"{subdomain}.example.com");
         
         _mockTenantLookupService
-            .Setup(x => x.GetTenantIdByDomainAsync(subdomain))
+            .Setup(x => x.GetTenantIdByDomainAsync(subdomain, default))
             .ReturnsAsync(tenantId);
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context);
+        var result = await _resolver.ResolveTenantAsync(context, default);
 
         // Assert
         Assert.False(result.IsSystemContext);
@@ -68,7 +69,7 @@ public class SubdomainTenantResolverTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<TenantResolutionException>(
-            () => _resolver.ResolveTenantAsync(context));
+            () => _resolver.ResolveTenantAsync(context, default));
         
         Assert.Equal("No subdomain found in request", exception.Message);
         Assert.Equal(host, exception.AttemptedTenantIdentifier);
@@ -83,12 +84,12 @@ public class SubdomainTenantResolverTests
         var context = CreateHttpContext($"{subdomain}.example.com");
         
         _mockTenantLookupService
-            .Setup(x => x.GetTenantIdByDomainAsync(subdomain))
+            .Setup(x => x.GetTenantIdByDomainAsync(subdomain, default))
             .ReturnsAsync((Guid?)null);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<TenantResolutionException>(
-            () => _resolver.ResolveTenantAsync(context));
+            () => _resolver.ResolveTenantAsync(context, default));
         
         Assert.Equal($"No active tenant found for domain: {subdomain}", exception.Message);
         Assert.Equal(subdomain, exception.AttemptedTenantIdentifier);
@@ -106,18 +107,18 @@ public class SubdomainTenantResolverTests
         var context = CreateHttpContext(host);
         
         _mockTenantLookupService
-            .Setup(x => x.GetTenantIdByDomainAsync(expectedSubdomain))
+            .Setup(x => x.GetTenantIdByDomainAsync(expectedSubdomain, default))
             .ReturnsAsync(tenantId);
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context);
+        var result = await _resolver.ResolveTenantAsync(context, default);
 
         // Assert
         Assert.Equal($"Subdomain:{expectedSubdomain}", result.ContextSource);
-        _mockTenantLookupService.Verify(x => x.GetTenantIdByDomainAsync(expectedSubdomain), Times.Once);
+        _mockTenantLookupService.Verify(x => x.GetTenantIdByDomainAsync(expectedSubdomain, default), Times.Once);
     }
 
-    private static HttpContext CreateHttpContext(string host)
+    private static DefaultHttpContext CreateHttpContext(string host)
     {
         var context = new DefaultHttpContext();
         context.Request.Host = new HostString(host);
