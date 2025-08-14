@@ -45,7 +45,7 @@ public class TenantMemoryCache(IMemoryCache memoryCache) : ITenantCache
 
 	public Task SetAsync<T>(string cacheKey, T data, MemoryCacheEntryOptions options, CancellationToken cancellationToken = default)
 	{
-		ArgumentException.ThrowIfNullOrEmpty(cacheKey, nameof(cacheKey));
+		ArgumentException.ThrowIfNullOrWhiteSpace(cacheKey, nameof(cacheKey));
 		ArgumentNullException.ThrowIfNull(options);
 
 		cancellationToken.ThrowIfCancellationRequested();

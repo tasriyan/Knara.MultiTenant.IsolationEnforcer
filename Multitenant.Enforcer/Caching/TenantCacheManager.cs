@@ -11,14 +11,14 @@ public interface ITenantCacheManager
 	Task<int> PrewarmCacheAsync(CancellationToken cancellationToken);
 }
 
-public class TenantCachManager(
+public class TenantCacheManager(
 	ITenantCache cache,
-	ILogger<TenantCachManager> logger,
+	ILogger<TenantCacheManager> logger,
 	IOptions<MultiTenantOptions> options,
 	ITenantDataProvider dataProvider) : ITenantCacheManager
 {
 	private readonly ITenantCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-	private readonly ILogger<TenantCachManager> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+	private readonly ILogger<TenantCacheManager> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	private readonly MultiTenantOptions _options = options.Value;
 	private readonly ITenantDataProvider _dataProvider = dataProvider ?? throw new ArgumentNullException(nameof(dataProvider));
 
