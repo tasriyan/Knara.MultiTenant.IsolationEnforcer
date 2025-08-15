@@ -15,4 +15,10 @@ public static class AuthorizationPolicies
 		.RequireAuthenticatedUser()
 		.RequireClaim("scope", "read")
 		.Build();
+
+	public static AuthorizationPolicy ProjectManager { get; }
+		= new AuthorizationPolicyBuilder()
+		.RequireAuthenticatedUser()
+		.RequireClaim("role", "ProjectManager", "Admin")
+		.Build();
 }

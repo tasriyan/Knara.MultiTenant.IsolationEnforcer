@@ -19,7 +19,11 @@ public sealed class GetProjects : IEndpoint
 				logger.LogInformation("Retrieved {Count} projects for tenant {TenantId}",
 					projects.Count, tenantAccessor.Current.TenantId);
 
-				return Results.Ok(projects.Select(ProjectDto.FromEntity).ToList());
+				return Results.Ok(projects.Select(p => 
+									new ProjectResponse(p.Id, p.TenantId, p.Name, 
+														p.Description, p.ProjectManagerId, p.StartDate,
+														p.EndDate, p.Status, p.CreatedAt))
+								.ToList());
 			})
 		.RequireAuthorization(AuthorizationPolicies.HasReadActionPolicy);
 	}

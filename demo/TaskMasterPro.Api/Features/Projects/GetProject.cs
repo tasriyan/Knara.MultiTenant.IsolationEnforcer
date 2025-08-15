@@ -20,7 +20,23 @@ public sealed class GetProject : IEndpoint
 					return Results.NotFound();
 				}
 
-				return Results.Ok(ProjectDto.FromEntity(project));
+				return Results.Ok(new ProjectWithTasksResponse(
+					project.Id,
+					project.TenantId,
+					project.Name,
+					project.Description,
+					project.ProjectManagerId,
+					project.StartDate,
+					project.EndDate,
+					project.Status,
+					project.CreatedAt,
+					project.Tasks.Select(t => new ProjectTaskResponse(
+						t.Id,
+						t.TenantId,
+						t.Title,
+						t.Description
+					)).ToList()
+					));
 			})
 		.RequireAuthorization(AuthorizationPolicies.HasReadActionPolicy);
 	}

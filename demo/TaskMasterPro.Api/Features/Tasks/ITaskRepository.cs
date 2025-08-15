@@ -6,14 +6,24 @@ namespace TaskMasterPro.Api.Features.Tasks;
 
 public interface ITaskRepository
 {
+	Task<ProjectTask?> GetByIdAsync(Guid id);
 	Task<List<ProjectTask>> GetTasksByProjectAsync(Guid projectId);
 	Task<List<ProjectTask>> GetTasksByUserAsync(Guid userId);
 	Task<List<ProjectTask>> GetOverdueTasksAsync();
 	Task<Dictionary<ProjectTaskStatus, int>> GetTaskCountsByStatusAsync();
+	Task UpdateAsync(ProjectTask task);
 }
 
 public class TaskRepository(TaskMasterDbContext context) : ITaskRepository
 {
+	public async Task<ProjectTask?> GetByIdAsync(Guid id)
+	{
+		return await context.ProjectTasks
+			.Include(t => t.AssignedTo)
+			.Include(t => t.Project)
+			.FirstOrDefaultAsync(t => t.Id == id);
+	}
+
 	public async Task<List<ProjectTask>> GetTasksByProjectAsync(Guid projectId)
 	{
 		return await context.ProjectTasks
@@ -56,5 +66,11 @@ public class TaskRepository(TaskMasterDbContext context) : ITaskRepository
 			.AsNoTracking()
 			.GroupBy(t => t.Status)
 			.ToDictionaryAsync(g => g.Key, g => g.Count());
+	}
+
+	public async Task UpdateAsync(ProjectTask task)
+	{
+		context.ProjectTasks.Update(task);
+		await context.SaveChangesAsync();
 	}
 }
