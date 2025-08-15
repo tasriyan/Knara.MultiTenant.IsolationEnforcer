@@ -9,4 +9,10 @@ public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor)
 		_httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system";
 	public string? UserName =>
 		_httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Name) ?? "system";
+
+	public string? UserEmail =>
+		_httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Email) ?? "system";
+
+	public string? IpAddress =>
+		_httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 }
