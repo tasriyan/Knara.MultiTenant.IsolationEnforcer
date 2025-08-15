@@ -1,6 +1,27 @@
-﻿using TaskMasterPro.Api.Shared;
+﻿using TaskMasterPro.Api.Entities;
+using TaskMasterPro.Api.Shared;
 
 namespace TaskMasterPro.Api.Features.Projects;
+
+public record ProjectWithTasksResponse(
+	Guid Id,
+	Guid TenantId,
+	string Name,
+	string Description,
+	Guid ProjectManagerId,
+	DateTime StartDate,
+	DateTime? EndDate,
+	ProjectStatus Status,
+	DateTime CreatedAt,
+	IEnumerable<ProjectTaskResponse> Tasks
+);
+
+public record ProjectTaskResponse(
+	Guid Id,
+	Guid TenantId,
+	string Name,
+	string Description
+);
 
 public sealed class GetProject : IEndpoint
 {
