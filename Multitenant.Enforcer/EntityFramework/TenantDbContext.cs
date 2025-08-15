@@ -85,7 +85,7 @@ public abstract class TenantDbContext : DbContext
 
 				// Add tenant ID index for performance
 				modelBuilder.Entity(entityType.ClrType)
-						.HasIndex("IX", entityType.ClrType.Name, nameof(ITenantIsolated.TenantId));
+						.HasIndex(nameof(ITenantIsolated.TenantId));
 
 				// Apply global query filter for tenant isolation
 				var method = typeof(TenantDbContext)

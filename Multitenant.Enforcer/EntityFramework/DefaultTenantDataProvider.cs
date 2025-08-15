@@ -4,13 +4,21 @@ using Multitenant.Enforcer.Core;
 
 namespace Multitenant.Enforcer.EntityFramework;
 
+public class DefaultDbContext : DbContext
+{
+	public DefaultDbContext(DbContextOptions<DefaultDbContext> options)
+		: base(options)
+	{
+	}
+}
+
 public class DefaultTenantDataProvider : ITenantDataProvider
 {
-	private readonly DbContext _context;
+	private readonly DefaultDbContext _context;
 	private readonly ILogger<DefaultTenantDataProvider> _logger;
 
 	public DefaultTenantDataProvider(
-		DbContext context,
+		DefaultDbContext context,
 		ILogger<DefaultTenantDataProvider> logger)
 	{
 		_context = context ?? throw new ArgumentNullException(nameof(context));
