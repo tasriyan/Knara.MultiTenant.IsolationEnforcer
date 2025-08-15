@@ -1,12 +1,18 @@
-using TaskMasterPro.Api.Features.Projects;
-using TaskMasterPro.Api.Features.Tasks;
-using TaskMasterPro.Data;
+using Microsoft.EntityFrameworkCore;
 using Multitenant.Enforcer;
 using Multitenant.Enforcer.AspnetCore;
 using Multitenant.Enforcer.Resolvers;
-using Microsoft.EntityFrameworkCore;
+using TaskMasterPro.Api;
+using TaskMasterPro.Api.Features.Projects;
+using TaskMasterPro.Api.Features.Tasks;
+using TaskMasterPro.Api.Shared;
+using TaskMasterPro.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpContextAccessor();
 
 // Database configuration - SQLite In-Memory
 builder.Services.AddDbContext<TaskMasterDbContext>(options =>
@@ -15,6 +21,8 @@ builder.Services.AddDbContext<TaskMasterDbContext>(options =>
 		sqliteOptions.CommandTimeout(builder.Configuration.GetValue<int>("Database:CommandTimeout"));
 	}));
 
+builder.Services.AddDataProvider(builder.Configuration);
+builder.Services.AddCache();
 // Multi-tenant isolation enforcer
 builder.Services.AddMultiTenantIsolation<TaskMasterDbContext>(options =>
 {
@@ -42,12 +50,10 @@ builder.Services.AddAuthorizationBuilder()
 		policy.RequireClaim("scope", "taskmasterpro-api");
 	});
 
-// Register repositories
+// Register application services
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
+builder.Services.RegisterApplicationEndpoints();
 
 var app = builder.Build();
 

@@ -17,4 +17,8 @@
     <ProjectReference Include="..\..\Multitenant.Enforcer\Multitenant.Enforcer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="http demo\TaskMasterPro.Api\" />
+  </ItemGroup>
+
 </Project>

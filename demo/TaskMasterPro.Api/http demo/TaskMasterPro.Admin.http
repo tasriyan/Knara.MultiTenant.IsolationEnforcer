@@ -1,0 +1,393 @@
+﻿@TaskMasterPro_Api_HostAddress_Http = http://localhost:5266
+@TaskMasterPro_Api_HostAddress_Https = https://localhost:7058
+@TaskMasterPro_Api_HostAddress_Docker = http://localhost:5001
+
+### Variables
+@baseUrl = {{TaskMasterPro_Api_HostAddress_Http}}/api
+@testUserId = user-{{$randomInt}}
+
+### Test Tenant IDs (from seeded data)
+@acmeTenantId = 11111111-1111-1111-1111-111111111111
+@techInnovationsTenantId = 22222222-2222-2222-2222-222222222222
+@acmeUserId = 11111111-1111-1111-1111-111111111112
+@techUserId = 22222222-2222-2222-2222-222222222222
+
+### Authentication Tokens
+### Create JWT tokens with different roles and tenant access:
+
+### System Admin Token (can access all tenants)
+### dotnet user-jwts create --scope "taskmasterpro-api" --claim "role=SystemAdmin" --claim "tenant_id={{acmeTenantId}}" --claim "sub=admin-123" --claim "name=System Admin" --claim "email=admin@system.com" --name "SystemAdmin" --project "demo/TaskMasterPro.Api"
+@systemAdminJwt = eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkRGREYxQzY5NzJBRDY4RTQ3RDA5Qzc4MEM0MDQ0MDQ4RkU2MkNCNDEifQ.eyJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIiwiYXVkIjoidGFza21hc3RlcnByb19hcGkiLCJzdWIiOiJhZG1pbi0xMjMiLCJuYW1lIjoiU3lzdGVtIEFkbWluIiwiZW1haWwiOiJhZG1pbkBzeXN0ZW0uY29tIiwicm9sZSI6IlN5c3RlbUFkbWluIiwidGVuYW50X2lkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwiaWF0IjoxNjk4ODQ0ODAwLCJleHAiOjE3MzA0NjcyMDB9
+
+### Regular User Token - Acme Corporation
+### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --claim "role=Member" --claim "tenant_id={{acmeTenantId}}" --claim "sub={{acmeUserId}}" --claim "name=John Doe" --claim "email=john.doe@acme.com" --name "AcmeUser" --project "demo/TaskMasterPro.Api"
+@acmeUserJwt = eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkRGREYxQzY5NzJBRDY4RTQ3RDA5Qzc4MEM0MDQ0MDQ4RkU2MkNCNDEifQ.eyJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIiwiYXVkIjoidGFza21hc3RlcnByb19hcGkiLCJzdWIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTIiLCJuYW1lIjoiSm9obiBEb2UiLCJlbWFpbCI6ImpvaG4uZG9lQGFjbWUuY29tIiwicm9sZSI6Ik1lbWJlciIsInRlbmFudF9pZCI6IjExMTExMTExLTExMTEtMTExMS0xMTExLTExMTExMTExMTExMSIsInNjb3BlIjpbInRhc2ttYXN0ZXJwcm9fYXBpIiwicmVhZCJdLCJpYXQiOjE2OTg4NDQ4MDAsImV4cCI6MTczMDQ2NzIwMH0
+
+### Project Manager Token - Acme Corporation  
+### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --scope "write" --claim "role=ProjectManager" --claim "tenant_id={{acmeTenantId}}" --claim "sub=pm-acme-456" --claim "name=Jane Smith" --claim "email=jane.smith@acme.com" --name "AcmeProjectManager" --project "demo/TaskMasterPro.Api"
+@acmeProjectManagerJwt = eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkRGREYxQzY5NzJBRDY4RTQ3RDA5Qzc4MEM0MDQ0MDQ4RkU2MkNCNDEifQ.eyJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIiwiYXVkIjoidGFza21hc3RlcnByb19hcGkiLCJzdWIiOiJwbS1hY21lLTQ1NiIsIm5hbWUiOiJKYW5lIFNtaXRoIiwiZW1haWwiOiJqYW5lLnNtaXRoQGFjbWUuY29tIiwicm9sZSI6IlByb2plY3RNYW5hZ2VyIiwidGVuYW50X2lkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwic2NvcGUiOlsidGFza21hc3RlcnByb19hcGkiLCJyZWFkIiwid3JpdGUiXSwiaWF0IjoxNjk4ODQ0ODAwLCJleHAiOjE3MzA0NjcyMDB9
+
+### Regular User Token - Tech Innovations
+### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --claim "role=Member" --claim "tenant_id={{techInnovationsTenantId}}" --claim "sub={{techUserId}}" --claim "name=Bob Wilson" --claim "email=bob.wilson@techinnovations.com" --name "TechUser" --project "demo/TaskMasterPro.Api"
+@techUserJwt = eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkRGREYxQzY5NzJBRDY4RTQ3RDA5Qzc4MEM0MDQ0MDQ4RkU2MkNCNDEifQ.eyJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIiwiYXVkIjoidGFza21hc3RlcnByb19hcGkiLCJzdWIiOiIyMjIyMjIyMi0yMjIyLTIyMjItMjIyMi0yMjIyMjIyMjIyMjIiLCJuYW1lIjoiQm9iIFdpbHNvbiIsImVtYWlsIjoiYm9iLndpbHNvbkB0ZWNoaW5ub3ZhdGlvbnMuY29tIiwicm9sZSI6Ik1lbWJlciIsInRlbmFudF9pZCI6IjIyMjIyMjIyLTIyMjItMjIyMi0yMjIyLTIyMjIyMjIyMjIyMiIsInNjb3BlIjpbInRhc2ttYXN0ZXJwcm9fYXBpIiwicmVhZCJdLCJpYXQiOjE2OTg4NDQ4MDAsImV4cCI6MTczMDQ2NzIwMH0
+
+### Invalid/Expired Token for negative testing
+@invalidJwt = eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJpbnZhbGlkIn0.invalid
+
+### =================================================================
+### 🛡️ ADMIN ENDPOINTS - CROSS-TENANT ACCESS TESTS
+### =================================================================
+
+### ✅ TEST 1: GetAllCompanies - System Admin Success
+GET {{baseUrl}}/admin/companies
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+
+### ❌ TEST 2: GetAllCompanies - Regular User Forbidden (Acme)
+# @name GetCompaniesRegularUser
+GET {{baseUrl}}/admin/companies
+Authorization: Bearer {{acmeUserJwt}}
+Host: acme.localhost:5266
+
+###
+
+### ❌ TEST 3: GetAllCompanies - Project Manager Forbidden
+# @name GetCompaniesProjectManager  
+GET {{baseUrl}}/admin/companies
+Authorization: Bearer {{acmeProjectManagerJwt}}
+Host: acme.localhost:5266
+
+###
+
+### ❌ TEST 4: GetAllCompanies - Different Tenant User Forbidden
+# @name GetCompaniesDifferentTenant
+GET {{baseUrl}}/admin/companies
+Authorization: Bearer {{techUserJwt}}
+Host: techinnovations.localhost:5266
+
+###
+
+### ❌ TEST 5: GetAllCompanies - No Authentication
+# @name GetCompaniesNoAuth
+GET {{baseUrl}}/admin/companies
+Host: admin.localhost:5266
+
+###
+
+### ❌ TEST 6: GetAllCompanies - Invalid Token
+# @name GetCompaniesInvalidToken
+GET {{baseUrl}}/admin/companies
+Authorization: Bearer {{invalidJwt}}
+Host: admin.localhost:5266
+
+### =================================================================
+### 🔍 AUDIT LOGS TESTS
+### =================================================================
+
+### ✅ TEST 7: GetAuditLogs - System Admin Success (All logs)
+# @name GetAuditLogsAll
+GET {{baseUrl}}/admin/audit-logs
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+
+###
+
+### ✅ TEST 8: GetAuditLogs - System Admin with Tenant Filter
+# @name GetAuditLogsTenantFilter
+GET {{baseUrl}}/admin/audit-logs?tenantId={{acmeTenantId}}
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+
+###
+
+### ✅ TEST 9: GetAuditLogs - System Admin with Date Filter
+# @name GetAuditLogsDateFilter
+GET {{baseUrl}}/admin/audit-logs?fromDate=2024-01-01T00:00:00Z
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+
+###
+
+### ✅ TEST 10: GetAuditLogs - System Admin with Multiple Filters
+# @name GetAuditLogsMultipleFilters
+GET {{baseUrl}}/admin/audit-logs?tenantId={{acmeTenantId}}&fromDate=2024-01-01T00:00:00Z&take=50
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+
+###
+
+### ❌ TEST 11: GetAuditLogs - Regular User Forbidden
+# @name GetAuditLogsRegularUser
+GET {{baseUrl}}/admin/audit-logs
+Authorization: Bearer {{acmeUserJwt}}
+Host: acme.localhost:5266
+
+###
+
+### ❌ TEST 12: GetAuditLogs - Project Manager Forbidden
+# @name GetAuditLogsProjectManager
+GET {{baseUrl}}/admin/audit-logs
+Authorization: Bearer {{acmeProjectManagerJwt}}
+Host: acme.localhost:5266
+
+### =================================================================
+### 📊 TENANT STATISTICS TESTS
+### =================================================================
+
+### ✅ TEST 13: GetTenantStats - System Admin Success
+# @name GetTenantStatsSuccess
+GET {{baseUrl}}/admin/tenant-statistics
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+
+###
+
+### ❌ TEST 14: GetTenantStats - Regular User Forbidden
+# @name GetTenantStatsRegularUser
+GET {{baseUrl}}/admin/tenant-statistics
+Authorization: Bearer {{acmeUserJwt}}
+Host: acme.localhost:5266
+
+###
+
+### ❌ TEST 15: GetTenantStats - Project Manager Forbidden
+# @name GetTenantStatsProjectManager
+GET {{baseUrl}}/admin/tenant-statistics
+Authorization: Bearer {{acmeProjectManagerJwt}}
+Host: acme.localhost:5266
+
+###
+
+### ❌ TEST 16: GetTenantStats - Cross-Tenant User Forbidden
+# @name GetTenantStatsCrossTenant
+GET {{baseUrl}}/admin/tenant-statistics
+Authorization: Bearer {{techUserJwt}}
+Host: techinnovations.localhost:5266
+
+### =================================================================
+### 👤 USER MIGRATION TESTS
+### =================================================================
+
+### ✅ TEST 17: MigrateUser - System Admin Success
+# @name MigrateUserSuccess
+POST {{baseUrl}}/admin/migrate-user
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+Content-Type: application/json
+
+{
+  "userId": "{{acmeUserId}}",
+  "fromTenantId": "{{acmeTenantId}}",
+  "toTenantId": "{{techInnovationsTenantId}}"
+}
+
+###
+
+### ✅ TEST 18: MigrateUser - Migrate Back (Rollback previous test)
+# @name MigrateUserRollback
+POST {{baseUrl}}/admin/migrate-user
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+Content-Type: application/json
+
+{
+  "userId": "{{acmeUserId}}",
+  "fromTenantId": "{{techInnovationsTenantId}}",
+  "toTenantId": "{{acmeTenantId}}"
+}
+
+###
+
+### ❌ TEST 19: MigrateUser - Non-Existent User
+# @name MigrateUserNotFound
+POST {{baseUrl}}/admin/migrate-user
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+Content-Type: application/json
+
+{
+  "userId": "99999999-9999-9999-9999-999999999999",
+  "fromTenantId": "{{acmeTenantId}}",
+  "toTenantId": "{{techInnovationsTenantId}}"
+}
+
+###
+
+### ❌ TEST 20: MigrateUser - Invalid Tenant IDs
+# @name MigrateUserInvalidTenant
+POST {{baseUrl}}/admin/migrate-user
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+Content-Type: application/json
+
+{
+  "userId": "{{acmeUserId}}",
+  "fromTenantId": "99999999-9999-9999-9999-999999999999",
+  "toTenantId": "{{techInnovationsTenantId}}"
+}
+
+###
+
+### ❌ TEST 21: MigrateUser - Regular User Forbidden
+# @name MigrateUserRegularUserForbidden
+POST {{baseUrl}}/admin/migrate-user
+Authorization: Bearer {{acmeUserJwt}}
+Host: acme.localhost:5266
+Content-Type: application/json
+
+{
+  "userId": "{{acmeUserId}}",
+  "fromTenantId": "{{acmeTenantId}}",
+  "toTenantId": "{{techInnovationsTenantId}}"
+}
+
+###
+
+### ❌ TEST 22: MigrateUser - Project Manager Forbidden
+# @name MigrateUserProjectManagerForbidden
+POST {{baseUrl}}/admin/migrate-user
+Authorization: Bearer {{acmeProjectManagerJwt}}
+Host: acme.localhost:5266
+Content-Type: application/json
+
+{
+  "userId": "{{acmeUserId}}",
+  "fromTenantId": "{{acmeTenantId}}",
+  "toTenantId": "{{techInnovationsTenantId}}"
+}
+
+###
+
+### ❌ TEST 23: MigrateUser - Invalid JSON Payload
+# @name MigrateUserInvalidPayload
+POST {{baseUrl}}/admin/migrate-user
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+Content-Type: application/json
+
+{
+  "userId": "invalid-guid",
+  "fromTenantId": "{{acmeTenantId}}"
+  // Missing toTenantId and invalid JSON
+}
+
+###
+
+### ❌ TEST 24: MigrateUser - Missing Authorization Header
+# @name MigrateUserNoAuth
+POST {{baseUrl}}/admin/migrate-user
+Host: admin.localhost:5266
+Content-Type: application/json
+
+{
+  "userId": "{{acmeUserId}}",
+  "fromTenantId": "{{acmeTenantId}}",
+  "toTenantId": "{{techInnovationsTenantId}}"
+}
+
+### =================================================================
+### 🌐 SUBDOMAIN-BASED TENANT RESOLUTION TESTS
+### =================================================================
+
+### ✅ TEST 25: Companies via ACME subdomain (System Admin)
+# @name GetCompaniesByAcmeSubdomain
+GET {{baseUrl}}/admin/companies
+Authorization: Bearer {{systemAdminJwt}}
+Host: acme.localhost:5266
+
+###
+
+### ✅ TEST 26: Companies via Tech Innovations subdomain (System Admin)
+# @name GetCompaniesByTechSubdomain
+GET {{baseUrl}}/admin/companies
+Authorization: Bearer {{systemAdminJwt}}
+Host: techinnovations.localhost:5266
+
+###
+
+### ❌ TEST 27: Companies via invalid subdomain
+# @name GetCompaniesByInvalidSubdomain
+GET {{baseUrl}}/admin/companies
+Authorization: Bearer {{systemAdminJwt}}
+Host: nonexistent.localhost:5266
+
+###
+
+### ❌ TEST 28: Companies via www subdomain (should be excluded)
+# @name GetCompaniesByWwwSubdomain
+GET {{baseUrl}}/admin/companies
+Authorization: Bearer {{systemAdminJwt}}
+Host: www.localhost:5266
+
+### =================================================================
+### 🔄 CROSS-TENANT OPERATION VALIDATION TESTS
+### =================================================================
+
+### ✅ TEST 29: Verify audit log creation after migration
+# @name VerifyAuditLogAfterMigration
+GET {{baseUrl}}/admin/audit-logs?tenantId={{acmeTenantId}}&take=5
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+
+###
+
+### ✅ TEST 30: Verify tenant statistics include all tenants
+# @name VerifyTenantStatsIncludeAll
+GET {{baseUrl}}/admin/tenant-statistics
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+
+### =================================================================
+### 🚨 ERROR HANDLING AND EDGE CASES
+### =================================================================
+
+### ❌ TEST 31: Malformed Authorization Header
+# @name MalformedAuth
+GET {{baseUrl}}/admin/companies
+Authorization: Malformed {{systemAdminJwt}}
+Host: admin.localhost:5266
+
+###
+
+### ❌ TEST 32: Empty Authorization Header
+# @name EmptyAuth
+GET {{baseUrl}}/admin/companies
+Authorization: Bearer 
+Host: admin.localhost:5266
+
+###
+
+### ❌ TEST 33: Wrong HTTP Method for migration
+# @name WrongHttpMethod
+GET {{baseUrl}}/admin/migrate-user
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+
+###
+
+### ❌ TEST 34: MigrateUser with GET parameters instead of POST body
+# @name MigrateUserWrongParams
+POST {{baseUrl}}/admin/migrate-user?userId={{acmeUserId}}&fromTenantId={{acmeTenantId}}&toTenantId={{techInnovationsTenantId}}
+Authorization: Bearer {{systemAdminJwt}}
+Host: admin.localhost:5266
+
+### =================================================================
+### 📝 EXPECTED RESULTS SUMMARY
+### =================================================================
+#
+# ✅ SUCCESS (200/201) - Tests 1, 7-10, 13, 17-18, 25-26, 29-30
+# ❌ FORBIDDEN (403) - Tests 2-4, 11-12, 14-16, 21-22  
+# ❌ UNAUTHORIZED (401) - Tests 5-6, 24, 31-32
+# ❌ NOT FOUND (404) - Tests 19, 27-28
+# ❌ BAD REQUEST (400) - Tests 20, 23, 33-34
+#
+# Key Validation Points:
+# 1. Only SystemAdmin role can access admin endpoints
+# 2. Cross-tenant operations require proper authorization
+# 3. Subdomain resolution works correctly
+# 4. Audit logs are created for admin operations
+# 5. Tenant statistics show data across all tenants
+# 6. User migration updates tenant ownership correctly
+# 7. All unauthorized access attempts are properly rejected
+#
+### =================================================================
