@@ -4,9 +4,6 @@ using Multitenant.Enforcer.Core;
 
 namespace Multitenant.Enforcer.Resolvers;
 
-/// <summary>
-/// Tenant resolver that extracts tenant information from subdomain.
-/// </summary>
 public class SubdomainTenantResolver(
 	ILogger<SubdomainTenantResolver> logger,
 	ITenantLookupService tenantLookupService) : ITenantResolver

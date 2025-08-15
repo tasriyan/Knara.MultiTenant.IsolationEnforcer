@@ -4,9 +4,6 @@ using Multitenant.Enforcer.Core;
 
 namespace Multitenant.Enforcer.Resolvers;
 
-/// <summary>
-/// Composite tenant resolver that tries multiple resolution strategies.
-/// </summary>
 public class CompositeTenantResolver(ITenantResolver[] resolvers, ILogger<CompositeTenantResolver> logger) : ITenantResolver
 {
 	private readonly ITenantResolver[] _resolvers = resolvers ?? throw new ArgumentNullException(nameof(resolvers));

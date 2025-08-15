@@ -1,8 +1,5 @@
 namespace Multitenant.Enforcer.PerformanceMonitor;
 
-/// <summary>
-/// Performance monitoring configuration.
-/// </summary>
 public class PerformanceMonitoringOptions
 {
 	/// Whether performance monitoring is enabled.

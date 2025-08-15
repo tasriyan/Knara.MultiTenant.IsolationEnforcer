@@ -5,9 +5,6 @@ using System.Security.Claims;
 
 namespace Multitenant.Enforcer.AspnetCore;
 
-/// <summary>
-/// Manage cross-tenant operations with proper authorization.
-/// </summary>
 public interface ICrossTenantOperationManager
 {
 	/// <summary>

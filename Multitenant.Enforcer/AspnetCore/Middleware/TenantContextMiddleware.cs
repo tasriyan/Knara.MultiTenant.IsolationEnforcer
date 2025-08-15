@@ -5,10 +5,6 @@ using Multitenant.Enforcer.Resolvers;
 
 namespace Multitenant.Enforcer.AspnetCore;
 
-/// <summary>
-/// Middleware that resolves and sets the tenant context for each request.
-/// Must be registered before authentication middleware.
-/// </summary>
 public class TenantContextMiddleware
 {
 	private readonly RequestDelegate _next;
@@ -28,11 +24,9 @@ public class TenantContextMiddleware
 	{
 		try
 		{
-			// Resolve tenant context for this request
 			var tenantContext = await tenantResolver.ResolveTenantAsync(context, cancellationToken);
 			tenantAccessor.SetContext(tenantContext);
 
-			// Add tenant info to structured logging context
 			using (_logger.BeginScope(new Dictionary<string, object>
 			{
 				["TenantId"] = tenantContext.TenantId,
@@ -69,7 +63,7 @@ public class TenantContextMiddleware
 
 	private static async Task HandleTenantResolutionError(HttpContext context, TenantResolutionException ex)
 	{
-		context.Response.StatusCode = 400; // Bad Request
+		context.Response.StatusCode = 400; 
 		context.Response.ContentType = "application/json";
 
 		var errorResponse = new
@@ -88,7 +82,7 @@ public class TenantContextMiddleware
 
 	private static async Task HandleUnexpectedError(HttpContext context, Exception ex)
 	{
-		context.Response.StatusCode = 500; // Internal Server Error
+		context.Response.StatusCode = 500; 
 		context.Response.ContentType = "application/json";
 
 		var errorResponse = new

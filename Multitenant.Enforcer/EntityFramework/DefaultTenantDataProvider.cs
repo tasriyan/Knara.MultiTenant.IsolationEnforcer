@@ -4,10 +4,6 @@ using Multitenant.Enforcer.Core;
 
 namespace Multitenant.Enforcer.EntityFramework;
 
-/// <summary>
-/// Provides tenant data retrieval functionality using Entity Framework.
-/// </summary>
-/// <remarks>Generates unfiltered queries.</remarks>
 public class DefaultTenantDataProvider : ITenantDataProvider
 {
 	private readonly DbContext _context;
@@ -21,7 +17,6 @@ public class DefaultTenantDataProvider : ITenantDataProvider
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
-	// This overload allows for additional filtering via a predicate
 	public async Task<Guid?> GetActiveTenantIdByDomainAsync(string domain, 
 				System.Linq.Expressions.Expression<Func<TenantEntity, bool>>? predicate = null,  
 				CancellationToken cancellationToken = default)

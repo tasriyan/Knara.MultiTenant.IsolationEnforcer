@@ -2,9 +2,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Multitenant.Enforcer.PerformanceMonitor;
 
-/// <summary>
-/// Default metrics collector that logs to structured logging.
-/// </summary>
 public class LoggingMetricsCollector(ILogger<LoggingMetricsCollector> logger) : ITenantMetricsCollector
 {
 	private readonly ILogger<LoggingMetricsCollector> _logger = logger ?? throw new ArgumentNullException(nameof(logger));

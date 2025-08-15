@@ -5,46 +5,12 @@ using System.Diagnostics;
 
 namespace Multitenant.Enforcer.PerformanceMonitor;
 
-/// <summary>
-/// Interface for monitoring tenant-related performance metrics.
-/// </summary>
 public interface ITenantPerformanceMonitor
 {
-	/// <summary>
-	/// Records a query execution for performance monitoring.
-	/// </summary>
-	/// <param name="entityType">The entity type being queried</param>
-	/// <param name="queryType">The type of query (GetAll, Find, etc.)</param>
-	/// <param name="executionTime">Query execution time</param>
-	/// <param name="rowsReturned">Number of rows returned</param>
-	/// <param name="tenantFilterApplied">Whether tenant filtering was applied</param>
 	void RecordQueryExecution(string entityType, string queryType, TimeSpan executionTime, int rowsReturned, bool tenantFilterApplied);
-
-	/// <summary>
-	/// Records a query execution asynchronously.
-	/// </summary>
 	Task RecordQueryExecutionAsync(string entityType, string queryType, TimeSpan executionTime, int rowsReturned, bool tenantFilterApplied);
-
-	/// <summary>
-	/// Records a tenant isolation violation.
-	/// </summary>
-	/// <param name="violationType">Type of violation</param>
-	/// <param name="entityType">Entity type involved</param>
-	/// <param name="details">Additional details</param>
 	void RecordViolation(string violationType, string entityType, string details);
-
-	/// <summary>
-	/// Records cross-tenant operation execution.
-	/// </summary>
-	/// <param name="operation">Operation name</param>
-	/// <param name="justification">Business justification</param>
-	/// <param name="executionTime">Execution time</param>
 	void RecordCrossTenantOperation(string operation, string justification, TimeSpan executionTime);
-
-	/// <summary>
-	/// Gets performance statistics for the current tenant.
-	/// </summary>
-	/// <returns>Performance statistics</returns>
 	Task<TenantPerformanceStats> GetStatsAsync();
 }
 

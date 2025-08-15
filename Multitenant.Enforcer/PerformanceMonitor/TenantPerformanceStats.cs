@@ -1,8 +1,5 @@
 namespace Multitenant.Enforcer.PerformanceMonitor;
 
-/// <summary>
-/// Performance statistics for a tenant.
-/// </summary>
 public class TenantPerformanceStats
 {
 	public Guid TenantId { get; set; }

@@ -4,9 +4,6 @@ using Multitenant.Enforcer.Core;
 
 namespace Multitenant.Enforcer.Resolvers;
 
-/// <summary>
-/// Tenant resolver that extracts tenant information from JWT token claims.
-/// </summary>
 public class JwtTenantResolver(ILogger<JwtTenantResolver> logger) : ITenantResolver
 {
 	private readonly ILogger<JwtTenantResolver> _logger = logger ?? throw new ArgumentNullException(nameof(logger));

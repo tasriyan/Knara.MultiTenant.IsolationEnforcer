@@ -1,8 +1,5 @@
 namespace Multitenant.Enforcer.PerformanceMonitor;
 
-/// <summary>
-/// Interface for collecting tenant metrics for dashboards and alerting.
-/// </summary>
 public interface ITenantMetricsCollector
     {
         void RecordQueryMetrics(Guid tenantId, string entityType, string queryType, int executionTimeMs, int rowsReturned);
