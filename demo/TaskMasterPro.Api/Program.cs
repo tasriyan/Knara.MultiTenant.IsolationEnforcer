@@ -1,24 +1,28 @@
-using TaskMasterPro.Infrastructure.Data;
+using TaskMasterPro.Api.Features.Projects;
+using TaskMasterPro.Api.Features.Tasks;
+using TaskMasterPro.Data;
+using Multitenant.Enforcer;
+using Multitenant.Enforcer.AspnetCore;
+using Multitenant.Enforcer.Resolvers;
 using Microsoft.EntityFrameworkCore;
-using MultiTenant.Enforcer.AspNetCore;
-using MultiTenant.Enforcer.EntityFramework;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Database configuration
+// Database configuration - SQLite In-Memory
 builder.Services.AddDbContext<TaskMasterDbContext>(options =>
-	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-		npgsqlOptions =>
-		{
-			npgsqlOptions.EnableRetryOnFailure(maxRetryCount: 3);
-			npgsqlOptions.CommandTimeout(30);
-		}));
+	options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"), sqliteOptions =>
+	{
+		sqliteOptions.CommandTimeout(builder.Configuration.GetValue<int>("Database:CommandTimeout"));
+	}));
 
 // Multi-tenant isolation enforcer
 builder.Services.AddMultiTenantIsolation<TaskMasterDbContext>(options =>
 {
 	options.DefaultTenantResolver = typeof(SubdomainTenantResolver);
-	options.EnablePerformanceMonitoring = true;
+	options.PerformanceMonitoring = new Multitenant.Enforcer.PerformanceMonitor.PerformanceMonitoringOptions
+	{
+		Enabled = true,
+	};
 	options.LogViolations = true;
 });
 
@@ -27,36 +31,26 @@ builder.Services.AddAuthentication("Bearer")
 	.AddJwtBearer("Bearer", options =>
 	{
 		options.Authority = builder.Configuration["IdentityServer:Authority"];
-		options.ApiName = "taskmaster_api";
-		options.RequireHttpsMetadata = false; // Dev only
+		options.Audience = builder.Configuration["Authentication:Bearer:Audience"];
+		options.RequireHttpsMetadata = builder.Configuration.GetValue<bool>("Authentication:Bearer:RequireHttpsMetadata");
 	});
 
-builder.Services.AddAuthorization(options =>
-{
-	options.AddPolicy("ProjectManager", policy =>
-		policy.RequireClaim("role", "ProjectManager", "Admin"));
-
-	options.AddPolicy("SystemAdmin", policy =>
-		policy.RequireClaim("role", "SystemAdmin"));
-});
+builder.Services.AddAuthorizationBuilder()
+	.AddPolicy("ApiScope", policy =>
+	{
+		policy.RequireAuthenticatedUser();
+		policy.RequireClaim("scope", "taskmasterpro-api");
+	});
 
 // Register repositories
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
-builder.Services.AddScoped<IAdminAuditLogRepository, AdminAuditLogRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure pipeline
-if (app.Environment.IsDevelopment())
-{
-	app.UseSwagger();
-	app.UseSwaggerUI();
-}
 
 // CRITICAL: Multi-tenant middleware must come before authentication
 app.UseMultiTenantIsolation();
@@ -70,6 +64,9 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
 	var context = scope.ServiceProvider.GetRequiredService<TaskMasterDbContext>();
+	
+	// For in-memory SQLite, we need to open the connection to keep the database alive
+	await context.Database.OpenConnectionAsync();
 	await context.Database.EnsureCreatedAsync();
 }
 
