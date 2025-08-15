@@ -2,10 +2,21 @@
 using Microsoft.EntityFrameworkCore;
 using Multitenant.Enforcer.AspnetCore;
 using Multitenant.Enforcer.Core;
+using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
 using TaskMasterPro.Data;
 
 namespace TaskMasterPro.Api.Features.Admin;
+
+public record TenantStatisticsResponse(
+	Guid TenantId,
+	string CompanyName,
+	CompanyTier Tier,
+	int UserCount,
+	int ProjectCount,
+	int TaskCount,
+	DateTime CreatedAt,
+	bool IsActive);
 
 [AllowCrossTenantAccess("System admin needs tenant usage statistics", "SystemAdmin")]
 public sealed class GetTenantStats : IEndpoint
@@ -23,18 +34,16 @@ public sealed class GetTenantStats : IEndpoint
 				return await crossTenantManager.ExecuteCrossTenantOperationAsync(async () =>
 				{
 					var statistics = await context.Companies
-						.Select(company => new TenantStatisticsDto
-						{
-							TenantId = company.Id,
-							CompanyName = company.Name,
-							Tier = company.Tier,
-							UserCount = context.Users.Count(u => u.TenantId == company.Id),
-							ProjectCount = context.Projects.Count(p => p.TenantId == company.Id),
-							TaskCount = context.ProjectTasks.Count(t => t.TenantId == company.Id),
-							CreatedAt = company.CreatedAt,
-							IsActive = company.IsActive
-						})
-						.ToListAsync();
+						.Select(company => new TenantStatisticsResponse(
+							company.Id, 
+							company.Name, 
+							company.Tier,
+							context.Users.Count(u => u.TenantId == company.Id),
+							context.Projects.Count(p => p.TenantId == company.Id),
+							context.ProjectTasks.Count(t => t.TenantId == company.Id),
+							company.CreatedAt,
+							company.IsActive
+						)).ToListAsync();
 
 					return Results.Ok(statistics);
 				}, "Admin retrieving tenant statistics");

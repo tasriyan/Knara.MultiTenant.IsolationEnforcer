@@ -8,6 +8,8 @@ using TaskMasterPro.Data;
 
 namespace TaskMasterPro.Api.Features.Admin;
 
+public record MigrateUserDto(Guid UserId, Guid FromTenantId, Guid ToTenantId);
+
 [AllowCrossTenantAccess("System admin can migrate users between tenants", "SystemAdmin")]
 public sealed class MigrateUser : IEndpoint
 {
@@ -18,6 +20,7 @@ public sealed class MigrateUser : IEndpoint
 					ILogger<MigrateUser> logger,
 					TaskMasterDbContext context,
 					CurrentUserService userSvc,
+					[FromBody] MigrateUserDto dto,
 					[FromQuery] Guid? tenantId = null,
 					[FromQuery] DateTime? fromDate = null,
 					[FromQuery] int take = 100) =>
@@ -48,10 +51,10 @@ public sealed class MigrateUser : IEndpoint
 							Action = "USER_MIGRATION",
 							EntityType = nameof(User),
 							EntityId = user.Id,
-							UserEmail = GetCurrentUserEmail(),
+							UserEmail = userSvc.UserEmail,
 							Details = $"Migrated user {user.Email} from {dto.FromTenantId} to {dto.ToTenantId}",
 							Timestamp = DateTime.UtcNow,
-							IpAddress = GetClientIpAddress()
+							IpAddress = userSvc.IpAddress
 						};
 
 						context.AdminAuditLogs.Add(auditLog);
@@ -59,7 +62,7 @@ public sealed class MigrateUser : IEndpoint
 						await transaction.CommitAsync();
 
 						logger.LogWarning("User {UserId} migrated from tenant {FromTenant} to {ToTenant} by {AdminEmail}",
-							dto.UserId, dto.FromTenantId, dto.ToTenantId, GetCurrentUserEmail());
+							dto.UserId, dto.FromTenantId, dto.ToTenantId, userSvc.UserEmail);
 
 						return Results.Ok(new { Message = "User migrated successfully" });
 					}
@@ -72,15 +75,5 @@ public sealed class MigrateUser : IEndpoint
 				}, $"User migration from {dto.FromTenantId} to {dto.ToTenantId}");
 			})
 		.RequireAuthorization(AuthorizationPolicies.SystemAdmin);
-	}
-
-	private string GetCurrentUserEmail()
-	{
-		return User.FindFirst("email")?.Value ?? "system";
-	}
-
-	private string GetClientIpAddress()
-	{
-		return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 	}
 }
