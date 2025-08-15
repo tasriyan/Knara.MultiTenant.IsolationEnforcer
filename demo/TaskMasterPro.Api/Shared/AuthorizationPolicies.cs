@@ -21,4 +21,10 @@ public static class AuthorizationPolicies
 		.RequireAuthenticatedUser()
 		.RequireClaim("role", "ProjectManager", "Admin")
 		.Build();
+
+	public static AuthorizationPolicy SystemAdmin { get; }
+		= new AuthorizationPolicyBuilder()
+		.RequireAuthenticatedUser()
+		.RequireClaim("role", "SystemAdmin")
+		.Build();
 }
