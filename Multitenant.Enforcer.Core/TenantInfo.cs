@@ -1,8 +1,5 @@
 namespace Multitenant.Enforcer.Core;
 
-/// <summary>
-/// Basic tenant information.
-/// </summary>
 public class TenantInfo
 {
 	public Guid Id { get; set; }

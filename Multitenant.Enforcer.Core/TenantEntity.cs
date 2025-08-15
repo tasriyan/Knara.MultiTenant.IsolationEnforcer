@@ -1,9 +1,5 @@
 ﻿namespace Multitenant.Enforcer.Core;
 
-/// <summary>
-/// Entity class representing tenant data in the database.
-/// This should match your actual tenant/company entity structure.
-/// </summary>
 public class TenantEntity
 {
 	public Guid Id { get; set; }
