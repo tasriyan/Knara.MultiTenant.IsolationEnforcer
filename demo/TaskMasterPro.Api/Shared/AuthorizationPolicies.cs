@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace TaskMasterPro.Api.Shared;
 
@@ -19,12 +20,12 @@ public static class AuthorizationPolicies
 	public static AuthorizationPolicy ProjectManager { get; }
 		= new AuthorizationPolicyBuilder()
 		.RequireAuthenticatedUser()
-		.RequireClaim("role", "ProjectManager", "Admin")
+		.RequireRole("ProjectManager", "Admin")
 		.Build();
 
 	public static AuthorizationPolicy SystemAdmin { get; }
 		= new AuthorizationPolicyBuilder()
 		.RequireAuthenticatedUser()
-		.RequireClaim("role", "SystemAdmin")
+		.RequireRole("SystemAdmin")
 		.Build();
 }
