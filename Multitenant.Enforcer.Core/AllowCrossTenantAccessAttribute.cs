@@ -10,6 +10,6 @@ public class AllowCrossTenantAccessAttribute : Attribute
 	public AllowCrossTenantAccessAttribute(string justification, params string[] requiredRoles)
 	{
 		Justification = justification ?? throw new ArgumentNullException(nameof(justification));
-		RequiredRoles = requiredRoles ?? Array.Empty<string>();
+		RequiredRoles = requiredRoles ?? [];
 	}
 }
