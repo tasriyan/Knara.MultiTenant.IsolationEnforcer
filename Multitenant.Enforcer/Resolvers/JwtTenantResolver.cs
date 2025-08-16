@@ -14,7 +14,7 @@ public class JwtTenantResolver(ILogger<JwtTenantResolver> logger) : ITenantResol
 		var user = context.User;
 
 		// Check for system admin access first
-		if (user.HasClaim(ClaimTypes.Role, "SystemAdmin") || user.HasClaim("system_access", "true"))
+		if (user.HasClaim(ClaimTypes.Role, "SystemAdmin") || user.HasClaim("role", "SystemAdmin") || user.HasClaim("system_access", "true"))
 		{
 			_logger.LogDebug("System admin access detected in JWT token");
 			return TenantContext.SystemContext("JWT-System");

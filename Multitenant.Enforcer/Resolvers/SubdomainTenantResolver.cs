@@ -15,7 +15,7 @@ public class SubdomainTenantResolver(
 	public async Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken)
 	{
 		// Check for system admin in JWT first
-		if (context.User.HasClaim(ClaimTypes.Role, "SystemAdmin"))
+		if (context.User.HasClaim(ClaimTypes.Role, "SystemAdmin") || context.User.HasClaim("role", "SystemAdmin"))
 		{
 			return TenantContext.SystemContext("SystemAdmin-JWT");
 		}
