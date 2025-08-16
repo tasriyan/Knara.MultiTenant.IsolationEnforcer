@@ -19,12 +19,11 @@ public class TenantContextMiddleware
 	public async Task InvokeAsync(
 		HttpContext context,
 		ITenantContextAccessor tenantAccessor,
-		ITenantResolver tenantResolver,
-		CancellationToken cancellationToken)
+		ITenantResolver tenantResolver)
 	{
 		try
 		{
-			var tenantContext = await tenantResolver.ResolveTenantAsync(context, cancellationToken);
+			var tenantContext = await tenantResolver.ResolveTenantAsync(context, CancellationToken.None);
 			tenantAccessor.SetContext(tenantContext);
 
 			using (_logger.BeginScope(new Dictionary<string, object>
@@ -82,7 +81,7 @@ public class TenantContextMiddleware
 
 	private static async Task HandleUnexpectedError(HttpContext context, Exception ex)
 	{
-		context.Response.StatusCode = 500; 
+		context.Response.StatusCode = 500; // Internal Server Error
 		context.Response.ContentType = "application/json";
 
 		var errorResponse = new

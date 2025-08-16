@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Multitenant.Enforcer.Core;
+using System.Security.Claims;
 
 namespace Multitenant.Enforcer.Resolvers;
 
@@ -13,7 +14,7 @@ public class JwtTenantResolver(ILogger<JwtTenantResolver> logger) : ITenantResol
 		var user = context.User;
 
 		// Check for system admin access first
-		if (user.HasClaim("role", "SystemAdmin") || user.HasClaim("system_access", "true"))
+		if (user.HasClaim(ClaimTypes.Role, "SystemAdmin") || user.HasClaim("system_access", "true"))
 		{
 			_logger.LogDebug("System admin access detected in JWT token");
 			return TenantContext.SystemContext("JWT-System");

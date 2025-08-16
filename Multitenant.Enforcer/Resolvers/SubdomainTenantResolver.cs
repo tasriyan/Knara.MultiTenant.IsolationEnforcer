@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Multitenant.Enforcer.Core;
+using System.Security.Claims;
 
 namespace Multitenant.Enforcer.Resolvers;
 
@@ -14,7 +15,7 @@ public class SubdomainTenantResolver(
 	public async Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken)
 	{
 		// Check for system admin in JWT first
-		if (context.User.HasClaim("role", "SystemAdmin"))
+		if (context.User.HasClaim(ClaimTypes.Role, "SystemAdmin"))
 		{
 			return TenantContext.SystemContext("SystemAdmin-JWT");
 		}
