@@ -36,7 +36,7 @@ public class TenantContextMiddlewareTests
                          .ReturnsAsync(tenantContext);
 
         // Act
-        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object, CancellationToken.None);
+        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object);
 
         // Assert
         _mockTenantAccessor.Verify(x => x.SetContext(tenantContext), Times.Once);
@@ -54,7 +54,7 @@ public class TenantContextMiddlewareTests
                          .ReturnsAsync(tenantContext);
 
         // Act
-        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object, CancellationToken.None);
+        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object);
 
         // Assert
         _mockTenantAccessor.Verify(x => x.SetContext(tenantContext), Times.Once);
@@ -72,7 +72,7 @@ public class TenantContextMiddlewareTests
                          .ThrowsAsync(exception);
 
         // Act
-        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object, CancellationToken.None);
+        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object);
 
         // Assert
         context.Response.StatusCode.ShouldBe(400);
@@ -93,7 +93,7 @@ public class TenantContextMiddlewareTests
                          .ThrowsAsync(exception);
 
         // Act
-        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object, CancellationToken.None);
+        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object);
 
         // Assert
         context.Response.Body.Seek(0, SeekOrigin.Begin);
@@ -117,7 +117,7 @@ public class TenantContextMiddlewareTests
                          .ThrowsAsync(exception);
 
         // Act
-        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object, CancellationToken.None);
+        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object);
 
         // Assert
         context.Response.StatusCode.ShouldBe(500);
@@ -138,7 +138,7 @@ public class TenantContextMiddlewareTests
                          .ThrowsAsync(exception);
 
         // Act
-        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object, CancellationToken.None);
+        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object);
 
         // Assert
         context.Response.Body.Seek(0, SeekOrigin.Begin);
@@ -161,7 +161,7 @@ public class TenantContextMiddlewareTests
                          .ReturnsAsync(tenantContext);
 
         // Act
-        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object, CancellationToken.None);
+        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object);
 
         // Assert - Verify that BeginScope was called with correct parameters
         _mockLogger.Verify(
@@ -185,7 +185,7 @@ public class TenantContextMiddlewareTests
                          .ReturnsAsync(tenantContext);
 
         // Act
-        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object, CancellationToken.None);
+        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object);
 
         // Assert
         _mockLogger.Verify(
@@ -210,7 +210,7 @@ public class TenantContextMiddlewareTests
                          .ReturnsAsync(tenantContext);
 
         // Act
-        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object, cancellationToken);
+        await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object);
 
         // Assert
         _mockTenantResolver.Verify(x => x.ResolveTenantAsync(context, cancellationToken), Times.Once);
