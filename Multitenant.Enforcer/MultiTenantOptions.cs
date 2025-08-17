@@ -12,6 +12,8 @@ public class MultiTenantOptions
 	public int CacheExpirationMinutes { get; set; } = 5;
 	public PerformanceMonitoringOptions PerformanceMonitoring { get; set; } = new();
 
+	public static MultiTenantOptions DefaultOptions { get; } = new MultiTenantOptions();
+
 	public MultiTenantOptions UseJwtTenantResolver(Action<JwtTenantResolverOptions>? configure = null)
 	{
 		DefaultTenantResolver = typeof(JwtTenantResolver);

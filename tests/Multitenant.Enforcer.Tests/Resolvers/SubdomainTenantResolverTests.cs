@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Multitenant.Enforcer;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.Resolvers;
@@ -17,7 +18,8 @@ public class SubdomainTenantResolverTests
     {
         _mockLogger = new Mock<ILogger<SubdomainTenantResolver>>();
         _mockTenantLookupService = new Mock<ITenantLookupService>();
-        _resolver = new SubdomainTenantResolver(_mockLogger.Object, _mockTenantLookupService.Object, new SubdomainTenantResolverOptions());
+        _resolver = new SubdomainTenantResolver(_mockLogger.Object, _mockTenantLookupService.Object, 
+            Options.Create(SubdomainTenantResolverOptions.DefaultOptions));
     }
 
     [Fact]

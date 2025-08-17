@@ -1,10 +1,14 @@
+using System.Security.Claims;
+
 namespace Multitenant.Enforcer.Resolvers;
 
 public class JwtTenantResolverOptions
 {
-	public string TenantIdClaimType { get; set; } = "tenant_id";
+	public string[] TenantIdClaimTypes { get; set; } = ["tenant_id", "tenantId", "tid"];
 
-	public string SystemAdminClaimType { get; set; } = "role";
+	public string[] SystemAdminClaimTypes { get; set; } = ["role", ClaimTypes.Role];
 
 	public string SystemAdminClaimValue { get; set; } = "SystemAdmin";
+
+	public static JwtTenantResolverOptions DefaultOptions { get; } = new JwtTenantResolverOptions();
 }

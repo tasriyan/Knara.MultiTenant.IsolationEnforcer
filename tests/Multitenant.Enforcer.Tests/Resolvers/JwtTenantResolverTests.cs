@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.Resolvers;
 using System.Security.Claims;
@@ -14,12 +15,11 @@ public class JwtTenantResolverTests
     public JwtTenantResolverTests()
     {
         _mockLogger = new Mock<ILogger<JwtTenantResolver>>();
-        _resolver = new JwtTenantResolver(_mockLogger.Object);
+        _resolver = new JwtTenantResolver(_mockLogger.Object, Options.Create(JwtTenantResolverOptions.DefaultOptions));
     }
 
     [Theory]
     [InlineData("role", "SystemAdmin")]
-    [InlineData("system_access", "true")]
     public async Task ResolveTenantAsync_WithSystemAdminClaims_ReturnsSystemContext(string claimType, string claimValue)
     {
         // Arrange
@@ -32,11 +32,35 @@ public class JwtTenantResolverTests
 
         // Assert
         Assert.True(result.IsSystemContext);
-        Assert.Equal("JWT-System", result.ContextSource);
+        Assert.Equal(TenantContext.DefaultSystemContextSource, result.ContextSource);
         Assert.Equal(Guid.Empty, result.TenantId);
     }
 
-    [Theory]
+	[Theory]
+	[InlineData("system-access", "true")]
+	public async Task ResolveTenantAsync_WithCustomSystemAdminClaims_ReturnsSystemContext(string claimType, string claimValue)
+	{
+		// Arrange
+        var options = new JwtTenantResolverOptions
+        {
+            SystemAdminClaimTypes = [claimType],
+            SystemAdminClaimValue = claimValue
+        };
+		var context = CreateHttpContext();
+		var claims = new[] { new Claim(claimType, claimValue) };
+		context.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
+        var resolver = new JwtTenantResolver(_mockLogger.Object, Options.Create(options));
+
+		// Act
+		var result = await resolver.ResolveTenantAsync(context, default);
+
+		// Assert
+		Assert.True(result.IsSystemContext);
+		Assert.Equal(TenantContext.DefaultSystemContextSource, result.ContextSource);
+		Assert.Equal(Guid.Empty, result.TenantId);
+	}
+
+	[Theory]
     [InlineData("tenant_id")]
     [InlineData("tenantId")]
     [InlineData("tid")]
@@ -75,7 +99,7 @@ public class JwtTenantResolverTests
 
         // Assert - System admin takes precedence
         Assert.True(result.IsSystemContext);
-        Assert.Equal("JWT-System", result.ContextSource);
+        Assert.Equal(TenantContext.DefaultSystemContextSource, result.ContextSource);
         Assert.Equal(Guid.Empty, result.TenantId);
     }
 

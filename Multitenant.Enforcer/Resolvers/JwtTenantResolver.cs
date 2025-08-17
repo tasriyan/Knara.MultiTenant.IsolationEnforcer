@@ -1,33 +1,33 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Multitenant.Enforcer.Core;
-using System.Security.Claims;
 
 namespace Multitenant.Enforcer.Resolvers;
 
-public class JwtTenantResolver(ILogger<JwtTenantResolver> logger) : ITenantResolver
+public class JwtTenantResolver(ILogger<JwtTenantResolver> logger, IOptions<JwtTenantResolverOptions> options) : ITenantResolver
 {
-	private readonly ILogger<JwtTenantResolver> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+	private readonly JwtTenantResolverOptions _options = options?.Value ?? JwtTenantResolverOptions.DefaultOptions;
 
 	public async Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken)
 	{
 		var user = context.User;
 
-		// Check for system admin access first
-		if (user.HasClaim(ClaimTypes.Role, "SystemAdmin") || user.HasClaim("role", "SystemAdmin") || user.HasClaim("system_access", "true"))
+		// Check for system admin access
+		foreach (var claimType in _options.SystemAdminClaimTypes)
 		{
-			_logger.LogDebug("System admin access detected in JWT token");
-			return TenantContext.SystemContext("JWT-System");
+			if (user.HasClaim(c => c.Type == claimType && c.Value == _options.SystemAdminClaimValue))
+			{
+				logger.LogDebug("System admin access detected in JWT token");
+				return TenantContext.SystemContext();
+			}
 		}
 
-		// Look for tenant ID in standard claims
-		var tenantClaim = user.FindFirst("tenant_id") ??
-						 user.FindFirst("tenantId") ??
-						 user.FindFirst("tid");
-
+		// Look for tenant ID claim
+		var tenantClaim = user.FindFirst(c => _options.TenantIdClaimTypes.Any(t => t == c.Type));
 		if (tenantClaim != null && Guid.TryParse(tenantClaim.Value, out var tenantId))
 		{
-			_logger.LogDebug("Tenant {TenantId} resolved from JWT claim {ClaimType}",
+			logger.LogDebug("Tenant {TenantId} resolved from JWT claim {ClaimType}",
 				tenantId, tenantClaim.Type);
 			return TenantContext.ForTenant(tenantId, "JWT");
 		}

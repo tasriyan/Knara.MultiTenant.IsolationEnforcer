@@ -20,7 +20,7 @@ public class TenantLookupService(
 {
 	private readonly ITenantCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
 	private readonly ILogger<TenantLookupService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	private readonly MultiTenantOptions _options = options.Value;
+	private readonly MultiTenantOptions _options = options?.Value ?? MultiTenantOptions.DefaultOptions;
 	private readonly ITenantDataProvider _dataProvider = dataProvider ?? throw new ArgumentNullException(nameof(dataProvider));
 
 	public async Task<Guid?> GetTenantIdByDomainAsync(string domain, CancellationToken cancellationToken)

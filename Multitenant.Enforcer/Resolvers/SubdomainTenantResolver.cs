@@ -1,24 +1,30 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Multitenant.Enforcer.Core;
-using System.Security.Claims;
 
 namespace Multitenant.Enforcer.Resolvers;
 
 public class SubdomainTenantResolver(
 	ILogger<SubdomainTenantResolver> logger,
 	ITenantLookupService tenantLookupService,
-	SubdomainTenantResolverOptions options) : ITenantResolver
+	IOptions<SubdomainTenantResolverOptions> options) : ITenantResolver
 {
-	private readonly ILogger<SubdomainTenantResolver> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	private readonly ITenantLookupService _tenantLookupService = tenantLookupService ?? throw new ArgumentNullException(nameof(tenantLookupService));
+	private readonly SubdomainTenantResolverOptions _options = options?.Value ?? SubdomainTenantResolverOptions.DefaultOptions;
 
 	public async Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken)
 	{
+		var user = context.User;
+
 		// Check for system admin in JWT first
-		if (context.User.HasClaim(ClaimTypes.Role, "SystemAdmin") || context.User.HasClaim("role", "SystemAdmin"))
+		foreach (var claimType in _options.SystemAdminClaimTypes)
 		{
-			return TenantContext.SystemContext("SystemAdmin-JWT");
+			if (user.HasClaim(c => c.Type == claimType && c.Value == _options.SystemAdminClaimValue))
+			{
+				logger.LogDebug("System admin access detected in JWT token");
+				return TenantContext.SystemContext();
+			}
 		}
 
 		var host = context.Request.Host.Host;
@@ -41,7 +47,7 @@ public class SubdomainTenantResolver(
 				"Subdomain");
 		}
 
-		_logger.LogDebug("Tenant {TenantId} resolved from subdomain {Subdomain}",
+		logger.LogDebug("Tenant {TenantId} resolved from subdomain {Subdomain}",
 			tenantId, subdomain);
 
 		return TenantContext.ForTenant(tenantId.Value, $"Subdomain:{subdomain}");
@@ -61,7 +67,7 @@ public class SubdomainTenantResolver(
 		if (parts.Length < 3) return string.Empty;
 
 		// Check if first part should be skipped (www, admin, etc.)
-		if (options.ExcludedSubdomains.Contains(parts[0], StringComparer.OrdinalIgnoreCase))
+		if (_options.ExcludedSubdomains.Contains(parts[0], StringComparer.OrdinalIgnoreCase))
 		{
 			// Use second part as tenant: www.globex.yourapp.com -> "globex"
 			return parts.Length >= 4 ? parts[1] : string.Empty;
