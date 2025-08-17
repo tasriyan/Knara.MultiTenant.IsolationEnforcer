@@ -17,7 +17,7 @@ public class SubdomainTenantResolverTests
     {
         _mockLogger = new Mock<ILogger<SubdomainTenantResolver>>();
         _mockTenantLookupService = new Mock<ITenantLookupService>();
-        _resolver = new SubdomainTenantResolver(_mockLogger.Object, _mockTenantLookupService.Object);
+        _resolver = new SubdomainTenantResolver(_mockLogger.Object, _mockTenantLookupService.Object, new SubdomainTenantResolverOptions());
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public class SubdomainTenantResolverTests
 
     [Theory]
     [InlineData("tenant1.example.com", "tenant1")]
-    [InlineData("api.tenant2.example.com", "api")]
+    [InlineData("api.tenant2.example.com", "tenant2")]
     [InlineData("sub.domain.example.com", "sub")]
     public async Task ExtractSubdomain_WithValidHosts_ExtractsCorrectSubdomain(string host, string expectedSubdomain)
     {
