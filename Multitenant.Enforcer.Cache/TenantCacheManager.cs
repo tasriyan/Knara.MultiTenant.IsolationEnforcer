@@ -13,10 +13,10 @@ public interface ITenantCacheManager
 }
 
 public class TenantCacheManager(
+				ILogger<TenantCacheManager> logger,
 				ITenantCache tenantCache,
 				ITenantStore tenantStore,
-				IOptions<MemoryCacheEntryOptions> options,
-				ILogger<TenantCacheManager> logger) : ITenantCacheManager
+				IOptions<MemoryCacheEntryOptions> options) : ITenantCacheManager
 {
 	private readonly ITenantCache _tenantCache = tenantCache ?? throw new ArgumentNullException(nameof(tenantCache));
 

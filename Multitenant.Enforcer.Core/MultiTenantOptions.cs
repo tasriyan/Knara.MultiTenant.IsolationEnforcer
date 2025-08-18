@@ -1,4 +1,4 @@
-namespace Multitenant.Enforcer.DomainResolvers;
+namespace Multitenant.Enforcer.Core;
 
 public class MultiTenantOptions
 {

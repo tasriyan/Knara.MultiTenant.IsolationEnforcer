@@ -5,7 +5,8 @@ using Multitenant.Enforcer.Core;
 
 namespace Multitenant.Enforcer.DomainResolvers;
 
-public class JwtTenantResolver(ILogger<JwtTenantResolver> logger,
+public class JwtTenantResolver(
+	ILogger<JwtTenantResolver> logger,
 	ITenantResolver subdomainResolver,
 	IOptions<JwtTenantResolverOptions> options) : ITenantResolver
 {
