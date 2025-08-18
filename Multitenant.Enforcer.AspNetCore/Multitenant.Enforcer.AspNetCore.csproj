@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8" />
+    <PackageReference Include="System.Text.Json" Version="9.0.8" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Multitenant.Enforcer.Core\Multitenant.Enforcer.Core.csproj" />
+    <ProjectReference Include="..\Multitenant.Enforcer.DomainResolvers\Multitenant.Enforcer.DomainResolvers.csproj" />
+  </ItemGroup>
+
+</Project>
