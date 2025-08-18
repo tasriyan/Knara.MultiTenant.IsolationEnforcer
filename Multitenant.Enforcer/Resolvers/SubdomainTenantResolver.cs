@@ -39,7 +39,7 @@ public class SubdomainTenantResolver(
 		}
 
 		var tenantId = await _tenantLookupService.GetTenantIdByDomainAsync(subdomain, cancellationToken);
-		if (tenantId == null)
+		if (!tenantId.IsNullOrEmpty())
 		{
 			throw new TenantResolutionException(
 				$"No active tenant found for domain: {subdomain}",
