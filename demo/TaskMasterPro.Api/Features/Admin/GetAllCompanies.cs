@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Multitenant.Enforcer.AspnetCore;
 using Multitenant.Enforcer.Core;
-using TaskMasterPro.Api.Data;
+using Multitenant.Enforcer.EntityFramework;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
 
@@ -16,7 +16,7 @@ public sealed class GetAllCompanies : IEndpoint
 	{
 		app.MapGet("/api/admin/companies",
 			async (ICrossTenantOperationManager crossTenantManager,
-					TaskMasterDbContext context,
+					LookupTenantDbContext context,
 					CurrentUserService userSvc) =>
 			{
 				return await crossTenantManager.ExecuteCrossTenantOperationAsync(async () =>
