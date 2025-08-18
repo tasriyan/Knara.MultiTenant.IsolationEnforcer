@@ -2,8 +2,7 @@
 using Multitenant.Enforcer;
 using Multitenant.Enforcer.Caching;
 using Multitenant.Enforcer.EntityFramework;
-using Multitenant.Enforcer.Resolvers;
-using TaskMasterPro.Data;
+using TaskMasterPro.Api.Data;
 
 namespace TaskMasterPro.Api;
 
@@ -11,44 +10,56 @@ public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection AddMultiTenantEnforcer(this WebApplicationBuilder builder)
 	{
+		var services = builder.Services;
 		// Database configuration - SQLite In-Memory
-		builder.Services.AddDbContext<TaskMasterDbContext>(options =>
+		services.AddDbContext<TaskMasterDbContext>(options =>
 			options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"), sqliteOptions =>
 			{
 				sqliteOptions.CommandTimeout(builder.Configuration.GetValue<int>("Database:CommandTimeout"));
 			}));
 
 		// Multi-tenant dependencies
-		builder.Services.AddDataProvider(builder.Configuration);
-		builder.Services.AddCache();
+		services.AddLoookupTenantDataProvider(builder.Configuration);
+		services.AddLookupTenantCache();
 
-		// Multi-tenant isolation enforcer
-		builder.Services.AddMultiTenantIsolation<TaskMasterDbContext>(options =>
+		// Basic multi-tenant isolation enforcer with default JwtTenantResolverOptions
+		//builder.Services.AddMultiTenantIsolation<TaskMasterDbContext>(options =>
+		//{
+		//	options.DefaultTenantResolver = typeof(JwtTenantResolver);
+		//});
+
+		// Advanced multi-tenant isolation enforcer
+		services.AddMultiTenantIsolation<TaskMasterDbContext>(options =>
 		{
-			options.DefaultTenantResolver = typeof(SubdomainTenantResolver);
+			options.UseSubdomainTenantResolver(config =>
+			{
+				config.CacheMappings = true;
+				config.ExcludedSubdomains = ["www", "api", "admin", "localhost", "localhost:5266", "localhost:7058", "localhost:5001"];
+				config.SystemAdminClaimValue = "SystemAdmin";			
+			});
 			options.PerformanceMonitoring = new Multitenant.Enforcer.PerformanceMonitor.PerformanceMonitoringOptions
 			{
 				Enabled = true,
 			};
 			options.LogViolations = true;
 		});
-		return builder.Services;
+		return services;
 	}
 
-	private static IServiceCollection AddDataProvider(this IServiceCollection services, IConfiguration configuration)
+	private static IServiceCollection AddLoookupTenantDataProvider(this IServiceCollection services, IConfiguration configuration)
 	{
-		services.AddDbContext<DefaultDbContext>(options =>
+		services.AddDbContext<LookupTenantDbContext>(options =>
 			options.UseSqlite(configuration.GetConnectionString("DefaultConnection"), sqliteOptions =>
 			{
 				sqliteOptions.CommandTimeout(configuration.GetValue<int>("Database:CommandTimeout"));
 			}));
 
-		services.AddScoped<ITenantDataProvider, DefaultTenantDataProvider>();
+		services.AddScoped<ITenantDataProvider, LookupTenantDataProvider>();
 
 		return services;
 	}
 
-	private static IServiceCollection AddCache(this IServiceCollection services)
+	private static IServiceCollection AddLookupTenantCache(this IServiceCollection services)
 	{
 		// Register in-memory cache for tenant data
 		services.AddMemoryCache();

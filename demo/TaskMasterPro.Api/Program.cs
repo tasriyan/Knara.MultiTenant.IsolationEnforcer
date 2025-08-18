@@ -2,10 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Multitenant.Enforcer.AspnetCore;
 using Serilog;
 using TaskMasterPro.Api;
+using TaskMasterPro.Api.Data;
 using TaskMasterPro.Api.Features.Projects;
 using TaskMasterPro.Api.Features.Tasks;
 using TaskMasterPro.Api.Shared;
-using TaskMasterPro.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
