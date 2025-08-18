@@ -21,15 +21,15 @@
 
 ### Regular User Token - Acme Corporation
 ### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --claim "role=Member" --claim "tenant_id=11111111-1111-1111-1111-111111111111" --claim "name=John Doe" --claim "email=john.doe@acme.com" --name "AcmeUser" --project "demo/TaskMasterPro.Api"
-@acmeUserJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFjbWVVc2VyIiwic3ViIjoiQWNtZVVzZXIiLCJqdGkiOiJjZDVmNDJiMCIsInNjb3BlIjpbInRhc2ttYXN0ZXJwcm8tYXBpIiwicmVhZCJdLCJyb2xlIjoiTWVtYmVyIiwidGVuYW50X2lkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huLmRvZUBhY21lLmNvbSIsImF1ZCI6WyJodHRwOi8vbG9jYWxob3N0OjUyNjYiLCJodHRwczovL2xvY2FsaG9zdDo3MDU4Il0sIm5iZiI6MTc1NTM2MTY0MywiZXhwIjoxNzYzMzEwNDQzLCJpYXQiOjE3NTUzNjE2NDQsImlzcyI6ImRvdG5ldC11c2VyLWp3dHMifQ.1SBI9v68RsSbiOsvyQLBVIcH2wag-APZ1UNZX2-D35A
+@acmeUserJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFjbWVVc2VyIiwic3ViIjoiQWNtZVVzZXIiLCJqdGkiOiI3OWU0NmQwMiIsInNjb3BlIjpbInRhc2ttYXN0ZXJwcm8tYXBpIiwicmVhZCJdLCJyb2xlIjoiTWVtYmVyIiwidGVuYW50X2lkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huLmRvZUBhY21lLmNvbSIsImF1ZCI6WyJodHRwOi8vbG9jYWxob3N0OjUyNjYiLCJodHRwczovL2xvY2FsaG9zdDo3MDU4Il0sIm5iZiI6MTc1NTQwMDkxNywiZXhwIjoxNzYzMzQ5NzE3LCJpYXQiOjE3NTU0MDA5MTgsImlzcyI6ImRvdG5ldC11c2VyLWp3dHMifQ.Twf83GDETZMNogkJESYYjY7fBFDaK2ymk5c8QQWNXHg
 
 ### Project Manager Token - Acme Corporation  
 ### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --scope "write" --claim "role=ProjectManager" --claim "tenant_id=11111111-1111-1111-1111-111111111111" --claim "name=Jane Smith" --claim "email=jane.smith@acme.com" --name "AcmeProjectManager" --project "demo/TaskMasterPro.Api"
-@acmeProjectManagerJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFjbWVQcm9qZWN0TWFuYWdlciIsInN1YiI6IkFjbWVQcm9qZWN0TWFuYWdlciIsImp0aSI6ImM2MWNiZDg2Iiwic2NvcGUiOlsidGFza21hc3RlcnByby1hcGkiLCJyZWFkIiwid3JpdGUiXSwicm9sZSI6IlByb2plY3RNYW5hZ2VyIiwidGVuYW50X2lkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwibmFtZSI6IkphbmUgU21pdGgiLCJlbWFpbCI6ImphbmUuc21pdGhAYWNtZS5jb20iLCJhdWQiOlsiaHR0cDovL2xvY2FsaG9zdDo1MjY2IiwiaHR0cHM6Ly9sb2NhbGhvc3Q6NzA1OCJdLCJuYmYiOjE3NTUzNjI4MTcsImV4cCI6MTc2MzMxMTYxNywiaWF0IjoxNzU1MzYyODE4LCJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIn0.GbFWJx_ZHRCdUYkJOr3CsVDPWFh6EH2cUoMhKo5CuFU
+@acmeProjectManagerJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFjbWVQcm9qZWN0TWFuYWdlciIsInN1YiI6IkFjbWVQcm9qZWN0TWFuYWdlciIsImp0aSI6IjM2ZWRiYTE1Iiwic2NvcGUiOlsidGFza21hc3RlcnByby1hcGkiLCJyZWFkIiwid3JpdGUiXSwicm9sZSI6IlByb2plY3RNYW5hZ2VyIiwidGVuYW50X2lkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwibmFtZSI6IkphbmUgU21pdGgiLCJlbWFpbCI6ImphbmUuc21pdGhAYWNtZS5jb20iLCJhdWQiOlsiaHR0cDovL2xvY2FsaG9zdDo1MjY2IiwiaHR0cHM6Ly9sb2NhbGhvc3Q6NzA1OCJdLCJuYmYiOjE3NTU0MDA4NTYsImV4cCI6MTc2MzM0OTY1NiwiaWF0IjoxNzU1NDAwODU3LCJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIn0.1zL6fFaScFi8VU52l7wsYUkiyrxGsyM3zHhMldbH_G8
 
 ### Regular User Token - Tech Innovations
 ### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --claim "role=Member" --claim "tenant_id=22222222-2222-2222-2222-222222222222" --claim "name=Bob Wilson" --claim "email=bob.wilson@techinnovations.com" --name "TechUser" --project "demo/TaskMasterPro.Api"
-@techUserJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlRlY2hVc2VyIiwic3ViIjoiVGVjaFVzZXIiLCJqdGkiOiJiYWNhMDljOSIsInNjb3BlIjpbInRhc2ttYXN0ZXJwcm8tYXBpIiwicmVhZCJdLCJyb2xlIjoiTWVtYmVyIiwidGVuYW50X2lkIjoiMjIyMjIyMjItMjIyMi0yMjIyLTIyMjItMjIyMjIyMjIyMjIyIiwibmFtZSI6IkJvYiBXaWxzb24iLCJlbWFpbCI6ImJvYi53aWxzb25AdGVjaGlubm92YXRpb25zLmNvbSIsImF1ZCI6WyJodHRwOi8vbG9jYWxob3N0OjUyNjYiLCJodHRwczovL2xvY2FsaG9zdDo3MDU4Il0sIm5iZiI6MTc1NTM2MjcxMywiZXhwIjoxNzYzMzExNTEzLCJpYXQiOjE3NTUzNjI3MTQsImlzcyI6ImRvdG5ldC11c2VyLWp3dHMifQ.5-xIZmQShRjQDGiSrQ8ZRqfhgaCRyLqzbElx6dyzV4M
+@techUserJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlRlY2hVc2VyIiwic3ViIjoiVGVjaFVzZXIiLCJqdGkiOiI4MzRjMDQ3NiIsInNjb3BlIjpbInRhc2ttYXN0ZXJwcm8tYXBpIiwicmVhZCJdLCJyb2xlIjoiTWVtYmVyIiwidGVuYW50X2lkIjoiMjIyMjIyMjItMjIyMi0yMjIyLTIyMjItMjIyMjIyMjIyMjIyIiwibmFtZSI6IkJvYiBXaWxzb24iLCJlbWFpbCI6ImJvYi53aWxzb25AdGVjaGlubm92YXRpb25zLmNvbSIsImF1ZCI6WyJodHRwOi8vbG9jYWxob3N0OjUyNjYiLCJodHRwczovL2xvY2FsaG9zdDo3MDU4Il0sIm5iZiI6MTc1NTQwMDc4OCwiZXhwIjoxNzYzMzQ5NTg4LCJpYXQiOjE3NTU0MDA3ODgsImlzcyI6ImRvdG5ldC11c2VyLWp3dHMifQ.QGRqyo9Jrt1hgr2R-d69L1Z1akyRz3r3uO-XY3BOSjw
 
 ### Invalid/Expired Token for negative testing
 @invalidJwt = eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJpbnZhbGlkIn0.invalid
@@ -47,7 +47,7 @@ Host: admin.localhost:5266
 # @name GetCompaniesRegularUser
 GET {{baseUrl}}/admin/companies
 Authorization: Bearer {{acmeUserJwt}}
-Host: acme.localhost:5266
+Host: localhost.acme.com
 
 ###
 
@@ -55,7 +55,7 @@ Host: acme.localhost:5266
 # @name GetCompaniesProjectManager  
 GET {{baseUrl}}/admin/companies
 Authorization: Bearer {{acmeProjectManagerJwt}}
-Host: acme.localhost:5266
+Host: localhost.acme.com
 
 ###
 
@@ -63,14 +63,14 @@ Host: acme.localhost:5266
 # @name GetCompaniesDifferentTenant
 GET {{baseUrl}}/admin/companies
 Authorization: Bearer {{techUserJwt}}
-Host: techinnovations.localhost:5266
+Host: localhost.techinnovations.com
 
 ###
 
 ### ❌ TEST 5: GetAllCompanies - No Authentication
 # @name GetCompaniesNoAuth
 GET {{baseUrl}}/admin/companies
-Host: admin.localhost:5266
+Host: admin.localhost.com
 
 ###
 
@@ -120,7 +120,7 @@ Host: admin.localhost:5266
 # @name GetAuditLogsRegularUser
 GET {{baseUrl}}/admin/audit-logs
 Authorization: Bearer {{acmeUserJwt}}
-Host: acme.localhost:5266
+Host:localhost.acme.com
 
 ###
 
@@ -128,7 +128,7 @@ Host: acme.localhost:5266
 # @name GetAuditLogsProjectManager
 GET {{baseUrl}}/admin/audit-logs
 Authorization: Bearer {{acmeProjectManagerJwt}}
-Host: acme.localhost:5266
+Host: localhost.acme.com
 
 ### =================================================================
 ### 📊 TENANT STATISTICS TESTS
@@ -146,7 +146,7 @@ Host: admin.localhost:5266
 # @name GetTenantStatsRegularUser
 GET {{baseUrl}}/admin/tenant-statistics
 Authorization: Bearer {{acmeUserJwt}}
-Host: acme.localhost:5266
+Host: localhost.acme.com
 
 ###
 
@@ -154,7 +154,7 @@ Host: acme.localhost:5266
 # @name GetTenantStatsProjectManager
 GET {{baseUrl}}/admin/tenant-statistics
 Authorization: Bearer {{acmeProjectManagerJwt}}
-Host: acme.localhost:5266
+Host: localhost.acme.com
 
 ###
 
@@ -162,7 +162,7 @@ Host: acme.localhost:5266
 # @name GetTenantStatsCrossTenant
 GET {{baseUrl}}/admin/tenant-statistics
 Authorization: Bearer {{techUserJwt}}
-Host: techinnovations.localhost:5266
+Host: techinnovations.localhost.com
 
 ### =================================================================
 ### 👤 USER MIGRATION TESTS
@@ -232,7 +232,7 @@ Content-Type: application/json
 # @name MigrateUserRegularUserForbidden
 POST {{baseUrl}}/admin/migrate-user
 Authorization: Bearer {{acmeUserJwt}}
-Host: acme.localhost:5266
+Host: localhost.acme.com
 Content-Type: application/json
 
 {
@@ -247,7 +247,7 @@ Content-Type: application/json
 # @name MigrateUserProjectManagerForbidden
 POST {{baseUrl}}/admin/migrate-user
 Authorization: Bearer {{acmeProjectManagerJwt}}
-Host: acme.localhost:5266
+Host: localhost.acme.com
 Content-Type: application/json
 
 {
@@ -262,7 +262,7 @@ Content-Type: application/json
 # @name MigrateUserInvalidPayload
 POST {{baseUrl}}/admin/migrate-user
 Authorization: Bearer {{systemAdminJwt}}
-Host: admin.localhost:5266
+Host: admin.localhost.com
 Content-Type: application/json
 
 {
