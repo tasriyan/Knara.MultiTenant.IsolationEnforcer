@@ -14,15 +14,16 @@ public interface ITenantPerformanceMonitor
 	Task<TenantPerformanceStats> GetStatsAsync();
 }
 
-
 public class TenantPerformanceMonitor(
 	ILogger<TenantPerformanceMonitor> logger,
 	ITenantContextAccessor tenantAccessor,
 	IOptions<PerformanceMonitoringOptions> options,
+	CurrentUserService currentUserService,
 	ITenantMetricsCollector? metricsCollector = null) : ITenantPerformanceMonitor
 {
 	private readonly ITenantContextAccessor _tenantAccessor = tenantAccessor ?? throw new ArgumentNullException(nameof(tenantAccessor));
 	private readonly PerformanceMonitoringOptions _options = options.Value;
+	private readonly CurrentUserService _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
 
 	public void RecordQueryExecution(string entityType, string queryType, TimeSpan executionTime, int rowsReturned, bool tenantFilterApplied)
 	{
@@ -32,13 +33,13 @@ public class TenantPerformanceMonitor(
 		// Log slow queries
 		if (executionTimeMs > _options.SlowQueryThresholdMs)
 		{
-			logger.LogWarning("Slow query detected: {EntityType}.{QueryType} took {ExecutionTimeMs}ms, returned {RowsReturned} rows, tenant filter: {TenantFilterApplied}, tenant: {TenantId}",
-				entityType, queryType, executionTimeMs, rowsReturned, tenantFilterApplied, tenantContext.TenantId);
+			logger.LogWarning("Slow query detected: {EntityType}.{QueryType} took {ExecutionTimeMs}ms, returned {RowsReturned} rows, tenant filter: {TenantFilterApplied}, tenant: {TenantId}, user: {UserId}",
+				entityType, queryType, executionTimeMs, rowsReturned, tenantFilterApplied, tenantContext.TenantId, _currentUserService.UserId);
 		}
 		else if (logger.IsEnabled(LogLevel.Debug))
 		{
-			logger.LogDebug("Query executed: {EntityType}.{QueryType} took {ExecutionTimeMs}ms, returned {RowsReturned} rows, tenant: {TenantId}",
-				entityType, queryType, executionTimeMs, rowsReturned, tenantContext.TenantId);
+			logger.LogDebug("Query executed: {EntityType}.{QueryType} took {ExecutionTimeMs}ms, returned {RowsReturned} rows, tenant: {TenantId}, user: {UserId}",
+				entityType, queryType, executionTimeMs, rowsReturned, tenantContext.TenantId, _currentUserService.UserId);
 		}
 
 		// Record detailed performance metrics
@@ -54,7 +55,12 @@ public class TenantPerformanceMonitor(
 				RowsReturned = rowsReturned,
 				TenantFilterApplied = tenantFilterApplied,
 				Timestamp = DateTime.UtcNow,
-				RequestId = GetCurrentRequestId()
+				RequestId = GetCurrentRequestId(),
+				_currentUserService.UserId,
+				_currentUserService.UserName,
+				_currentUserService.IpAddress,
+				_currentUserService.UserAgent,
+				_currentUserService.IsAuthenticated
 			};
 
 			logger.LogInformation("TenantQueryPerformance: {@PerformanceLog}", performanceLog);
@@ -82,8 +88,8 @@ public class TenantPerformanceMonitor(
 	{
 		var tenantContext = _tenantAccessor.Current;
 
-		logger.LogCritical("TENANT ISOLATION VIOLATION: Type={ViolationType}, Entity={EntityType}, Tenant={TenantId}, Details={Details}",
-			violationType, entityType, tenantContext.TenantId, details);
+		logger.LogCritical("TENANT ISOLATION VIOLATION: Type={ViolationType}, Entity={EntityType}, Tenant={TenantId}, User={UserId}, Details={Details}",
+			violationType, entityType, tenantContext.TenantId, _currentUserService.UserId, details);
 
 		var violationLog = new
 		{
@@ -93,8 +99,13 @@ public class TenantPerformanceMonitor(
 			Details = details,
 			Timestamp = DateTime.UtcNow,
 			RequestId = GetCurrentRequestId(),
-			UserAgent = GetCurrentUserAgent(),
-			IpAddress = GetCurrentIpAddress()
+			_currentUserService.UserId,
+			_currentUserService.UserName,
+			_currentUserService.UserEmail,
+			_currentUserService.UserAgent,
+			_currentUserService.IpAddress,
+			_currentUserService.IsAuthenticated,
+			_currentUserService.UserRoles
 		};
 
 		logger.LogCritical("TenantViolation: {@ViolationLog}", violationLog);
@@ -111,8 +122,8 @@ public class TenantPerformanceMonitor(
 		var tenantContext = _tenantAccessor.Current;
 		var executionTimeMs = (int)executionTime.TotalMilliseconds;
 
-		logger.LogWarning("Cross-tenant operation executed: Operation={Operation}, Justification={Justification}, ExecutionTime={ExecutionTimeMs}ms, Context={ContextSource}",
-			operation, justification, executionTimeMs, tenantContext.ContextSource);
+		logger.LogWarning("Cross-tenant operation executed: Operation={Operation}, Justification={Justification}, ExecutionTime={ExecutionTimeMs}ms, Context={ContextSource}, User={UserId}",
+			operation, justification, executionTimeMs, tenantContext.ContextSource, _currentUserService.UserId);
 
 		var crossTenantLog = new
 		{
@@ -123,7 +134,13 @@ public class TenantPerformanceMonitor(
 			tenantContext.IsSystemContext,
 			Timestamp = DateTime.UtcNow,
 			RequestId = GetCurrentRequestId(),
-			UserId = GetCurrentUserId()
+			_currentUserService.UserId,
+			_currentUserService.UserName,
+			_currentUserService.UserEmail,
+			_currentUserService.IpAddress,
+			_currentUserService.UserAgent,
+			_currentUserService.IsAuthenticated,
+			_currentUserService.UserRoles
 		};
 
 		logger.LogWarning("CrossTenantOperation: {@CrossTenantLog}", crossTenantLog);
@@ -141,33 +158,31 @@ public class TenantPerformanceMonitor(
 			return new TenantPerformanceStats
 			{
 				TenantId = _tenantAccessor.Current.TenantId,
-				Message = "Metrics collection is not enabled"
+				Message = "Metrics collection is not enabled",
+				AdditionalMetrics = new Dictionary<string, object>
+				{
+					["CurrentUserId"] = _currentUserService.UserId ?? "unknown",
+					["CurrentUserName"] = _currentUserService.UserName ?? "unknown",
+					["IsAuthenticated"] = _currentUserService.IsAuthenticated,
+					["RequestId"] = GetCurrentRequestId() ?? "unknown"
+				}
 			};
 		}
 
-		return await metricsCollector.GetTenantStatsAsync(_tenantAccessor.Current.TenantId);
+		var stats = await metricsCollector.GetTenantStatsAsync(_tenantAccessor.Current.TenantId);
+
+		// Enhance stats with current user context
+		stats.AdditionalMetrics["CurrentUserId"] = _currentUserService.UserId ?? "unknown";
+		stats.AdditionalMetrics["CurrentUserName"] = _currentUserService.UserName ?? "unknown";
+		stats.AdditionalMetrics["IsAuthenticated"] = _currentUserService.IsAuthenticated;
+		stats.AdditionalMetrics["RequestId"] = GetCurrentRequestId() ?? "unknown";
+		stats.AdditionalMetrics["UserRoles"] = _currentUserService.UserRoles;
+
+		return stats;
 	}
 
-	private static string? GetCurrentRequestId()
+	private string? GetCurrentRequestId()
 	{
-		return Activity.Current?.Id;
-	}
-
-	private static string? GetCurrentUserAgent()
-	{
-		// This would need HttpContextAccessor to get actual user agent
-		return Activity.Current?.GetBaggageItem("UserAgent");
-	}
-
-	private static string? GetCurrentIpAddress()
-	{
-		// This would need HttpContextAccessor to get actual IP
-		return Activity.Current?.GetBaggageItem("ClientIP");
-	}
-
-	private static string? GetCurrentUserId()
-	{
-		// This would need HttpContextAccessor to get actual user ID
-		return Activity.Current?.GetBaggageItem("UserId");
+		return _currentUserService.RequestId ?? Activity.Current?.Id;
 	}
 }
