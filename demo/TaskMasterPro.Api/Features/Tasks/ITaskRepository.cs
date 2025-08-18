@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TaskMasterPro.Api.Data;
 using TaskMasterPro.Api.Entities;
-using TaskMasterPro.Data;
 
 namespace TaskMasterPro.Api.Features.Tasks;
 
