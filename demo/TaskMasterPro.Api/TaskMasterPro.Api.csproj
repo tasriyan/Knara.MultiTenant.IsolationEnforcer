@@ -22,9 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Multitenant.Enforcer.Roslyn\Multitenant.Enforcer.Roslyn.csproj" />
+    <ProjectReference Include="..\..\Multitenant.Enforcer.Roslyn\Multitenant.Enforcer.Roslyn.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\Multitenant.Enforcer\Multitenant.Enforcer.csproj" />
-    <ProjectReference Include="..\..\Multitenant.Enforcer.Core\Multitenant.Enforcer.Core.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\Multitenant.Enforcer.Core\Multitenant.Enforcer.Core.csproj" />
   </ItemGroup>
 
 </Project>

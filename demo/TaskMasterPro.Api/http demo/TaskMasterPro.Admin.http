@@ -39,34 +39,40 @@
 ### =================================================================
 
 ### ✅ TEST 1: GetAllCompanies - System Admin Success
+# Expected: 200 OK
 GET {{baseUrl}}/admin/companies
 Authorization: Bearer {{systemAdminJwt}}
 Host: admin.taskmasterpro.com
 
 ### ❌ TEST 2: GetAllCompanies - Regular User Forbidden (Acme)
+# Expected: 403 Forbidden
 # @name GetCompaniesRegularUser
 GET {{baseUrl}}/admin/companies
 Authorization: Bearer {{acmeUserJwt}}
 Host: acme.taskmasterpro.com
 
 ### ❌ TEST 3: GetAllCompanies - Project Manager Forbidden
+# Expected: 403 Forbidden
 # @name GetCompaniesProjectManager  
 GET {{baseUrl}}/admin/companies
 Authorization: Bearer {{acmeProjectManagerJwt}}
 Host: acme.taskmasterpro.com
 
 ### ❌ TEST 4: GetAllCompanies - Different Tenant User Forbidden
+# Expected: 403 Forbidden
 # @name GetCompaniesDifferentTenant
 GET {{baseUrl}}/admin/companies
 Authorization: Bearer {{techUserJwt}}
 Host: techinnovations.taskmasterpro.com
 
 ### ❌ TEST 5: GetAllCompanies - No Authentication
+# Expected: 401 Unauthorized
 # @name GetCompaniesNoAuth
 GET {{baseUrl}}/admin/companies
 Host: admin.taskmasterpro.com
 
 ### ❌ TEST 6: GetAllCompanies - Invalid Token
+# Expected: 401 Unauthorized
 # @name GetCompaniesInvalidToken
 GET {{baseUrl}}/admin/companies
 Authorization: Bearer {{invalidJwt}}
@@ -77,18 +83,21 @@ Host: admin.taskmasterpro.com
 ### =================================================================
 
 ### ✅ TEST 7: GetAuditLogs - System Admin Success (All logs)
+# Expected: 200 OK
 # @name GetAuditLogsAll
 GET {{baseUrl}}/admin/audit-logs
 Authorization: Bearer {{systemAdminJwt}}
 Host: admin.taskmasterpro.com
 
 ### ❌ TEST 8: GetAuditLogs - Regular User Forbidden
+# Expected: 403 Forbidden
 # @name GetAuditLogsRegularUser
 GET {{baseUrl}}/admin/audit-logs
 Authorization: Bearer {{acmeUserJwt}}
 Host: acme.taskmasterpro.com
 
 ### ❌ TEST 9: GetAuditLogs - Project Manager Forbidden
+# Expected: 403 Forbidden
 # @name GetAuditLogsProjectManager
 GET {{baseUrl}}/admin/audit-logs
 Authorization: Bearer {{acmeProjectManagerJwt}}
@@ -99,24 +108,28 @@ Host: acme.taskmasterpro.com
 ### =================================================================
 
 ### ✅ TEST 10: GetTenantStats - System Admin Success
+# Expected: 200 OK
 # @name GetTenantStatsSuccess
 GET {{baseUrl}}/admin/tenant-statistics
 Authorization: Bearer {{systemAdminJwt}}
 Host: admin.taskmasterpro.com
 
 ### ❌ TEST 11: GetTenantStats - Regular User Forbidden
+# Expected: 403 Forbidden
 # @name GetTenantStatsRegularUser
 GET {{baseUrl}}/admin/tenant-statistics
 Authorization: Bearer {{acmeUserJwt}}
 Host: acme.taskmasterpro.com
 
 ### ❌ TEST 12: GetTenantStats - Project Manager Forbidden
+# Expected: 403 Forbidden
 # @name GetTenantStatsProjectManager
 GET {{baseUrl}}/admin/tenant-statistics
 Authorization: Bearer {{acmeProjectManagerJwt}}
 Host: acme.taskmasterpro.com
 
 ### ❌ TEST 13: GetTenantStats - Cross-Tenant User Forbidden
+# Expected: 403 Forbidden
 # @name GetTenantStatsCrossTenant
 GET {{baseUrl}}/admin/tenant-statistics
 Authorization: Bearer {{techUserJwt}}
@@ -127,6 +140,7 @@ Host: techinnovations.taskmasterpro.com
 ### =================================================================
 
 ### ✅ TEST 14: MigrateUser - System Admin Success
+# Expected: 200 OK
 # @name MigrateUserSuccess
 POST {{baseUrl}}/admin/migrate-user
 Authorization: Bearer {{systemAdminJwt}}
@@ -140,6 +154,7 @@ Content-Type: application/json
 }
 
 ### ✅ TEST 15: MigrateUser - Migrate Back (Rollback previous test)
+# Expected: 200 OK
 # @name MigrateUserRollback
 POST {{baseUrl}}/admin/migrate-user
 Authorization: Bearer {{systemAdminJwt}}
@@ -153,6 +168,7 @@ Content-Type: application/json
 }
 
 ### ❌ TEST 16: MigrateUser - Non-Existent User
+# Expected: 404 Not Found
 # @name MigrateUserNotFound
 POST {{baseUrl}}/admin/migrate-user
 Authorization: Bearer {{systemAdminJwt}}
@@ -166,6 +182,7 @@ Content-Type: application/json
 }
 
 ### ❌ TEST 17: MigrateUser - Invalid Tenant IDs
+# Expected: 404 Not Found
 # @name MigrateUserInvalidTenant
 POST {{baseUrl}}/admin/migrate-user
 Authorization: Bearer {{systemAdminJwt}}
@@ -179,6 +196,7 @@ Content-Type: application/json
 }
 
 ### ❌ TEST 18: MigrateUser - Regular User Forbidden
+# Expected: 403 Forbidden
 # @name MigrateUserRegularUserForbidden
 POST {{baseUrl}}/admin/migrate-user
 Authorization: Bearer {{acmeUserJwt}}
@@ -192,6 +210,7 @@ Content-Type: application/json
 }
 
 ### ❌ TEST 19: MigrateUser - Project Manager Forbidden
+# Expected: 403 Forbidden
 # @name MigrateUserProjectManagerForbidden
 POST {{baseUrl}}/admin/migrate-user
 Authorization: Bearer {{acmeProjectManagerJwt}}
@@ -205,6 +224,7 @@ Content-Type: application/json
 }
 
 ### ❌ TEST 20: MigrateUser - Missing Authorization Header
+# Expected: 401 Unauthorized
 # @name MigrateUserNoAuth
 POST {{baseUrl}}/admin/migrate-user
 Host: admin.taskmasterpro.com
@@ -221,24 +241,28 @@ Content-Type: application/json
 ### =================================================================
 
 ### ✅ TEST 21: Companies via ACME subdomain (System Admin)
+# Expected: 200 OK
 # @name GetCompaniesByAcmeSubdomain
 GET {{baseUrl}}/admin/companies
 Authorization: Bearer {{systemAdminJwt}}
 Host: acme.taskmasterpro.com
 
 ### ✅ TEST 22: Companies via Tech Innovations subdomain (System Admin)
+# Expected: 200 OK
 # @name GetCompaniesByTechSubdomain
 GET {{baseUrl}}/admin/companies
 Authorization: Bearer {{systemAdminJwt}}
 Host: techinnovations.taskmasterpro.com
 
 ### ❌ TEST 23: Companies via invalid subdomain
+# Expected: 400 Bad Request or 404 Not Found
 # @name GetCompaniesByInvalidSubdomain
 GET {{baseUrl}}/admin/companies
 Authorization: Bearer {{systemAdminJwt}}
 Host: nonexistent.taskmasterpro.com
 
 ### ❌ TEST 24: Companies via www subdomain (should be excluded)
+# Expected: 400 Bad Request
 # @name GetCompaniesByWwwSubdomain
 GET {{baseUrl}}/admin/companies
 Authorization: Bearer {{systemAdminJwt}}
@@ -249,12 +273,14 @@ Host: www.taskmasterpro.com
 ### =================================================================
 
 ### ✅ TEST 25: Verify audit log creation after migration
+# Expected: 200 OK
 # @name VerifyAuditLogAfterMigration
 GET {{baseUrl}}/admin/audit-logs?tenantId={{acmeTenantId}}&take=5
 Authorization: Bearer {{systemAdminJwt}}
 Host: admin.taskmasterpro.com
 
 ### ✅ TEST 26: Verify tenant statistics include all tenants
+# Expected: 200 OK
 # @name VerifyTenantStatsIncludeAll
 GET {{baseUrl}}/admin/tenant-statistics
 Authorization: Bearer {{systemAdminJwt}}
