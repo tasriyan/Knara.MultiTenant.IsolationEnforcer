@@ -43,7 +43,7 @@ public class SubdomainTenantResolver(
 		{
 			throw new TenantResolutionException(
 				$"No active tenant found for domain: {subdomain}",
-				subdomain,
+				host,
 				"Subdomain");
 		}
 
@@ -55,11 +55,11 @@ public class SubdomainTenantResolver(
 
 	// Assuming subdomain-based tenancy
 	// Patterns:
-	//		https://acme-corp.yourapp.com
-	//		https://www.globex.yourapp.com  
-	//		https://admin.initech.yourapp.com
-	//		https://yourapp.com (no subdomain)
-	//		http://localhost:5000 (no subdomain)
+	//		acme-corp.yourapp.com
+	//		www.globex.yourapp.com  
+	//		admin.initech.yourapp.com
+	//		yourapp.com (no subdomain)
+	//		localhost:5000 (no subdomain)
 	private string ExtractSubdomain(string host)
 	{
 		var parts = host.Split('.');

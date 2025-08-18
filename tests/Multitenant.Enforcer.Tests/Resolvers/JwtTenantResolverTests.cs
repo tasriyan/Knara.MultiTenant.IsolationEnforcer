@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Multitenant.Enforcer;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.Resolvers;
 using System.Security.Claims;
@@ -15,7 +16,7 @@ public class JwtTenantResolverTests
     public JwtTenantResolverTests()
     {
         _mockLogger = new Mock<ILogger<JwtTenantResolver>>();
-        _resolver = new JwtTenantResolver(_mockLogger.Object, Options.Create(JwtTenantResolverOptions.DefaultOptions));
+        _resolver = new JwtTenantResolver(_mockLogger.Object, Options.Create(MultiTenantOptions.DefaultOptions));
     }
 
     [Theory]
@@ -40,11 +41,14 @@ public class JwtTenantResolverTests
 	[InlineData("system-access", "true")]
 	public async Task ResolveTenantAsync_WithCustomSystemAdminClaims_ReturnsSystemContext(string claimType, string claimValue)
 	{
-		// Arrange
-        var options = new JwtTenantResolverOptions
+        // Arrange
+        var options = new MultiTenantOptions
         {
-            SystemAdminClaimTypes = [claimType],
-            SystemAdminClaimValue = claimValue
+			JwtOptions = new JwtTenantResolverOptions
+            {
+                SystemAdminClaimTypes = [claimType],
+                SystemAdminClaimValue = claimValue
+            }
         };
 		var context = CreateHttpContext();
 		var claims = new[] { new Claim(claimType, claimValue) };

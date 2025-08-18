@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Multitenant.Enforcer;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.Resolvers;
+using System.Management;
 using System.Security.Claims;
 
 namespace MultiTenant.Enforcer.Tests.Resolvers;
@@ -19,7 +20,7 @@ public class SubdomainTenantResolverTests
         _mockLogger = new Mock<ILogger<SubdomainTenantResolver>>();
         _mockTenantLookupService = new Mock<ITenantLookupService>();
         _resolver = new SubdomainTenantResolver(_mockLogger.Object, _mockTenantLookupService.Object, 
-            Options.Create(SubdomainTenantResolverOptions.DefaultOptions));
+            Options.Create(MultiTenantOptions.DefaultOptions));
     }
 
     [Fact]
@@ -61,16 +62,15 @@ public class SubdomainTenantResolverTests
     }
 
     [Theory]
-    [InlineData("www.example.com")]
-    [InlineData("localhost")]
     [InlineData("example.com")]
+    [InlineData("localhost")]
     public async Task ResolveTenantAsync_WithInvalidSubdomain_ThrowsTenantResolutionException(string host)
     {
         // Arrange
         var context = CreateHttpContext(host);
 
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<TenantResolutionException>(
+		// Act & Assert
+		var exception = await Assert.ThrowsAsync<TenantResolutionException>(
             () => _resolver.ResolveTenantAsync(context, default));
         
         Assert.Equal("No subdomain found in request", exception.Message);
@@ -78,7 +78,32 @@ public class SubdomainTenantResolverTests
         Assert.Equal("Subdomain", exception.ResolutionMethod);
     }
 
-    [Fact]
+	[Theory]
+	[InlineData("example.company1.com")]
+	public async Task ResolveTenantAsync_WithCustomInvalidSubdomain_ThrowsTenantResolutionException(string host)
+	{
+		// Arrange
+		var context = CreateHttpContext(host);
+		var options = new MultiTenantOptions
+		{
+			SubdomainOptions = new SubdomainTenantResolverOptions
+			{
+				ExcludedSubdomains = ["example"]
+			}
+		};
+		var resolver = new SubdomainTenantResolver(_mockLogger.Object, _mockTenantLookupService.Object, Options.Create(options));
+
+		// Act & Assert
+		var exception = await Assert.ThrowsAsync<TenantResolutionException>(
+			() => resolver.ResolveTenantAsync(context, default));
+
+		Assert.Equal("No active tenant found for domain: company1", exception.Message);
+		Assert.Equal(host, exception.AttemptedTenantIdentifier);
+		Assert.Equal("Subdomain", exception.ResolutionMethod);
+	}
+
+
+	[Fact]
     public async Task ResolveTenantAsync_WithNonExistentTenant_ThrowsTenantResolutionException()
     {
         // Arrange
@@ -94,7 +119,7 @@ public class SubdomainTenantResolverTests
             () => _resolver.ResolveTenantAsync(context, default));
         
         Assert.Equal($"No active tenant found for domain: {subdomain}", exception.Message);
-        Assert.Equal(subdomain, exception.AttemptedTenantIdentifier);
+        Assert.Equal($"{subdomain}.example.com", exception.AttemptedTenantIdentifier);
         Assert.Equal("Subdomain", exception.ResolutionMethod);
     }
 

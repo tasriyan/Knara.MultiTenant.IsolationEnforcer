@@ -1,6 +1,5 @@
 ﻿using Multitenant.Enforcer;
 using Multitenant.Enforcer.Core;
-using System.Linq.Expressions;
 
 namespace MultiTenant.Enforcer.Tests.Support;
 
@@ -11,8 +10,7 @@ public class InMemoryTenantDataProvider(TenantInfo[] tenants) : ITenantDataProvi
 {
 	private readonly TenantInfo[] _tenants = tenants ?? [];
 
-	public Task<Guid?> GetActiveTenantIdByDomainAsync(string domain,
-		Expression<Func<TenantEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
+	public Task<Guid?> GetActiveTenantIdByDomainAsync(string domain, CancellationToken cancellationToken = default)
 	{
 		var tenant = _tenants.FirstOrDefault(t =>
 			t.Domain.Equals(domain, StringComparison.OrdinalIgnoreCase) && t.IsActive);
