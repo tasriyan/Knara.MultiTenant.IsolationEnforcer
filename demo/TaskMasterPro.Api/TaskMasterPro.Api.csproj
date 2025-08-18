@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>d8fdf61e-59ff-4ab3-9a6f-f8ded4063812</UserSecretsId>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated\$(TargetFramework)</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Multitenant.Enforcer.Roslyn\Multitenant.Enforcer.Roslyn.csproj" />
     <ProjectReference Include="..\..\Multitenant.Enforcer\Multitenant.Enforcer.csproj" />
+    <ProjectReference Include="..\..\Multitenant.Enforcer.Core\Multitenant.Enforcer.Core.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>
