@@ -5,9 +5,9 @@ using Multitenant.Enforcer.Core;
 
 namespace Multitenant.Enforcer.Resolvers;
 
-public class JwtTenantResolver(ILogger<JwtTenantResolver> logger, IOptions<JwtTenantResolverOptions> options) : ITenantResolver
+public class JwtTenantResolver(ILogger<JwtTenantResolver> logger, IOptions<MultiTenantOptions> options) : ITenantResolver
 {
-	private readonly JwtTenantResolverOptions _options = options?.Value ?? JwtTenantResolverOptions.DefaultOptions;
+	private readonly JwtTenantResolverOptions _options = options?.Value.JwtOptions ?? JwtTenantResolverOptions.DefaultOptions;
 
 	public async Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken)
 	{

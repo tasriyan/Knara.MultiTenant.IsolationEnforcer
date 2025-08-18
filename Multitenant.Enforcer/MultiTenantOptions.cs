@@ -11,6 +11,8 @@ public class MultiTenantOptions
 	public bool CacheTenantResolution { get; set; } = true;
 	public int CacheExpirationMinutes { get; set; } = 5;
 	public PerformanceMonitoringOptions PerformanceMonitoring { get; set; } = new();
+	public SubdomainTenantResolverOptions SubdomainOptions { get; set; } = new();
+	public JwtTenantResolverOptions JwtOptions { get; set; } = new();
 
 	public static MultiTenantOptions DefaultOptions { get; } = new MultiTenantOptions();
 
@@ -21,6 +23,7 @@ public class MultiTenantOptions
 		var jwtOptions = new JwtTenantResolverOptions();
 		configure?.Invoke(jwtOptions);
 
+		JwtOptions = jwtOptions;
 		return this;
 	}
 
@@ -31,6 +34,7 @@ public class MultiTenantOptions
 		var subdomainOptions = new SubdomainTenantResolverOptions();
 		configure?.Invoke(subdomainOptions);
 
+		SubdomainOptions = subdomainOptions;
 		return this;
 	}
 

@@ -12,7 +12,6 @@ namespace Multitenant.Enforcer;
 public interface ITenantDataProvider
 {
 	Task<Guid?> GetActiveTenantIdByDomainAsync(string domain, 
-			System.Linq.Expressions.Expression<Func<TenantEntity, bool>>? predicate = null,
 			CancellationToken cancellationToken = default);
 
 	Task<TenantInfo?> GetActiveTenantInfoAsync(Guid tenantId, CancellationToken cancellationToken);

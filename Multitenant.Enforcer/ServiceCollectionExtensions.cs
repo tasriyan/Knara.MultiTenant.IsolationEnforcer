@@ -17,26 +17,36 @@ public static class ServiceCollectionExtensions
 		Action<MultiTenantOptions>? configure = null)
 		where TDbContext : TenantDbContext
 	{
-		var options = new MultiTenantOptions();
-		configure?.Invoke(options);
+		var multiTenantOptions = new MultiTenantOptions();
+		configure?.Invoke(multiTenantOptions);
 
-		services.AddSingleton(options);
+		services.AddOptions<MultiTenantOptions>().Configure(opts =>
+		{
+			opts.DefaultTenantResolver = multiTenantOptions.DefaultTenantResolver;
+			opts.CustomTenantResolvers = multiTenantOptions.CustomTenantResolvers;
+			opts.LogViolations = multiTenantOptions.LogViolations;
+			opts.CacheTenantResolution = multiTenantOptions.CacheTenantResolution;
+			opts.CacheExpirationMinutes = multiTenantOptions.CacheExpirationMinutes;
+			opts.PerformanceMonitoring = multiTenantOptions.PerformanceMonitoring;
+			opts.SubdomainOptions = multiTenantOptions.SubdomainOptions;
+			opts.JwtOptions = multiTenantOptions.JwtOptions;
+		});
 
 		// Register core services
 		services.AddScoped<ITenantContextAccessor, TenantContextAccessor>();
 		services.AddScoped<ICrossTenantOperationManager, CrossTenantOperationManager>();
 
 		// Register tenant resolver based on configuration
-		RegisterTenantResolver(services, options);
+		RegisterTenantResolver(services, multiTenantOptions);
 
 		// Register performance monitoring if enabled
-		if (options.PerformanceMonitoring.Enabled)
+		if (multiTenantOptions.PerformanceMonitoring.Enabled)
 		{
 			services.AddScoped<ITenantPerformanceMonitor, TenantPerformanceMonitor>();
 		}
 
 		// Register tenant lookup service if using subdomain resolution
-		if (options.DefaultTenantResolver == typeof(SubdomainTenantResolver))
+		if (multiTenantOptions.DefaultTenantResolver == typeof(SubdomainTenantResolver))
 		{
 			services.TryAddScoped<ITenantLookupService, TenantLookupService>();
 		}

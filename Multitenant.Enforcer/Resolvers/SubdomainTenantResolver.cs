@@ -8,10 +8,10 @@ namespace Multitenant.Enforcer.Resolvers;
 public class SubdomainTenantResolver(
 	ILogger<SubdomainTenantResolver> logger,
 	ITenantLookupService tenantLookupService,
-	IOptions<SubdomainTenantResolverOptions> options) : ITenantResolver
+	IOptions<MultiTenantOptions> options) : ITenantResolver
 {
 	private readonly ITenantLookupService _tenantLookupService = tenantLookupService ?? throw new ArgumentNullException(nameof(tenantLookupService));
-	private readonly SubdomainTenantResolverOptions _options = options?.Value ?? SubdomainTenantResolverOptions.DefaultOptions;
+	private readonly SubdomainTenantResolverOptions _options = options?.Value.SubdomainOptions ?? SubdomainTenantResolverOptions.DefaultOptions;
 
 	public async Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken)
 	{
@@ -53,7 +53,8 @@ public class SubdomainTenantResolver(
 		return TenantContext.ForTenant(tenantId.Value, $"Subdomain:{subdomain}");
 	}
 
-	// Assuming the subdomain is the first part of the host
+	// Assuming subdomain-based tenancy
+	// Patterns:
 	//		https://acme-corp.yourapp.com
 	//		https://www.globex.yourapp.com  
 	//		https://admin.initech.yourapp.com
@@ -70,7 +71,7 @@ public class SubdomainTenantResolver(
 		if (_options.ExcludedSubdomains.Contains(parts[0], StringComparer.OrdinalIgnoreCase))
 		{
 			// Use second part as tenant: www.globex.yourapp.com -> "globex"
-			return parts.Length >= 4 ? parts[1] : string.Empty;
+			return parts.Length >= 3 ? parts[1] : string.Empty;
 		}
 
 		// Use first part as tenant: acme-corp.yourapp.com -> "acme-corp"
