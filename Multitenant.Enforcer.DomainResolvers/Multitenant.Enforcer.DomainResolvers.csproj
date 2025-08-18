@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="DomainValidationService.cs" />
+    <Compile Remove="ITenantStore.cs" />
+    <Compile Remove="MultiTenantOptions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Multitenant.Enforcer.Cache\Multitenant.Enforcer.Cache.csproj" />
+    <ProjectReference Include="..\Multitenant.Enforcer.Core\Multitenant.Enforcer.Core.csproj" />
+  </ItemGroup>
+
+</Project>
