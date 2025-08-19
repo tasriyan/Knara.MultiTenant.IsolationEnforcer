@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.8" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Microsoft.NETCore.Targets" Version="5.0.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageReference Include="Shouldly" Version="4.3.0" />
+    <PackageReference Include="Testcontainers" Version="4.6.0" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.6.0" />
+    <PackageReference Include="Testcontainers.Redis" Version="4.6.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Multitenant.Enforcer.Cache\Multitenant.Enforcer.Cache.csproj" />
+    <ProjectReference Include="..\src\Multitenant.Enforcer.DependencyInjection\Multitenant.Enforcer.DependencyInjection.csproj" />
+    <ProjectReference Include="..\src\Multitenant.Enforcer.EntityFramework\Multitenant.Enforcer.EntityFramework.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="Moq" />
+    <Using Include="Shouldly" />
+  </ItemGroup>
+
+</Project>
