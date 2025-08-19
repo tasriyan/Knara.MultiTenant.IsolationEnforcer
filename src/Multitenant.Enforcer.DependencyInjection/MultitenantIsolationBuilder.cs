@@ -40,16 +40,16 @@ public class MultitenantIsolationBuilder
 	}
 
 	public MultitenantIsolationBuilder WithTenantStore<T>()
-		where T : class, ITenantStore
+		where T : class, ITenantsStore
 	{
-		_services.AddScoped<ITenantStore, T>();
+		_services.AddScoped<ITenantsStore, T>();
 		return this;
 	}
 
 	public MultitenantIsolationBuilder WithTenantStore<T>(Func<IServiceProvider, T> implementationFactory)
-	where T : class, ITenantStore
+	where T : class, ITenantsStore
 	{
-		_services.AddScoped<ITenantStore>(implementationFactory);
+		_services.AddScoped<ITenantsStore>(implementationFactory);
 		return this;
 	}
 
