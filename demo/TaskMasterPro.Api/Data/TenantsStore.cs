@@ -3,11 +3,11 @@ using Multitenant.Enforcer.Core;
 using TaskMasterPro.Api.Data.Configurations;
 using TaskMasterPro.Api.Entities;
 
-namespace Multitenant.Enforcer.EntityFramework;
+namespace TaskMasterPro.Api.Data;
 
-public class LookupTenantDbContext : DbContext
+public class TenantsStoreDbContext : DbContext
 {
-	public LookupTenantDbContext(DbContextOptions<LookupTenantDbContext> options)
+	public TenantsStoreDbContext(DbContextOptions<TenantsStoreDbContext> options)
 		: base(options)
 	{
 	}
@@ -19,29 +19,34 @@ public class LookupTenantDbContext : DbContext
 	}
 }
 
-public class LookupTenantDataProvider : ITenantDataProvider
+public class TenantsStore : ITenantsStore
 {
-	private readonly LookupTenantDbContext _context;
-	private readonly ILogger<LookupTenantDataProvider> _logger;
+	private readonly TenantsStoreDbContext _context;
+	private readonly ILogger<TenantsStore> _logger;
 
-	public LookupTenantDataProvider(
-		LookupTenantDbContext context,
-		ILogger<LookupTenantDataProvider> logger)
+	public TenantsStore(
+		TenantsStoreDbContext context,
+		ILogger<TenantsStore> logger)
 	{
 		_context = context ?? throw new ArgumentNullException(nameof(context));
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
-	public async Task<Guid?> GetActiveTenantIdByDomainAsync(string domain, 
+	public async Task<TenantInfo?> GetTenantInfoByDomainAsync(string domain,
 				CancellationToken cancellationToken = default)
 	{
 		try
 		{
-			// This assumes you have a Tenants/Companies table with Domain and Id columns
-			var query = _context.Companies
-				.Where(t => t.Domain == domain && t.IsActive);
-
-			return await query.Select(t => t.Id).FirstOrDefaultAsync(cancellationToken);
+			return await _context.Companies
+				.Where(t => t.Domain == domain && t.IsActive).Select(t => new TenantInfo
+				{
+					Id = t.Id,
+					Name = t.Name,
+					Domain = t.Domain,
+					IsActive = t.IsActive,
+					CreatedAt = t.CreatedAt
+				})
+				.FirstOrDefaultAsync(cancellationToken);
 		}
 		catch (Exception ex)
 		{
@@ -50,7 +55,7 @@ public class LookupTenantDataProvider : ITenantDataProvider
 		}
 	}
 
-	public async Task<TenantInfo?> GetActiveTenantInfoAsync(Guid tenantId, CancellationToken cancellationToken)
+	public async Task<TenantInfo?> GetTenantInfoAsync(Guid tenantId, CancellationToken cancellationToken)
 	{
 		try
 		{
@@ -92,7 +97,8 @@ public class LookupTenantDataProvider : ITenantDataProvider
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, "Error retrieving all active tenants");
-			return Array.Empty<TenantInfo>();
+			return [];
 		}
 	}
+
 }
