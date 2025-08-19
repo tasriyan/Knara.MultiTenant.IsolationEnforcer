@@ -9,20 +9,12 @@ namespace Multitenant.Enforcer.EntityFramework;
 /// Base DbContext class that automatically enforces tenant isolation.
 /// All DbContext classes should inherit from this to get tenant protection.
 /// </summary>
-public abstract class TenantDbContext : DbContext
+public abstract class TenantDbContext(
+	DbContextOptions options,
+	ITenantContextAccessor tenantAccessor,
+	ILogger<TenantDbContext> logger) : DbContext(options)
 {
-	private readonly ITenantContextAccessor _tenantAccessor;
-	private readonly ILogger<TenantDbContext> _logger;
-
-	protected TenantDbContext(
-		DbContextOptions options,
-		ITenantContextAccessor tenantAccessor,
-		ILogger<TenantDbContext> logger)
-		: base(options)
-	{
-		_tenantAccessor = tenantAccessor ?? throw new ArgumentNullException(nameof(tenantAccessor));
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	}
+	private readonly ITenantContextAccessor _tenantAccessor = tenantAccessor ?? throw new ArgumentNullException(nameof(tenantAccessor));
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -40,14 +32,14 @@ public abstract class TenantDbContext : DbContext
 			var result = await base.SaveChangesAsync(cancellationToken);
 
 			var tenantContext = _tenantAccessor.Current;
-			_logger.LogDebug("SaveChanges completed: {Changes} changes for tenant {TenantId} (System: {IsSystem})",
+			logger.LogDebug("SaveChanges completed: {Changes} changes for tenant {TenantId} (System: {IsSystem})",
 				result, tenantContext.TenantId, tenantContext.IsSystemContext);
 
 			return result;
 		}
 		catch (Exception ex)
 		{
-			_logger.LogError(ex, "SaveChanges failed for tenant {TenantId}",
+			logger.LogError(ex, "SaveChanges failed for tenant {TenantId}",
 				_tenantAccessor.Current.TenantId);
 			throw;
 		}
@@ -62,14 +54,14 @@ public abstract class TenantDbContext : DbContext
 			var result = base.SaveChanges();
 
 			var tenantContext = _tenantAccessor.Current;
-			_logger.LogDebug("SaveChanges completed: {Changes} changes for tenant {TenantId} (System: {IsSystem})",
+			logger.LogDebug("SaveChanges completed: {Changes} changes for tenant {TenantId} (System: {IsSystem})",
 				result, tenantContext.TenantId, tenantContext.IsSystemContext);
 
 			return result;
 		}
 		catch (Exception ex)
 		{
-			_logger.LogError(ex, "SaveChanges failed for tenant {TenantId}",
+			logger.LogError(ex, "SaveChanges failed for tenant {TenantId}",
 				_tenantAccessor.Current.TenantId);
 			throw;
 		}
@@ -81,7 +73,7 @@ public abstract class TenantDbContext : DbContext
 		{
 			if (typeof(ITenantIsolated).IsAssignableFrom(entityType.ClrType))
 			{
-				_logger.LogDebug("Configuring tenant isolation for entity: {EntityType}", entityType.ClrType.Name);
+				logger.LogDebug("Configuring tenant isolation for entity: {EntityType}", entityType.ClrType.Name);
 
 				// Add tenant ID index for performance
 				modelBuilder.Entity(entityType.ClrType)
@@ -108,7 +100,7 @@ public abstract class TenantDbContext : DbContext
 			_tenantAccessor.Current.IsSystemContext ||
 			entity.TenantId == _tenantAccessor.Current.TenantId);
 
-		_logger.LogDebug("Applied global query filter for {EntityType}", typeof(T).Name);
+		logger.LogDebug("Applied global query filter for {EntityType}", typeof(T).Name);
 	}
 
 	private void ProcessTenantIsolatedEntities()
@@ -137,7 +129,7 @@ public abstract class TenantDbContext : DbContext
 				{
 					// Auto-assign tenant ID
 					entity.TenantId = tenantContext.TenantId;
-					_logger.LogDebug("Auto-assigned TenantId {TenantId} to {EntityType}",
+					logger.LogDebug("Auto-assigned TenantId {TenantId} to {EntityType}",
 						tenantContext.TenantId, entity.GetType().Name);
 				}
 				else if (entity.TenantId != tenantContext.TenantId)
@@ -162,12 +154,12 @@ public abstract class TenantDbContext : DbContext
 				.Where(e => e.Entity.TenantId != tenantContext.TenantId)
 				.ToList();
 
-			if (modifiedOrDeletedEntities.Any())
+			if (modifiedOrDeletedEntities.Count != 0)
 			{
 				var violations = modifiedOrDeletedEntities.Select(e =>
 					$"{e.Entity.GetType().Name}({e.Entity.TenantId})").ToList();
 
-				_logger.LogCritical(
+				logger.LogCritical(
 					"TENANT ISOLATION VIOLATION: Current context {CurrentTenant} attempted to modify entities from other tenants: {Violations}",
 					tenantContext.TenantId, string.Join(", ", violations));
 

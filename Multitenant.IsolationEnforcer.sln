@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Multitenant.Enforcer.Perfor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Multitenant.Enforcer.DependencyInjection", "src\Multitenant.Enforcer.DependencyInjection\Multitenant.Enforcer.DependencyInjection.csproj", "{0E802BC2-CB00-FC52-4B14-A5F23B1B3727}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiTenantEnforcer.IntegrationTests", "MultiTenantEnforcer.IntegrationTests\MultiTenantEnforcer.IntegrationTests.csproj", "{7121CA93-6847-4B8B-8739-DCA8186CC84B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +94,10 @@ Global
 		{0E802BC2-CB00-FC52-4B14-A5F23B1B3727}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E802BC2-CB00-FC52-4B14-A5F23B1B3727}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E802BC2-CB00-FC52-4B14-A5F23B1B3727}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7121CA93-6847-4B8B-8739-DCA8186CC84B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7121CA93-6847-4B8B-8739-DCA8186CC84B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7121CA93-6847-4B8B-8739-DCA8186CC84B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7121CA93-6847-4B8B-8739-DCA8186CC84B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -109,6 +115,7 @@ Global
 		{F1B0E136-C5C8-4C0F-F478-046C19D97F58} = {C167D8E8-6283-492E-AC33-CB2E928487CF}
 		{14525C44-DF0B-23D0-4580-0917764FC6C3} = {C167D8E8-6283-492E-AC33-CB2E928487CF}
 		{0E802BC2-CB00-FC52-4B14-A5F23B1B3727} = {C167D8E8-6283-492E-AC33-CB2E928487CF}
+		{7121CA93-6847-4B8B-8739-DCA8186CC84B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {37913EC7-5F5C-421A-A296-2780E5973F60}
