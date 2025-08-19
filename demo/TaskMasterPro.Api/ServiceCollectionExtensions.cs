@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.DependencyInjection;
 using TaskMasterPro.Api.Data;
@@ -47,35 +48,25 @@ public static class ServiceCollectionExtensions
 				sqliteOptions.CommandTimeout(builder.Configuration.GetValue<int>("Database:CommandTimeout"));
 			}));
 
-		// Multi-tenant dependencies
-		services.AddTenantsStore(builder.Configuration);
+		services.AddDbContext<TenantsStoreDbContext>(options =>
+			options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"), sqliteOptions =>
+			{
+				sqliteOptions.CommandTimeout(builder.Configuration.GetValue<int>("Database:CommandTimeout"));
+			}));
 
 		services.AddMultiTenantIsolation(options =>
-		{
-			options.CacheTenantResolution = true;
-			options.CacheExpirationMinutes = 30;
-		})
+			{
+				options.CacheTenantResolution = true;
+				options.CacheExpirationMinutes = 30;
+			})
 			.WithInMemoryTenantCache()
-			.WithTenantStore<TenantsStore>()
+			.WithTenantsStore<TaskMasterProTenants>()
 			.WithSubdomainResolutionStrategy(options =>
 			{
 				options.CacheMappings = true;
 				options.ExcludedSubdomains = ["www", "api", "admin", "localhost", "localhost:5266", "localhost:7058", "localhost:5001"];
 				options.SystemAdminClaimValue = "SystemAdmin";
 			});
-
-		return services;
-	}
-
-	private static IServiceCollection AddTenantsStore(this IServiceCollection services, IConfiguration configuration)
-	{
-		services.AddDbContext<TenantsStoreDbContext>(options =>
-			options.UseSqlite(configuration.GetConnectionString("DefaultConnection"), sqliteOptions =>
-			{
-				sqliteOptions.CommandTimeout(configuration.GetValue<int>("Database:CommandTimeout"));
-			}));
-
-		services.AddScoped<ITenantsStore, TenantsStore>();
 
 		return services;
 	}

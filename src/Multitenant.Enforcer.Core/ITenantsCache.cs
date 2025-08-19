@@ -2,7 +2,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Multitenant.Enforcer.Core;
 
-public interface ITenantCache
+public interface ITenantsCache
 {
 	Task<T?> GetAsync<T>(string cacheKey, CancellationToken cancellationToken = default);
 	Task SetAsync<T>(string cacheKey, T data, TimeSpan? expiry, CancellationToken cancellationToken = default);

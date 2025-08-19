@@ -8,7 +8,7 @@ namespace Multitenant.Enforcer.Cache;
 /// </summary>
 /// <remarks>This class is designed to store and retrieve tenant-related data using an in-memory
 /// caching mechanism. It is suitable for testing or scenarios where a lightweight, non-persistent cache is sufficient.</remarks>
-public class InMemoryTenantCache(IMemoryCache memoryCache) : ITenantCache
+public class InMemoryTenantCache(IMemoryCache memoryCache) : ITenantsCache
 {
 	private readonly IMemoryCache _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 

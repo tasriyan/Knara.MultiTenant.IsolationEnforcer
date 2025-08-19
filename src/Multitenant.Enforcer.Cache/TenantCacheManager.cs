@@ -14,11 +14,11 @@ public interface ITenantCacheManager
 
 public class TenantCacheManager(
 				ILogger<TenantCacheManager> logger,
-				ITenantCache tenantCache,
-				ITenantsStore tenantStore,
+				ITenantsCache tenantCache,
+				IReadOnlyTenants tenantStore,
 				IOptions<MemoryCacheEntryOptions> options) : ITenantCacheManager
 {
-	private readonly ITenantCache _tenantCache = tenantCache ?? throw new ArgumentNullException(nameof(tenantCache));
+	private readonly ITenantsCache _tenantCache = tenantCache ?? throw new ArgumentNullException(nameof(tenantCache));
 
 
 	/// <summary>

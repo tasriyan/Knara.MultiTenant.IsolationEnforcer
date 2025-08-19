@@ -13,15 +13,15 @@ public interface ITenantLookupService
 }
 
 public class TenantLookupService(
-	ITenantCache tenantCache,
+	ITenantsCache tenantCache,
 	ILogger<TenantLookupService> logger,
 	IOptions<MultiTenantOptions> options,
-	ITenantsStore tenantStore) : ITenantLookupService
+	IReadOnlyTenants tenantStore) : ITenantLookupService
 {
-	private readonly ITenantCache _tenantCache = tenantCache ?? throw new ArgumentNullException(nameof(tenantCache));
+	private readonly ITenantsCache _tenantCache = tenantCache ?? throw new ArgumentNullException(nameof(tenantCache));
 	private readonly ILogger<TenantLookupService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	private readonly MultiTenantOptions _options = options?.Value ?? MultiTenantOptions.DefaultOptions;
-	private readonly ITenantsStore _tenantStore = tenantStore ?? throw new ArgumentNullException(nameof(tenantStore));
+	private readonly IReadOnlyTenants _tenantStore = tenantStore ?? throw new ArgumentNullException(nameof(tenantStore));
 
 	public async Task<TenantInfo?> GetTenantInfoByDomainAsync(string domain, CancellationToken cancellationToken)
 	{

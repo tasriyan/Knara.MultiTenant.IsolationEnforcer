@@ -5,12 +5,8 @@ using TaskMasterPro.Api.Entities;
 
 namespace TaskMasterPro.Api.Data;
 
-public class TenantsStoreDbContext : DbContext
+public class TenantsStoreDbContext(DbContextOptions<TenantsStoreDbContext> options) : DbContext(options)
 {
-	public TenantsStoreDbContext(DbContextOptions<TenantsStoreDbContext> options)
-		: base(options)
-	{
-	}
 	public DbSet<Company> Companies { get; set; }
 
 	override protected void OnModelCreating(ModelBuilder modelBuilder)
@@ -19,18 +15,12 @@ public class TenantsStoreDbContext : DbContext
 	}
 }
 
-public class TenantsStore : ITenantsStore
+public class TaskMasterProTenants(
+	TenantsStoreDbContext context,
+	ILogger<TaskMasterProTenants> logger) : IReadOnlyTenants
 {
-	private readonly TenantsStoreDbContext _context;
-	private readonly ILogger<TenantsStore> _logger;
-
-	public TenantsStore(
-		TenantsStoreDbContext context,
-		ILogger<TenantsStore> logger)
-	{
-		_context = context ?? throw new ArgumentNullException(nameof(context));
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	}
+	private readonly TenantsStoreDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
+	private readonly ILogger<TaskMasterProTenants> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 	public async Task<TenantInfo?> GetTenantInfoByDomainAsync(string domain,
 				CancellationToken cancellationToken = default)
