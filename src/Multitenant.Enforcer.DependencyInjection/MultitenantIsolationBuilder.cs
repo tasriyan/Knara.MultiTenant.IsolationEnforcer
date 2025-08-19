@@ -72,6 +72,8 @@ public class MultitenantIsolationBuilder
 		{
 			if (configure != null)
 				configure.Invoke(opts);
+			else
+				opts = SubdomainTenantResolverOptions.DefaultOptions;
 		});
 		_services.AddScoped<ITenantResolver, SubdomainTenantResolver>();
 		return this;
@@ -83,6 +85,8 @@ public class MultitenantIsolationBuilder
 		{
 			if (configure != null)
 				configure.Invoke(opts);
+			else
+				opts = HeaderTenantResolverOptions.DefaultOptions;
 		});
 		_services.AddScoped<ITenantResolver, HeaderTenantResolver>();
 		return this;
@@ -94,18 +98,19 @@ public class MultitenantIsolationBuilder
 		{
 			if (configure != null)
 				configure.Invoke(opts);
+			else
+				opts = PathTenantResolverOptions.DefaultOptions;
 		});
 		_services.AddScoped<ITenantResolver, PathTenantResolver>();
 		return this;
 	}
 
-	public MultitenantIsolationBuilder WithCustomResolutionStrategy<T>(Action<IResolverOptions>? configure = null)
+	public MultitenantIsolationBuilder WithCustomResolutionStrategy<T>(Action<ITenantResolverOptions>? configure = null)
 		where T : class, ITenantResolver
 	{
-		_services.AddOptions<IResolverOptions>().Configure(opts =>
+		_services.AddOptions<ITenantResolverOptions>().Configure(opts =>
 		{
-			if (configure != null)
-				configure.Invoke(opts);
+			configure?.Invoke(opts);
 		});
 		_services.AddScoped<ITenantResolver, T>();
 		return this;
