@@ -4,6 +4,24 @@ namespace Multitenant.Enforcer.DomainResolvers;
 
 public static class HttpContextExtensions
 {
+	// Patterns:
+	//	{claim types, claim_values}: {"role", "SystemAdmin"}, {"http://schemas.microsoft.com/.../identity/claims/role", "admin" }, {"is_admin", "true"}
+	public static bool IsUserASystemAdmin(this HttpContext context, string[] systemAdminClaimTypes, string systemAdminClaimValue)
+	{
+		var user = context.User;
+		if (user == null || user.Identity?.IsAuthenticated == false)
+			return false;
+
+		foreach (var claimType in systemAdminClaimTypes)
+		{
+			if (user.HasClaim(c => c.Type == claimType && c.Value == systemAdminClaimValue))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	// Assuming subdomain-based tenancy
 	// Patterns:
 	//		https://acme-corp.yourapp.com

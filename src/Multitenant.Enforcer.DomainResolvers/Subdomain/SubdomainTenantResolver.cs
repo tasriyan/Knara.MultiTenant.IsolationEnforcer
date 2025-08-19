@@ -15,16 +15,10 @@ public class SubdomainTenantResolver(
 
 	public async Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken)
 	{
-		var user = context.User;
-
-		// Check for system admin in JWT first
-		foreach (var claimType in _options.SystemAdminClaimTypes)
+		if (context.IsUserASystemAdmin(_options.SystemAdminClaimTypes, _options.SystemAdminClaimValue))
 		{
-			if (user.HasClaim(c => c.Type == claimType && c.Value == _options.SystemAdminClaimValue))
-			{
-				logger.LogDebug("System admin access detected in JWT token");
-				return TenantContext.SystemContext();
-			}
+			logger.LogDebug("System admin access detected in user claims");
+			return TenantContext.SystemContext();
 		}
 
 		var host = context.Request.Host.Host;
