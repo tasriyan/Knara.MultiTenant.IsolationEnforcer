@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Multitenant.Enforcer.AspnetCore;
 using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.Resolvers;
+using Multitenant.Enforcer.DomainResolvers;
 using System.Text.Json;
 
 namespace MultiTenant.Enforcer.Tests.AspnetCore;

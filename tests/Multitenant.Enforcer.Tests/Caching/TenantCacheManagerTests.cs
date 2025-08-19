@@ -1,29 +1,28 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Multitenant.Enforcer;
-using Multitenant.Enforcer.Caching;
+using Multitenant.Enforcer.Cache;
 using Multitenant.Enforcer.Core;
 
 namespace MultiTenant.Enforcer.Tests.Caching;
 
 public class TenantCacheManagerTests
 {
-    private readonly Mock<ITenantCache> _mockCache;
+    private readonly Mock<ITenantsCache> _mockCache;
     private readonly Mock<ILogger<TenantCacheManager>> _mockLogger;
-    private readonly Mock<ITenantDataProvider> _mockDataProvider;
-    private readonly MultiTenantOptions _options;
+    private readonly Mock<IReadOnlyTenants> _mockDataProvider;
+    private readonly MemoryCacheEntryOptions _options;
     private readonly TenantCacheManager _cacheManager;
 
     public TenantCacheManagerTests()
     {
-        _mockCache = new Mock<ITenantCache>();
+        _mockCache = new Mock<ITenantsCache>();
         _mockLogger = new Mock<ILogger<TenantCacheManager>>();
-        _mockDataProvider = new Mock<ITenantDataProvider>();
-        _options = new MultiTenantOptions { CacheExpirationMinutes = 15 };
+        _mockDataProvider = new Mock<IReadOnlyTenants>();
+        _options = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(15) };
         
         var optionsWrapper = Options.Create(_options);
-        _cacheManager = new TenantCacheManager(_mockCache.Object, _mockLogger.Object, optionsWrapper, _mockDataProvider.Object);
+        _cacheManager = new TenantCacheManager(_mockLogger.Object, _mockCache.Object, _mockDataProvider.Object,  optionsWrapper);
     }
 
     [Fact]
@@ -50,7 +49,7 @@ public class TenantCacheManagerTests
         _mockCache.Verify(x => x.SetAsync(
             new TenantInfoCacheKey(tenants[0].Id),
 			tenants[0],
-            It.Is<MemoryCacheEntryOptions>(o => o.AbsoluteExpirationRelativeToNow == TimeSpan.FromMinutes(15)),
+            It.Is<MemoryCacheEntryOptions>(o => o.AbsoluteExpirationRelativeToNow == TimeSpan.FromSeconds(15)),
             It.IsAny<CancellationToken>()), Times.Once);
 
         _mockCache.Verify(x => x.SetAsync(
@@ -144,7 +143,7 @@ public class TenantCacheManagerTests
         // Arrange
         var tenant = new TenantInfo { Id = Guid.NewGuid(), Domain = "test.com", IsActive = true };
         _mockDataProvider.Setup(x => x.GetAllActiveTenantsAsync(It.IsAny<CancellationToken>()))
-                        .ReturnsAsync(new[] { tenant });
+                        .ReturnsAsync([tenant]);
 
         // Act
         await _cacheManager.PrewarmCacheAsync(CancellationToken.None);
@@ -154,7 +153,7 @@ public class TenantCacheManagerTests
             It.IsAny<string>(),
             It.IsAny<object>(),
             It.Is<MemoryCacheEntryOptions>(o => 
-                o.AbsoluteExpirationRelativeToNow == TimeSpan.FromMinutes(15) &&
+                o.AbsoluteExpirationRelativeToNow == TimeSpan.FromSeconds(15) &&
                 o.Priority == CacheItemPriority.Normal),
             It.IsAny<CancellationToken>()), Times.Exactly(2)); // Once for tenant info, once for domain mapping
     }
@@ -166,7 +165,7 @@ public class TenantCacheManagerTests
     public async Task PrewarmCacheAsync_UsesCacheExpirationFromOptions(int expirationMinutes)
     {
         // Arrange
-        _options.CacheExpirationMinutes = expirationMinutes;
+        _options.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(expirationMinutes);
         var tenant = new TenantInfo { Id = Guid.NewGuid(), Domain = "test.com", IsActive = true };
         _mockDataProvider.Setup(x => x.GetAllActiveTenantsAsync(It.IsAny<CancellationToken>()))
                         .ReturnsAsync(new[] { tenant });
@@ -178,7 +177,7 @@ public class TenantCacheManagerTests
         _mockCache.Verify(x => x.SetAsync(
             It.IsAny<string>(),
             It.IsAny<object>(),
-            It.Is<MemoryCacheEntryOptions>(o => o.AbsoluteExpirationRelativeToNow == TimeSpan.FromMinutes(expirationMinutes)),
+            It.Is<MemoryCacheEntryOptions>(o => o.AbsoluteExpirationRelativeToNow == TimeSpan.FromSeconds(expirationMinutes)),
             It.IsAny<CancellationToken>()), Times.AtLeastOnce);
     }
 }

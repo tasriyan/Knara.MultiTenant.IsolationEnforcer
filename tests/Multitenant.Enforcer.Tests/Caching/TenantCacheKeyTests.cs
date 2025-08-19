@@ -1,4 +1,4 @@
-using Multitenant.Enforcer.Caching;
+using Multitenant.Enforcer.Cache;
 
 namespace MultiTenant.Enforcer.Tests.Caching;
 

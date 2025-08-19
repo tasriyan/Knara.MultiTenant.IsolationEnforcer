@@ -1,17 +1,17 @@
 using Microsoft.Extensions.Caching.Memory;
-using Multitenant.Enforcer.Caching;
+using Multitenant.Enforcer.Cache;
 
 namespace MultiTenant.Enforcer.Tests.Caching;
 
 public class TenantMemoryCacheTests
 {
     private readonly IMemoryCache _memoryCache;
-    private readonly TenantMemoryCache _cache;
+    private readonly InMemoryTenantCache _cache;
 
     public TenantMemoryCacheTests()
     {
         _memoryCache = new MemoryCache(new MemoryCacheOptions());
-        _cache = new TenantMemoryCache(_memoryCache);
+        _cache = new InMemoryTenantCache(_memoryCache);
     }
 
     [Fact]

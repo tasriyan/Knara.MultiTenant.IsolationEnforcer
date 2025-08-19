@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Multitenant.Enforcer.Roslyn\Multitenant.Enforcer.Roslyn.csproj" />
+    <ProjectReference Include="..\..\src\Multitenant.Enforcer.Roslyn\Multitenant.Enforcer.Roslyn.csproj" />
   </ItemGroup>
 
   <ItemGroup>
