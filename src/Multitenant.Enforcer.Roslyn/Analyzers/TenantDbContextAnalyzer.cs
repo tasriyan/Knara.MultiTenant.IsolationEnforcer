@@ -89,6 +89,7 @@ public class TenantDbContextAnalyzer : DiagnosticAnalyzer
 
 		return type.AllInterfaces.Any(i =>
 			i.Name == "ITenantIsolated" &&
-			i.ContainingNamespace.ToDisplayString().StartsWith("Multitenant.Enforcer"));
+			(i.ContainingNamespace.ToDisplayString().StartsWith("Multitenant.Enforcer") ||
+			 i.ContainingNamespace.ToDisplayString().StartsWith("MultiTenant.Enforcer")));
 	}
 }

@@ -31,25 +31,33 @@ public class DirectDbAccessAnalyzer : DiagnosticAnalyzer
 			var firstTypeArg = method.TypeArguments.FirstOrDefault();
 			if (IsDbSetMethod(method) && firstTypeArg != null && IsTenantIsolatedEntity(firstTypeArg))
 			{
-				var entityTypeName = firstTypeArg.Name;
-				var diagnostic = Diagnostic.Create(
-					DiagnosticDescriptors.DirectDbSetAccess,
-					memberAccess.GetLocation(),
-					entityTypeName);
+				// Check if this access is safe (through TenantDbContext)
+				if (!IsSafeDbAccess(memberAccess, context.SemanticModel))
+				{
+					var entityTypeName = firstTypeArg.Name;
+					var diagnostic = Diagnostic.Create(
+						DiagnosticDescriptors.DirectDbSetAccess,
+						memberAccess.GetLocation(),
+						entityTypeName);
 
-				context.ReportDiagnostic(diagnostic);
+					context.ReportDiagnostic(diagnostic);
+				}
 			}
 
 			// Check for DbContext.Set<T>() method calls
 			if (IsDbContextSetMethod(method) && firstTypeArg != null && IsTenantIsolatedEntity(firstTypeArg))
 			{
-				var entityTypeName = firstTypeArg.Name;
-				var diagnostic = Diagnostic.Create(
-					DiagnosticDescriptors.DirectDbSetAccess,
-					memberAccess.GetLocation(),
-					entityTypeName);
+				// Check if this access is safe (through TenantDbContext)
+				if (!IsSafeDbAccess(memberAccess, context.SemanticModel))
+				{
+					var entityTypeName = firstTypeArg.Name;
+					var diagnostic = Diagnostic.Create(
+						DiagnosticDescriptors.DirectDbSetAccess,
+						memberAccess.GetLocation(),
+						entityTypeName);
 
-				context.ReportDiagnostic(diagnostic);
+					context.ReportDiagnostic(diagnostic);
+				}
 			}
 		}
 
@@ -60,15 +68,51 @@ public class DirectDbAccessAnalyzer : DiagnosticAnalyzer
 				namedType.TypeArguments.Length > 0 &&
 				IsTenantIsolatedEntity(namedType.TypeArguments.First()))
 			{
-				var entityTypeName = namedType.TypeArguments.First().Name;
-				var diagnostic = Diagnostic.Create(
-					DiagnosticDescriptors.DirectDbSetAccess,
-					memberAccess.GetLocation(),
-					entityTypeName);
+				// Check if this access is safe (through TenantDbContext)
+				if (!IsSafeDbAccess(memberAccess, context.SemanticModel))
+				{
+					var entityTypeName = namedType.TypeArguments.First().Name;
+					var diagnostic = Diagnostic.Create(
+						DiagnosticDescriptors.DirectDbSetAccess,
+						memberAccess.GetLocation(),
+						entityTypeName);
 
-				context.ReportDiagnostic(diagnostic);
+					context.ReportDiagnostic(diagnostic);
+				}
 			}
 		}
+	}
+
+	private static bool IsSafeDbAccess(MemberAccessExpressionSyntax memberAccess, SemanticModel semanticModel)
+	{
+		// Get the expression that we're accessing the member on (e.g., "context" in "context.ProjectTasks")
+		var expression = memberAccess.Expression;
+		var expressionTypeInfo = semanticModel.GetTypeInfo(expression);
+		var expressionType = expressionTypeInfo.Type;
+
+		if (expressionType != null)
+		{
+			// Check if the type is a safe DbContext (inherits from TenantDbContext)
+			return IsTenantDbContextType(expressionType);
+		}
+
+		return false;
+	}
+
+	private static bool IsTenantDbContextType(ITypeSymbol type)
+	{
+		var current = type;
+		while (current != null)
+		{
+			if (current.Name == "TenantDbContext" &&
+				(current.ContainingNamespace.ToDisplayString().StartsWith("Multitenant.Enforcer") ||
+				 current.ContainingNamespace.ToDisplayString().StartsWith("MultiTenant.Enforcer")))
+			{
+				return true;
+			}
+			current = current.BaseType;
+		}
+		return false;
 	}
 
 	private static bool IsTenantIsolatedEntity(ITypeSymbol? type)
@@ -77,7 +121,8 @@ public class DirectDbAccessAnalyzer : DiagnosticAnalyzer
 
 		return type.AllInterfaces.Any(i =>
 			i.Name == "ITenantIsolated" &&
-			i.ContainingNamespace.ToDisplayString().StartsWith("Multitenant.Enforcer"));
+			(i.ContainingNamespace.ToDisplayString().StartsWith("Multitenant.Enforcer") ||
+			 i.ContainingNamespace.ToDisplayString().StartsWith("MultiTenant.Enforcer")));
 	}
 
 	private static bool IsDbContextType(ITypeSymbol type)
