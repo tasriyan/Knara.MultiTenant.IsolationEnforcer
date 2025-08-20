@@ -59,7 +59,8 @@ public sealed class GetProject : IEndpoint
 					)).ToList()
 					));
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasReadActionPolicy);
+		.RequireAuthorization(AuthorizationPolicies.HasReadActionPolicy)
+		.WithName("GetProject");
 	}
 }
 

@@ -8,13 +8,14 @@ public sealed class GetProjects : IEndpoint
 	public void AddEndpoint(IEndpointRouteBuilder app)
 	{
 
-		app.MapGet("/api/projects/active",
-			async (IProjectRepository projectRepository,
+		app.MapGet("/api/projects/{filter}",
+			async (string? filter,
+					IProjectRepository projectRepository,
 					ITenantContextAccessor tenantAccessor,
 					ILogger<GetProjects> logger,
 					CurrentUserService userSvc) =>
 			{
-				var projects = await projectRepository.GetActiveProjectsAsync();
+				var projects = await projectRepository.GetProjectsAsync(filter ?? "all");
 
 				logger.LogInformation("Retrieved {Count} projects for tenant {TenantId}",
 					projects.Count, tenantAccessor.Current.TenantId);

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace TaskMasterPro.Api.Shared;
 

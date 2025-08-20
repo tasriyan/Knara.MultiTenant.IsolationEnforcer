@@ -1,10 +1,12 @@
-﻿using Multitenant.Enforcer.Core;
+﻿using Microsoft.AspNetCore.Mvc;
+using Multitenant.Enforcer.Core;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
 
 namespace TaskMasterPro.Api.Features.Projects;
 
 public record CreateProjectRequest(
+	Guid Id,
 	string Name,
 	string Description,
 	Guid ProjectManagerId,
@@ -18,7 +20,7 @@ public sealed class CreateProject : IEndpoint
 	{
 
 		app.MapPost("/api/projects",
-			async (CreateProjectRequest request,
+			async ([FromBody] CreateProjectRequest request,
 					IProjectRepository projectRepository,
 					ITenantContextAccessor tenantAccessor,
 					ILogger<GetProject> logger,
@@ -26,7 +28,7 @@ public sealed class CreateProject : IEndpoint
 			{
 				var project = new Project
 				{
-					Id = Guid.NewGuid(),
+					Id = request.Id,
 					Name = request.Name,
 					Description = request.Description,
 					ProjectManagerId = request.ProjectManagerId,
@@ -49,19 +51,19 @@ public sealed class CreateProject : IEndpoint
 					return Results.StatusCode(StatusCodes.Status500InternalServerError);
 				}
 
-				return Results.CreatedAtRoute(nameof(GetProject), new { id = project.Id },
-					new ProjectResponse(
-						createdProject.Id,
-						createdProject.TenantId,
-						createdProject.Name,
-						createdProject.Description,
-						createdProject.ProjectManagerId,
-						createdProject.StartDate,
-						createdProject.EndDate,
-						createdProject.Status,
-						createdProject.CreatedAt
-						));
-			})
+			return Results.CreatedAtRoute(nameof(GetProject), routeValues: new { id = project.Id },
+			value: new ProjectResponse(
+				createdProject.Id,
+				createdProject.TenantId,
+				createdProject.Name,
+				createdProject.Description,
+				createdProject.ProjectManagerId,
+				createdProject.StartDate,
+				createdProject.EndDate,
+				createdProject.Status,
+				createdProject.CreatedAt
+				));
+	})
 		.RequireAuthorization(AuthorizationPolicies.ProjectManager);
 	}
 }

@@ -2,41 +2,79 @@
 @TaskMasterPro_Api_HostAddress_Https = https://localhost:7058
 @TaskMasterPro_Api_HostAddress_Docker = http://localhost:5001
 
+		# var acmeProject1Id = Guid.Parse("11111111-1111-1111-1111-111111111121");
+		# var acmeProject2Id = Guid.Parse("11111111-1111-1111-1111-111111111122");
+		# var techProject1Id = Guid.Parse("22222222-2222-2222-2222-222222222231");
+		# var techProject2Id = Guid.Parse("22222222-2222-2222-2222-222222222232");
 ### Variables
 @baseUrl = {{TaskMasterPro_Api_HostAddress_Http}}/api
 @testUserId = user-{{$randomInt}}
+@acmeProject1Id = 11111111-1111-1111-1111-111111111121
+@acmeProjectManagerId = 11111111-1111-1111-1111-111111111114
+@acmeUserId = 11111111-1111-1111-1111-111111111113
 
 ### Test Tenant IDs (from seeded data)
 @acmeTenantId = 11111111-1111-1111-1111-111111111111
 @techInnovationsTenantId = 22222222-2222-2222-2222-222222222222
-@acmeUserId = 11111111-1111-1111-1111-111111111112
-@techUserId = 22222222-2222-2222-2222-222222222222
+@techUserId = 22222222-2222-2222-2222-222222222221
+@techProjectManagerId = 22222222-2222-2222-2222-222222222222
 
 ### Authentication Tokens
 ### Create JWT tokens with different roles and tenant access:
 
 ### System Admin Token (can access all tenants) (domain: admin.taskmasterpro.com)
-### dotnet user-jwts create --scope "taskmasterpro-api" --claim "role=SystemAdmin" --claim "tenant_id=11111111-1111-1111-1111-111111111111" --claim "name=System Admin" --claim "email=admin@system.com" --name "SystemAdmin" --project "demo/TaskMasterPro.Api"
-@systemAdminJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlN5c3RlbUFkbWluIiwic3ViIjoiU3lzdGVtQWRtaW4iLCJqdGkiOiIzMGNlMGQ0Iiwic2NvcGUiOiJ0YXNrbWFzdGVycHJvLWFwaSIsInJvbGUiOiJTeXN0ZW1BZG1pbiIsInRlbmFudF9pZCI6IjExMTExMTExLTExMTEtMTExMS0xMTExLTExMTExMTExMTExMSIsIm5hbWUiOiJTeXN0ZW0gQWRtaW4iLCJlbWFpbCI6ImFkbWluQHN5c3RlbS5jb20iLCJhdWQiOlsiaHR0cDovL2xvY2FsaG9zdDo1MjY2IiwiaHR0cHM6Ly9sb2NhbGhvc3Q6NzA1OCJdLCJuYmYiOjE3NTUzNTgxODksImV4cCI6MTc2MzMwNjk4OSwiaWF0IjoxNzU1MzU4MTkwLCJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIn0.FMsR_g1Add8wrL2X1IJtMwRqMBYwk7sKSLqPjvHqno4
+### dotnet user-jwts create --scope "taskmasterpro-api" --claim "role=SystemAdmin" --claim "tenant_id=11111111-1111-1111-1111-111111111111" --claim "nameidentifier=11111111-1111-1111-1111-111111111112" --claim "name=System Admin" --claim "email=admin@system.com" --name "SystemAdmin" --project "demo/TaskMasterPro.Api"
+@systemAdminJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlN5c3RlbUFkbWluIiwic3ViIjoiU3lzdGVtQWRtaW4iLCJqdGkiOiI4MjE1ZDYzMCIsInNjb3BlIjoidGFza21hc3RlcnByby1hcGkiLCJyb2xlIjoiU3lzdGVtQWRtaW4iLCJ0ZW5hbnRfaWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJuYW1laWRlbnRpZmllciI6IjExMTExMTExLTExMTEtMTExMS0xMTExLTExMTExMTExMTExMiIsIm5hbWUiOiJTeXN0ZW0gQWRtaW4iLCJlbWFpbCI6ImFkbWluQHN5c3RlbS5jb20iLCJhdWQiOlsiaHR0cDovL2xvY2FsaG9zdDo1MjY2IiwiaHR0cHM6Ly9sb2NhbGhvc3Q6NzA1OCJdLCJuYmYiOjE3NTU2MzU2OTIsImV4cCI6MTc2MzU4NDQ5MiwiaWF0IjoxNzU1NjM1NjkzLCJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIn0.ejFdIrna5x_qEqdn5G6Nll-0DywjXacVSIiKeS_iIPI
 
 ### Regular User Token - Acme Corporation (domain: acme.taskmasterpro.com)
-### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --claim "role=Member" --claim "tenant_id=11111111-1111-1111-1111-111111111111" --claim "name=John Doe" --claim "email=john.doe@acme.com" --name "AcmeUser" --project "demo/TaskMasterPro.Api"
-@acmeUserJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFjbWVVc2VyIiwic3ViIjoiQWNtZVVzZXIiLCJqdGkiOiI3OWU0NmQwMiIsInNjb3BlIjpbInRhc2ttYXN0ZXJwcm8tYXBpIiwicmVhZCJdLCJyb2xlIjoiTWVtYmVyIiwidGVuYW50X2lkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huLmRvZUBhY21lLmNvbSIsImF1ZCI6WyJodHRwOi8vbG9jYWxob3N0OjUyNjYiLCJodHRwczovL2xvY2FsaG9zdDo3MDU4Il0sIm5iZiI6MTc1NTQwMDkxNywiZXhwIjoxNzYzMzQ5NzE3LCJpYXQiOjE3NTU0MDA5MTgsImlzcyI6ImRvdG5ldC11c2VyLWp3dHMifQ.Twf83GDETZMNogkJESYYjY7fBFDaK2ymk5c8QQWNXHg
+### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --claim "role=Member" --claim "tenant_id=11111111-1111-1111-1111-111111111111" --claim "nameidentifier=11111111-1111-1111-1111-111111111113" --claim "name=John Doe" --claim "email=john.doe@acme.com" --name "AcmeUser" --project "demo/TaskMasterPro.Api"
+@acmeUserJwt =  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFjbWVVc2VyIiwic3ViIjoiQWNtZVVzZXIiLCJqdGkiOiIyNzQ2ZWZjMSIsInNjb3BlIjpbInRhc2ttYXN0ZXJwcm8tYXBpIiwicmVhZCJdLCJyb2xlIjoiTWVtYmVyIiwidGVuYW50X2lkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwibmFtZWlkZW50aWZpZXIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTMiLCJuYW1lIjoiSm9obiBEb2UiLCJlbWFpbCI6ImpvaG4uZG9lQGFjbWUuY29tIiwiYXVkIjpbImh0dHA6Ly9sb2NhbGhvc3Q6NTI2NiIsImh0dHBzOi8vbG9jYWxob3N0OjcwNTgiXSwibmJmIjoxNzU1NjM1NzIyLCJleHAiOjE3NjM1ODQ1MjIsImlhdCI6MTc1NTYzNTcyMywiaXNzIjoiZG90bmV0LXVzZXItand0cyJ9.AXnFxq9t-Sy-D7wkp7zebHEkBWYHMa6REedRCXigDsk
 
 ### Project Manager Token - Acme Corporation  (domain: acme.taskmasterpro.com)
-### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --scope "write" --claim "role=ProjectManager" --claim "tenant_id=11111111-1111-1111-1111-111111111111" --claim "name=Jane Smith" --claim "email=jane.smith@acme.com" --name "AcmeProjectManager" --project "demo/TaskMasterPro.Api"
-@acmeProjectManagerJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFjbWVQcm9qZWN0TWFuYWdlciIsInN1YiI6IkFjbWVQcm9qZWN0TWFuYWdlciIsImp0aSI6IjM2ZWRiYTE1Iiwic2NvcGUiOlsidGFza21hc3RlcnByby1hcGkiLCJyZWFkIiwid3JpdGUiXSwicm9sZSI6IlByb2plY3RNYW5hZ2VyIiwidGVuYW50X2lkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwibmFtZSI6IkphbmUgU21pdGgiLCJlbWFpbCI6ImphbmUuc21pdGhAYWNtZS5jb20iLCJhdWQiOlsiaHR0cDovL2xvY2FsaG9zdDo1MjY2IiwiaHR0cHM6Ly9sb2NhbGhvc3Q6NzA1OCJdLCJuYmYiOjE3NTU0MDA4NTYsImV4cCI6MTc2MzM0OTY1NiwiaWF0IjoxNzU1NDAwODU3LCJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIn0.1zL6fFaScFi8VU52l7wsYUkiyrxGsyM3zHhMldbH_G8
+### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --scope "write" --claim "role=ProjectManager" --claim "tenant_id=11111111-1111-1111-1111-111111111111" --claim "nameidentifier=11111111-1111-1111-1111-111111111114" --claim "name=Jane Smith" --claim "email=jane.smith@acme.com" --name "AcmeProjectManager" --project "demo/TaskMasterPro.Api"
+@acmeProjectManagerJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFjbWVQcm9qZWN0TWFuYWdlciIsInN1YiI6IkFjbWVQcm9qZWN0TWFuYWdlciIsImp0aSI6IjVhNTVkNDYyIiwic2NvcGUiOlsidGFza21hc3RlcnByby1hcGkiLCJyZWFkIiwid3JpdGUiXSwicm9sZSI6IlByb2plY3RNYW5hZ2VyIiwidGVuYW50X2lkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwibmFtZWlkZW50aWZpZXIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTQiLCJuYW1lIjoiSmFuZSBTbWl0aCIsImVtYWlsIjoiamFuZS5zbWl0aEBhY21lLmNvbSIsImF1ZCI6WyJodHRwOi8vbG9jYWxob3N0OjUyNjYiLCJodHRwczovL2xvY2FsaG9zdDo3MDU4Il0sIm5iZiI6MTc1NTYzNTc1MiwiZXhwIjoxNzYzNTg0NTUyLCJpYXQiOjE3NTU2MzU3NTIsImlzcyI6ImRvdG5ldC11c2VyLWp3dHMifQ.Jo9qqo_BUjILb_9FpJDmdACv1DQFiNWSI5ST7Zx_9Rs
 
 ### Regular User Token - Tech Innovations (domain: techinnovations.taskmasterpro.com)
-### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --claim "role=Member" --claim "tenant_id=22222222-2222-2222-2222-222222222222" --claim "name=Bob Wilson" --claim "email=bob.wilson@techinnovations.com" --name "TechUser" --project "demo/TaskMasterPro.Api"
-@techUserJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlRlY2hVc2VyIiwic3ViIjoiVGVjaFVzZXIiLCJqdGkiOiI4MzRjMDQ3NiIsInNjb3BlIjpbInRhc2ttYXN0ZXJwcm8tYXBpIiwicmVhZCJdLCJyb2xlIjoiTWVtYmVyIiwidGVuYW50X2lkIjoiMjIyMjIyMjItMjIyMi0yMjIyLTIyMjItMjIyMjIyMjIyMjIyIiwibmFtZSI6IkJvYiBXaWxzb24iLCJlbWFpbCI6ImJvYi53aWxzb25AdGVjaGlubm92YXRpb25zLmNvbSIsImF1ZCI6WyJodHRwOi8vbG9jYWxob3N0OjUyNjYiLCJodHRwczovL2xvY2FsaG9zdDo3MDU4Il0sIm5iZiI6MTc1NTQwMDc4OCwiZXhwIjoxNzYzMzQ5NTg4LCJpYXQiOjE3NTU0MDA3ODgsImlzcyI6ImRvdG5ldC11c2VyLWp3dHMifQ.QGRqyo9Jrt1hgr2R-d69L1Z1akyRz3r3uO-XY3BOSjw
+### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --claim "role=Member" --claim "tenant_id=22222222-2222-2222-2222-222222222222" --claim "nameidentifier=22222222-2222-2222-2222-222222222221" --claim "name=Bob Wilson" --claim "email=bob.wilson@techinnovations.com" --name "TechUser" --project "demo/TaskMasterPro.Api"
+@techUserJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlRlY2hVc2VyIiwic3ViIjoiVGVjaFVzZXIiLCJqdGkiOiJlYjBlNTc0YSIsInNjb3BlIjpbInRhc2ttYXN0ZXJwcm8tYXBpIiwicmVhZCJdLCJyb2xlIjoiTWVtYmVyIiwidGVuYW50X2lkIjoiMjIyMjIyMjItMjIyMi0yMjIyLTIyMjItMjIyMjIyMjIyMjIyIiwibmFtZWlkZW50aWZpZXIiOiIyMjIyMjIyMi0yMjIyLTIyMjItMjIyMi0yMjIyMjIyMjIyMjEiLCJuYW1lIjoiQm9iIFdpbHNvbiIsImVtYWlsIjoiYm9iLndpbHNvbkB0ZWNoaW5ub3ZhdGlvbnMuY29tIiwiYXVkIjpbImh0dHA6Ly9sb2NhbGhvc3Q6NTI2NiIsImh0dHBzOi8vbG9jYWxob3N0OjcwNTgiXSwibmJmIjoxNzU1NjM1ODAwLCJleHAiOjE3NjM1ODQ2MDAsImlhdCI6MTc1NTYzNTgwMSwiaXNzIjoiZG90bmV0LXVzZXItand0cyJ9.xUfv8iAStNE8LxwYl_AFLsSkFxV5S6BzbBo9_JGCULA
 
 ### Invalid/Expired Token for negative testing (domain: admin.taskmasterpro.com)
 @invalidJwt = eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJpbnZhbGlkIn0.invalid
 
+### Additional Acme Corporation Users
+
+### Mike Johnson - Member Role (Acme)
+### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --claim "role=Member" --claim "tenant_id=11111111-1111-1111-1111-111111111111" --claim "nameidentifier=11111111-1111-1111-1111-111111111115" --claim "name=Mike Johnson" --claim "email=mike.johnson@acme.com" --name "AcmeMember1" --project "demo/TaskMasterPro.Api"
+@acmeMember1Jwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFjbWVNZW1iZXIxIiwic3ViIjoiQWNtZU1lbWJlcjEiLCJqdGkiOiI2YzAwZmMwMiIsInNjb3BlIjpbInRhc2ttYXN0ZXJwcm8tYXBpIiwicmVhZCJdLCJyb2xlIjoiTWVtYmVyIiwidGVuYW50X2lkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwibmFtZWlkZW50aWZpZXIiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTUiLCJuYW1lIjoiTWlrZSBKb2huc29uIiwiZW1haWwiOiJtaWtlLmpvaG5zb25AYWNtZS5jb20iLCJhdWQiOlsiaHR0cDovL2xvY2FsaG9zdDo1MjY2IiwiaHR0cHM6Ly9sb2NhbGhvc3Q6NzA1OCJdLCJuYmYiOjE3NTU2Mzc2MTgsImV4cCI6MTc2MzU4NjQxOCwiaWF0IjoxNzU1NjM3NjE5LCJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIn0.8lCjmXynV0_TkVMcw0CYkEkFf6vBcqdQV81MPl5rgkg
+
+### Sarah Davis - Member Role (Acme)
+### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --claim "role=Member" --claim "tenant_id=11111111-1111-1111-1111-111111111111" --claim "nameidentifier=11111111-1111-1111-1111-111111111116" --claim "name=Sarah Davis" --claim "email=sarah.davis@acme.com" --name "AcmeMember2" --project "demo/TaskMasterPro.Api"
+@acmeMember2Jwt =  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkFjbWVNZW1iZXIyIiwic3ViIjoiQWNtZU1lbWJlcjIiLCJqdGkiOiI1N2NjOWJmIiwic2NvcGUiOlsidGFza21hc3RlcnByby1hcGkiLCJyZWFkIl0sInJvbGUiOiJNZW1iZXIiLCJ0ZW5hbnRfaWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJuYW1laWRlbnRpZmllciI6IjExMTExMTExLTExMTEtMTExMS0xMTExLTExMTExMTExMTExNiIsIm5hbWUiOiJTYXJhaCBEYXZpcyIsImVtYWlsIjoic2FyYWguZGF2aXNAYWNtZS5jb20iLCJhdWQiOlsiaHR0cDovL2xvY2FsaG9zdDo1MjY2IiwiaHR0cHM6Ly9sb2NhbGhvc3Q6NzA1OCJdLCJuYmYiOjE3NTU2Mzc3NDcsImV4cCI6MTc2MzU4NjU0NywiaWF0IjoxNzU1NjM3NzQ4LCJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIn0.9FW-mnJ3RCReh8K8O6HKOZxeVVMdqoGlFv_Ce1DzqQc
+
+### Additional Tech Innovations Users
+
+### Lisa Chen - Project Manager Role (Tech Innovations)
+### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --scope "write" --claim "role=ProjectManager" --claim "tenant_id=22222222-2222-2222-2222-222222222222" --claim "nameidentifier=22222222-2222-2222-2222-222222222222" --claim "name=Lisa Chen" --claim "email=lisa.chen@techinnovations.com" --name "TechProjectManager" --project "demo/TaskMasterPro.Api"
+@techProjectManagerJwt =  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlRlY2hQcm9qZWN0TWFuYWdlciIsInN1YiI6IlRlY2hQcm9qZWN0TWFuYWdlciIsImp0aSI6ImNjOGZkZDhiIiwic2NvcGUiOlsidGFza21hc3RlcnByby1hcGkiLCJyZWFkIiwid3JpdGUiXSwicm9sZSI6IlByb2plY3RNYW5hZ2VyIiwidGVuYW50X2lkIjoiMjIyMjIyMjItMjIyMi0yMjIyLTIyMjItMjIyMjIyMjIyMjIyIiwibmFtZWlkZW50aWZpZXIiOiIyMjIyMjIyMi0yMjIyLTIyMjItMjIyMi0yMjIyMjIyMjIyMjIiLCJuYW1lIjoiTGlzYSBDaGVuIiwiZW1haWwiOiJsaXNhLmNoZW5AdGVjaGlubm92YXRpb25zLmNvbSIsImF1ZCI6WyJodHRwOi8vbG9jYWxob3N0OjUyNjYiLCJodHRwczovL2xvY2FsaG9zdDo3MDU4Il0sIm5iZiI6MTc1NTY1OTQ2NiwiZXhwIjoxNzYzNjA4MjY2LCJpYXQiOjE3NTU2NTk0NjcsImlzcyI6ImRvdG5ldC11c2VyLWp3dHMifQ.XCO-INi8HnsRCqOG1pUy0FSFOboZLqLinLhu3Q34r5g
+
+### David Brown - Member Role (Tech Innovations)
+### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --claim "role=Member" --claim "tenant_id=22222222-2222-2222-2222-222222222222" --claim "nameidentifier=22222222-2222-2222-2222-222222222223" --claim "name=David Brown" --claim "email=david.brown@techinnovations.com" --name "TechMember1" --project "demo/TaskMasterPro.Api"
+@techMember1Jwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlRlY2hNZW1iZXIxIiwic3ViIjoiVGVjaE1lbWJlcjEiLCJqdGkiOiJmMzBkYzgxIiwic2NvcGUiOlsidGFza21hc3RlcnByby1hcGkiLCJyZWFkIl0sInJvbGUiOiJNZW1iZXIiLCJ0ZW5hbnRfaWQiOiIyMjIyMjIyMi0yMjIyLTIyMjItMjIyMi0yMjIyMjIyMjIyMjIiLCJuYW1laWRlbnRpZmllciI6IjIyMjIyMjIyLTIyMjItMjIyMi0yMjIyLTIyMjIyMjIyMjIyMyIsIm5hbWUiOiJEYXZpZCBCcm93biIsImVtYWlsIjoiZGF2aWQuYnJvd25AdGVjaGlubm92YXRpb25zLmNvbSIsImF1ZCI6WyJodHRwOi8vbG9jYWxob3N0OjUyNjYiLCJodHRwczovL2xvY2FsaG9zdDo3MDU4Il0sIm5iZiI6MTc1NTYzNzY3MSwiZXhwIjoxNzYzNTg2NDcxLCJpYXQiOjE3NTU2Mzc2NzIsImlzcyI6ImRvdG5ldC11c2VyLWp3dHMifQ.n_pC4dUIfCSQirjMeMeyGV0OJRrXn3hB6OeNwWxnfWs
+
+### Updated Bob Wilson - Admin Role (Tech Innovations) - correcting the existing one
+### dotnet user-jwts create --scope "taskmasterpro-api" --scope "read" --scope "write" --scope "admin" --claim "role=Admin" --claim "tenant_id=22222222-2222-2222-2222-222222222222" --claim "nameidentifier=22222222-2222-2222-2222-222222222221" --claim "name=Bob Wilson" --claim "email=bob.wilson@techinnovations.com" --name "TechAdmin" --project "demo/TaskMasterPro.Api"
+@techAdminJwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlRlY2hBZG1pbiIsInN1YiI6IlRlY2hBZG1pbiIsImp0aSI6IjRmNDAxMWQ4Iiwic2NvcGUiOlsidGFza21hc3RlcnByby1hcGkiLCJyZWFkIiwid3JpdGUiLCJhZG1pbiJdLCJyb2xlIjoiQWRtaW4iLCJ0ZW5hbnRfaWQiOiIyMjIyMjIyMi0yMjIyLTIyMjItMjIyMi0yMjIyMjIyMjIyMjIiLCJuYW1laWRlbnRpZmllciI6IjIyMjIyMjIyLTIyMjItMjIyMi0yMjIyLTIyMjIyMjIyMjIyMSIsIm5hbWUiOiJCb2IgV2lsc29uIiwiZW1haWwiOiJib2Iud2lsc29uQHRlY2hpbm5vdmF0aW9ucy5jb20iLCJhdWQiOlsiaHR0cDovL2xvY2FsaG9zdDo1MjY2IiwiaHR0cHM6Ly9sb2NhbGhvc3Q6NzA1OCJdLCJuYmYiOjE3NTU2Mzc2OTMsImV4cCI6MTc2MzU4NjQ5MywiaWF0IjoxNzU1NjM3Njk0LCJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIn0.DOqCcR01UsLWfrjOiuGbe-sanTi6xmIY4Phf1PO3iRE
+
+### =================================================================
+@TaskMasterPro_Api_HostAddress_Http = http://localhost:5266
+@baseUrl = {{TaskMasterPro_Api_HostAddress_Http}}/api
+
 ### =================================================================
 ### 🛡️ PROJECT ENDPOINTS - TENANT ISOLATION TESTS
 ### =================================================================
+
+### Extract created project ID
+@projectId = {{$guid}}
 
 ### 1. CREATE PROJECT - PASS: Should return 201 with tenantId = acmeTenantId
 # Expected: 201 Created
@@ -48,39 +86,86 @@ Host: acme.taskmasterpro.com
 Content-Type: application/json
 
 {
+  "id": "{{projectId}}",
   "name": "Acme Tenant Test {{$timestamp}}",
   "description": "Should get Acme tenant ID",
   "projectManagerId": "{{acmeProjectManagerId}}",
   "startDate": "2024-08-20T09:00:00Z"
 }
 
-### Extract created project ID
-@acmeProjectId = {{acmeProject.response.body.id}}
 
-### 2. GET ACTIVE PROJECTS - PASS: Acme tenant should see only their projects
+### 2. CREATE PROJECT - PASS: Should return 201 with tenantId = techInnovationsTenantId
+# Expected: 201 Forbidden
+# Response body: tenantId should equal "22222222-2222-2222-2222-222222222222"
+POST {{baseUrl}}/projects
+Authorization: Bearer {{techProjectManagerJwt}}
+Host: techinnovations.taskmasterpro.com
+Content-Type: application/json
+
+{
+  "id": "{{projectId}}",
+  "name": "Acme Tenant Test {{$timestamp}}",
+  "description": "Should get Tech Innovations tenant ID ",
+  "projectManagerId": "{{techProjectManagerId}}",
+  "startDate": "2024-08-20T09:00:00Z"
+}
+
+### 3. CREATE PROJECT - PASS: Should return 201 with tenantId = techInnovationsTenantId
+# Expected: 201 Forbidden
+# Response body: tenantId should equal "22222222-2222-2222-2222-222222222222"
+# HOWEVER: The response should be 401 if JWT resolver enabled instead less restrictive Subdomain resolver
+POST {{baseUrl}}/projects
+Authorization: Bearer {{acmeProjectManagerJwt}}
+Host: techinnovations.taskmasterpro.com
+Content-Type: application/json
+
+{
+  "id": "{{projectId}}",
+  "name": "Acme Tenant Test {{$timestamp}}",
+  "description": "Should get Tech Innovations tenant ID ",
+  "projectManagerId": "{{acmeProjectManagerId}}",
+  "startDate": "2024-08-20T09:00:00Z"
+}
+
+
+### 4. GET ACTIVE PROJECTS - PASS: Acme tenant should see only their projects
 # Expected: 200 OK
 # Response: All projects in array should have tenantId = "11111111-1111-1111-1111-111111111111"
 GET {{baseUrl}}/projects/active
 Authorization: Bearer {{acmeUserJwt}}
 Host: acme.taskmasterpro.com
 
-### 3. GET ACTIVE PROJECTS - PASS: Tech tenant should see only their projects
+### 5. GET ALL PROJECTS - PASS: Acme tenant should see only their projects
+# Expected: 200 OK
+# Response: All projects in array should have tenantId = "11111111-1111-1111-1111-111111111111"
+GET {{baseUrl}}/projects/all
+Authorization: Bearer {{acmeUserJwt}}
+Host: acme.taskmasterpro.com
+
+### 6. GET ACTIVE PROJECTS - PASS: Tech tenant should see only their projects
 # Expected: 200 OK  
 # Response: All projects in array should have tenantId = "22222222-2222-2222-2222-222222222222"
 GET {{baseUrl}}/projects/active
 Authorization: Bearer {{techUserJwt}}
 Host: techinnovations.taskmasterpro.com
 
-### 4. GET PROJECT BY ID - PASS: Acme user can access their project
+### 7. GET PROJECT BY ID - PASS: Acme user can access their project
 # Expected: 200 OK
 # Response: Project with correct ID and tenantId = "11111111-1111-1111-1111-111111111111"
-GET {{baseUrl}}/projects/{{acmeProjectId}}
+GET {{baseUrl}}/projects/11111111-1111-1111-1111-111111111121
 Authorization: Bearer {{acmeUserJwt}}
 Host: acme.taskmasterpro.com
 
-### 5. GET PROJECT BY ID - FAIL: Tech user CANNOT access Acme project
+### 8. GET PROJECT BY ID - FAIL: Tech user CANNOT access Acme project
 # Expected: 404 Not Found (tenant isolation blocks access)
 # Response: Project not found error
-GET {{baseUrl}}/projects/{{acmeProjectId}}
+GET {{baseUrl}}/projects/11111111-1111-1111-1111-111111111121
+Authorization: Bearer {{techUserJwt}}
+Host: techinnovations.taskmasterpro.com
+
+### 9. GET PROJECT BY ID - FAIL: Acme user CANNOT access Acme project from techinnovations domain
+# Expected: 404 Not Found (tenant isolation blocks access)
+# Response: Project not found error
+GET {{baseUrl}}/projects/11111111-1111-1111-1111-111111111121
 Authorization: Bearer {{techUserJwt}}
 Host: techinnovations.taskmasterpro.com

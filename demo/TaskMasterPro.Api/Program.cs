@@ -56,9 +56,10 @@ app.UseHttpsRedirection();
 
 // Configure authentication and authorization
 app.UseAuthentication();
+app.UseAuthorization();
+
 app.LogUserClaims();			// Debugging middleware to log claims - not for production use					
 app.UseMultiTenantIsolation();  // Multi-tenant middleware must come before authorization
-app.UseAuthorization();
 
 // Configure api endpoints
 app.MapApplicationEndpoints();

@@ -8,7 +8,7 @@ public interface IProjectRepository
 {
 	Task<Project?> GetByIdAsync(Guid id);
 	Task<List<Project>> GetProjectsByManagerAsync(Guid managerId);
-	Task<List<Project>> GetActiveProjectsAsync();
+	Task<List<Project>> GetProjectsAsync(string filter = "all");
 	Task<Project?> GetProjectWithTasksAsync(Guid projectId);
 	Task AddAsync(Project project);
 }
@@ -18,7 +18,7 @@ public class ProjectRepository(TaskMasterDbContext context) : IProjectRepository
 	public async Task<Project?> GetByIdAsync(Guid id)
 	{
 		return await context.Projects
-			.Include(p => p.ProjectManager)
+			//.Include(p => p.ProjectManager)
 			.FirstOrDefaultAsync(p => p.Id == id);
 	}
 
@@ -33,14 +33,24 @@ public class ProjectRepository(TaskMasterDbContext context) : IProjectRepository
 			.ToListAsync();
 	}
 
-	public async Task<List<Project>> GetActiveProjectsAsync()
+	public async Task<List<Project>> GetProjectsAsync(string filter = "all")
 	{
-		return await context.Projects
-			.AsNoTracking()
-			.Include(p => p.ProjectManager)
-			.Where(p => p.Status == ProjectStatus.Active)
-			.OrderBy(p => p.StartDate)
-			.ToListAsync();
+		switch (filter)
+		{
+			case "active":
+				return await context.Projects
+						.AsNoTracking()
+						.Include(p => p.ProjectManager)
+						.Where(p => p.Status == ProjectStatus.Active)
+						.OrderBy(p => p.StartDate)
+						.ToListAsync();
+			default:
+				return await context.Projects
+							.AsNoTracking()
+							.Include(p => p.ProjectManager)
+							.OrderBy(p => p.StartDate)
+							.ToListAsync();
+		}
 	}
 
 	public async Task<Project?> GetProjectWithTasksAsync(Guid projectId)
