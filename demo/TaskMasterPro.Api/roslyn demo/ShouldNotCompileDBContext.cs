@@ -11,6 +11,7 @@ namespace TaskMasterPro.Api.CodeAnalysisDemo;
 //		MTI001 - Direct DbSet access - Compilation error
 //		MTI003 - Potential filter bypasses - Warning
 //		MTI004 - Entities without repositories - Compilation error
+//		MTI006 - DbContext not derived from TenantDbContext - Compilation error
 
 
 // This class should not compile because

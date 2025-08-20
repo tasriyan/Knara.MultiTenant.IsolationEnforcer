@@ -14,7 +14,7 @@ public sealed class UpdateTaskStatus : IEndpoint
 			async (
 				Guid id,
 				UpdateTaskStatusDto dto,
-				ITaskRepository repository) =>
+				ITasksDataAccess repository) =>
 			{
 				var task = await repository.GetByIdAsync(id);
 

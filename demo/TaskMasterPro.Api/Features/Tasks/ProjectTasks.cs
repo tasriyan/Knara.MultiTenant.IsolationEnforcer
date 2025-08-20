@@ -11,7 +11,7 @@ public sealed class ProjectTasks : IEndpoint
 		app.MapGet("/api/tasks/project/{projectId:guid}",
 			async (
 				Guid projectId,
-				ITaskRepository repository) =>
+				ITasksDataAccess repository) =>
 			{
 				var tasks = await repository.GetTasksByProjectAsync(projectId);
 

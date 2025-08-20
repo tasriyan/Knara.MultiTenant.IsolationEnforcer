@@ -8,7 +8,7 @@ public sealed class GetMyTasks : IEndpoint
 	{
 
 		app.MapGet("/api/tasks/my-tasks",
-			async (ITaskRepository repository,
+			async (ITasksDataAccess repository,
 					CurrentUserService userSvc) =>
 			{
 				if (!Guid.TryParse(userSvc!.UserId, out var userId))

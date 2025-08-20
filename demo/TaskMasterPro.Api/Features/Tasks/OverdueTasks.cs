@@ -9,7 +9,7 @@ public sealed class OverdueTasks : IEndpoint
 	{
 
 		app.MapGet("/api/tasks/overdue",
-			async (ITaskRepository repository) =>
+			async (ITasksDataAccess repository) =>
 			{
 				var tasks = await repository.GetOverdueTasksAsync();
 

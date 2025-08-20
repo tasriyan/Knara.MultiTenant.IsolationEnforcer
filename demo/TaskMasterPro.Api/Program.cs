@@ -42,7 +42,7 @@ builder.Services.AddAuthorizationBuilder()
 
 // Register features services
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
-builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ITasksDataAccess, TasksDataAccess>();
 builder.Services.AddScoped<CurrentUserService>();
 builder.Services.RegisterApplicationEndpoints();
 
