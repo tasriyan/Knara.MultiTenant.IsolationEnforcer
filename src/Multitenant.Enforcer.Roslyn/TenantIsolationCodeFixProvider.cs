@@ -92,8 +92,8 @@ public class TenantIsolationCodeFixProvider : CodeFixProvider
 			SyntaxFactory.IdentifierName("AllowCrossTenantAccess"))
 			.WithArgumentList(
 				SyntaxFactory.AttributeArgumentList(
-					SyntaxFactory.SeparatedList(new[]
-					{
+					SyntaxFactory.SeparatedList(
+					[
 						SyntaxFactory.AttributeArgument(
 							SyntaxFactory.LiteralExpression(
 								SyntaxKind.StringLiteralExpression,
@@ -102,7 +102,7 @@ public class TenantIsolationCodeFixProvider : CodeFixProvider
 							SyntaxFactory.LiteralExpression(
 								SyntaxKind.StringLiteralExpression,
 								SyntaxFactory.Literal("SystemAdmin")))
-					})));
+					])));
 
 		var attributeList = SyntaxFactory.AttributeList(
 			SyntaxFactory.SingletonSeparatedList(attribute))
@@ -138,8 +138,8 @@ public class TenantIsolationCodeFixProvider : CodeFixProvider
 			SyntaxFactory.IdentifierName("AllowCrossTenantAccess"))
 			.WithArgumentList(
 				SyntaxFactory.AttributeArgumentList(
-					SyntaxFactory.SeparatedList(new[]
-					{
+					SyntaxFactory.SeparatedList(
+					[
 						SyntaxFactory.AttributeArgument(
 							SyntaxFactory.LiteralExpression(
 								SyntaxKind.StringLiteralExpression,
@@ -148,7 +148,7 @@ public class TenantIsolationCodeFixProvider : CodeFixProvider
 							SyntaxFactory.LiteralExpression(
 								SyntaxKind.StringLiteralExpression,
 								SyntaxFactory.Literal("SystemAdmin")))
-					})));
+					])));
 
 		var attributeList = SyntaxFactory.AttributeList(
 			SyntaxFactory.SingletonSeparatedList(attribute));
@@ -181,30 +181,30 @@ public class TenantIsolationCodeFixProvider : CodeFixProvider
 		return root;
 	}
 
-	private static string ExtractEntityTypeFromDiagnostic(Diagnostic diagnostic)
-	{
-		// Extract entity type name from diagnostic message
-		var message = diagnostic.GetMessage();
+	//private static string ExtractEntityTypeFromDiagnostic(Diagnostic diagnostic)
+	//{
+	//	// Extract entity type name from diagnostic message
+	//	var message = diagnostic.GetMessage();
 
-		// For MTI001: "Use ITenantRepository<EntityType> instead..."
-		if (message.Contains("ITenantRepository<"))
-		{
-			var startIndex = message.IndexOf("ITenantRepository<") + "ITenantRepository<".Length;
-			var endIndex = message.IndexOf(">", startIndex);
-			if (endIndex > startIndex)
-			{
-				return message.Substring(startIndex, endIndex - startIndex);
-			}
-		}
+	//	// For MTI001: "Use ITenantRepository<EntityType> instead..."
+	//	if (message.Contains("ITenantRepository<"))
+	//	{
+	//		var startIndex = message.IndexOf("ITenantRepository<") + "ITenantRepository<".Length;
+	//		var endIndex = message.IndexOf(">", startIndex);
+	//		if (endIndex > startIndex)
+	//		{
+	//			return message.Substring(startIndex, endIndex - startIndex);
+	//		}
+	//	}
 
-		// For other diagnostics, try to extract from the message format
-		if (diagnostic.Descriptor.MessageFormat.ToString().Contains("{0}"))
-		{
-			// The entity type is usually the first argument
-			return diagnostic.Properties.TryGetValue("EntityType", out var entityType) ? entityType : null;
-		}
+	//	// For other diagnostics, try to extract from the message format
+	//	if (diagnostic.Descriptor.MessageFormat.ToString().Contains("{0}"))
+	//	{
+	//		// The entity type is usually the first argument
+	//		return diagnostic.Properties.TryGetValue("EntityType", out var entityType) ? entityType : null;
+	//	}
 
-		return null;
-	}
+	//	return null;
+	//}
 }
 
