@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/demo/TaskMasterPro.Api/taskmaster.db
+/demo/TaskMasterPro.Api/taskmaster.db-shm
+/demo/TaskMasterPro.Api/taskmaster.db-wal

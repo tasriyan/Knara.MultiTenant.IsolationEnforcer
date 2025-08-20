@@ -51,10 +51,10 @@ public sealed class MigrateUser : IEndpoint
 							Action = "USER_MIGRATION",
 							EntityType = nameof(User),
 							EntityId = user.Id,
-							UserEmail = userSvc.UserEmail,
+							UserEmail = userSvc!.UserEmail,
 							Details = $"Migrated user {user.Email} from {dto.FromTenantId} to {dto.ToTenantId}",
 							Timestamp = DateTime.UtcNow,
-							IpAddress = userSvc.IpAddress
+							IpAddress = userSvc!.IpAddress
 						};
 
 						context.AdminAuditLogs.Add(auditLog);

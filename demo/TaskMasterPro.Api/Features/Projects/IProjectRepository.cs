@@ -49,7 +49,7 @@ public class ProjectRepository(TaskMasterDbContext context) : IProjectRepository
 			.AsNoTracking()
 			.Include(p => p.ProjectManager)
 			.Include(p => p.Tasks)
-				.ThenInclude(t => t.AssignedTo)
+			.ThenInclude(t => t.AssignedTo)
 			.FirstOrDefaultAsync(p => p.Id == projectId);
 	}
 

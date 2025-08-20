@@ -41,7 +41,6 @@ public class TaskRepository(TaskMasterDbContext context) : ITaskRepository
 			.AsNoTracking()
 			.Include(t => t.Project)
 			.Where(t => t.AssignedToId == userId)
-			.Where(t => t.Status != ProjectTaskStatus.Done)
 			.OrderBy(t => t.DueDate ?? DateTime.MaxValue)
 			.ToListAsync();
 	}

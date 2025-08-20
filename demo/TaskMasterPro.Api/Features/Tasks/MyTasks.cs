@@ -1,5 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
-using TaskMasterPro.Api.Shared;
+﻿using TaskMasterPro.Api.Shared;
 
 namespace TaskMasterPro.Api.Features.Tasks;
 
@@ -12,7 +11,9 @@ public sealed class GetMyTasks : IEndpoint
 			async (ITaskRepository repository,
 					CurrentUserService userSvc) =>
 			{
-				var userId = Guid.Parse(userSvc.UserId);
+				if (!Guid.TryParse(userSvc!.UserId, out var userId))
+					return Results.BadRequest("User id not provided.");
+
 				var tasks = await repository.GetTasksByUserAsync(userId);
 
 				return Results.Ok(tasks

@@ -6,7 +6,7 @@ public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor)
 {
 	private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 	public string? UserId =>
-		_httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system";
+		_httpContextAccessor.HttpContext?.User?.FindFirstValue("nameidentifier") ?? "system";
 	public string? UserName =>
 		_httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Name) ?? "system";
 
