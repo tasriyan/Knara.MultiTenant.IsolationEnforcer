@@ -10,3 +10,4 @@ MTI002 | Security | Error | DiagnosticDescriptors, [Documentation](https://docs.
 MTI003 | Security | Warning | DiagnosticDescriptors, [Documentation](https://docs.multitenant.enforcer/rules/MTI003)
 MTI004 | Security | Warning | DiagnosticDescriptors, [Documentation](https://docs.multitenant.enforcer/rules/MTI004)
 MTI005 | Security | Error | DiagnosticDescriptors, [Documentation](https://docs.multitenant.enforcer/rules/MTI005)
+MTI006 | Security | Error | DiagnosticDescriptors, [Documentation](https://docs.multitenant.enforcer/rules/MTI006)
