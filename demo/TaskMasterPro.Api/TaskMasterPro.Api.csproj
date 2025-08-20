@@ -24,8 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Multitenant.Enforcer.DependencyInjection\Multitenant.Enforcer.DependencyInjection.csproj" />
     <ProjectReference Include="..\..\src\Multitenant.Enforcer.PerformanceMonitor\Multitenant.Enforcer.PerformanceMonitor.csproj" />
-    <ProjectReference Include="..\..\src\Multitenant.Enforcer.Roslyn\Multitenant.Enforcer.Roslyn.csproj" 
-                       OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\..\src\Multitenant.Enforcer.Roslyn\Multitenant.Enforcer.Roslyn.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>
