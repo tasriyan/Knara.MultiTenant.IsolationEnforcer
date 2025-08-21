@@ -8,7 +8,7 @@ public static class Helpers
 {
 	public static async Task VerifyCodeFixAsync(string testCode, DiagnosticResult expectedDiagnostic, string fixedCode)
 	{
-		var test = new CSharpCodeFixTest<TenantIsolationAnalyzer, TenantIsolationCodeFixProvider, DefaultVerifier>
+		var test = new CSharpCodeFixTest<RepositoryRequiredAnalyzer, TenantIsolationCodeFixProvider, DefaultVerifier>
 		{
 			TestCode = testCode,
 			FixedCode = fixedCode,
@@ -27,7 +27,7 @@ public static class Helpers
 
 	public static async Task VerifyCodeFixAsync(string testCode)
 	{
-		var test = new CSharpAnalyzerTest<TenantIsolationAnalyzer, DefaultVerifier>
+		var test = new CSharpAnalyzerTest<RepositoryRequiredAnalyzer, DefaultVerifier>
 		{
 			TestCode = testCode
 		};
@@ -44,7 +44,7 @@ public static class Helpers
 
 	public static async Task VerifyCodeFixAsync(string testCode, DiagnosticResult[] expectedDiagnostics, string fixedCode)
 	{
-		var test = new CSharpCodeFixTest<TenantIsolationAnalyzer, TenantIsolationCodeFixProvider, DefaultVerifier>
+		var test = new CSharpCodeFixTest<RepositoryRequiredAnalyzer, TenantIsolationCodeFixProvider, DefaultVerifier>
 		{
 			TestCode = testCode,
 			FixedCode = fixedCode

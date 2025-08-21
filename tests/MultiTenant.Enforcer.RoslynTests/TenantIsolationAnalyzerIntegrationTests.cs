@@ -504,7 +504,7 @@ namespace TaskMasterPro.Api.Controllers
 
 	private static async Task VerifyAnalyzerAsync(string testCode, params DiagnosticResult[] expected)
 	{
-		var test = new CSharpAnalyzerTest<TenantIsolationAnalyzer, XUnitVerifier>
+		var test = new CSharpAnalyzerTest<RepositoryRequiredAnalyzer, XUnitVerifier>
 		{
 			TestCode = testCode,
 		};
