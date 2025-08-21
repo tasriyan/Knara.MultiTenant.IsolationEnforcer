@@ -1,6 +1,6 @@
 ﻿namespace TaskMasterPro.Api.Entities;
 
-public class Company
+public class Company: ICrossTenantAccessible
 {
 	public Guid Id { get; set; }
 	public string Name { get; set; } = string.Empty;

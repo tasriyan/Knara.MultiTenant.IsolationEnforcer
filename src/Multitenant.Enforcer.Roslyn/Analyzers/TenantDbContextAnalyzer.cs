@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace Multitenant.Enforcer.Roslyn;
 
@@ -54,42 +53,15 @@ public class TenantDbContextAnalyzer : DiagnosticAnalyzer
 
 		// Check if the immediate base class is DbContext
 		return baseType.Name == "DbContext" &&
-			   baseType.ContainingNamespace.ToDisplayString().StartsWith("Microsoft.EntityFrameworkCore");
+			CommonChecks.IsEntityFrameworkMethod(baseType);
+			   //baseType.ContainingNamespace.ToDisplayString().StartsWith("Microsoft.EntityFrameworkCore");
 	}
 
 	private static IEnumerable<IPropertySymbol> GetTenantIsolatedDbSetProperties(INamedTypeSymbol classSymbol)
 	{
 		return classSymbol.GetMembers()
 			.OfType<IPropertySymbol>()
-			.Where(IsDbSetProperty)
-			.Where(property => HasTenantIsolatedTypeArgument(property));
-	}
-
-	private static bool IsDbSetProperty(IPropertySymbol property)
-	{
-		return property.Type.Name == "DbSet" &&
-			   property.Type.ContainingNamespace.ToDisplayString().StartsWith("Microsoft.EntityFrameworkCore");
-	}
-
-	private static bool HasTenantIsolatedTypeArgument(IPropertySymbol property)
-	{
-		if (property.Type is INamedTypeSymbol namedType &&
-			namedType.TypeArguments.Length > 0)
-		{
-			var typeArgument = namedType.TypeArguments.First();
-			return IsTenantIsolatedEntity(typeArgument);
-		}
-
-		return false;
-	}
-
-	private static bool IsTenantIsolatedEntity(ITypeSymbol? type)
-	{
-		if (type == null) return false;
-
-		return type.AllInterfaces.Any(i =>
-			i.Name == "ITenantIsolated" &&
-			(i.ContainingNamespace.ToDisplayString().StartsWith("Multitenant.Enforcer") ||
-			 i.ContainingNamespace.ToDisplayString().StartsWith("MultiTenant.Enforcer")));
+			.Where(CommonChecks.IsDbSetProperty)
+			.Where(property => CommonChecks.HasTenantIsolatedTypeArgument(property));
 	}
 }

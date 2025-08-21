@@ -105,7 +105,7 @@ public class CrossTenantAuthorizationAnalyzer : DiagnosticAnalyzer
 		foreach (var node in descendantNodes)
 		{
 			// Skip nodes that are inside lambda expressions (they're handled separately)
-			if (IsInsideLambdaExpression(node))
+			if (CommonChecks.IsInsideLambdaExpression(node))
 				continue;
 
 			if (node is MemberAccessExpressionSyntax memberAccess)
@@ -217,21 +217,6 @@ public class CrossTenantAuthorizationAnalyzer : DiagnosticAnalyzer
 		return typeSymbol.GetAttributes().Any(attr =>
 			attr.AttributeClass?.Name == "AllowCrossTenantAccessAttribute" ||
 			attr.AttributeClass?.Name == "AllowCrossTenantAccess");
-	}
-
-	private static bool IsInsideLambdaExpression(SyntaxNode node)
-	{
-		var current = node.Parent;
-		while (current != null)
-		{
-			if (current.IsKind(SyntaxKind.SimpleLambdaExpression) ||
-				current.IsKind(SyntaxKind.ParenthesizedLambdaExpression))
-			{
-				return true;
-			}
-			current = current.Parent;
-		}
-		return false;
 	}
 
 }

@@ -11,12 +11,14 @@ public class QueryFilterAnalyzer : DiagnosticAnalyzer
 {
 	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
 		[DiagnosticDescriptors.PotentialFilterBypass];
+
 	public override void Initialize(AnalysisContext context)
 	{
 		context.EnableConcurrentExecution();
 		context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
 		context.RegisterSyntaxNodeAction(AnalyzeInvocationExpression, SyntaxKind.InvocationExpression);
 	}
+
 	private static void AnalyzeInvocationExpression(SyntaxNodeAnalysisContext context)
 	{
 		var invocation = (InvocationExpressionSyntax)context.Node;
@@ -28,7 +30,7 @@ public class QueryFilterAnalyzer : DiagnosticAnalyzer
 		if (symbolInfo.Symbol is IMethodSymbol method)
 		{
 			// Check for IgnoreQueryFilters() usage
-			if (method.Name == "IgnoreQueryFilters" && IsEntityFrameworkMethod(method))
+			if (method.Name == "IgnoreQueryFilters" && CommonChecks.IsEntityFrameworkMethod(method))
 			{
 				// This might bypass tenant filtering
 				var diagnostic = Diagnostic.Create(
@@ -41,7 +43,7 @@ public class QueryFilterAnalyzer : DiagnosticAnalyzer
 
 			// Check for FromSqlRaw/FromSqlInterpolated usage
 			if ((method.Name == "FromSqlRaw" || method.Name == "FromSqlInterpolated") &&
-				IsEntityFrameworkMethod(method))
+				CommonChecks.IsEntityFrameworkMethod(method))
 			{
 				var diagnostic = Diagnostic.Create(
 					DiagnosticDescriptors.PotentialFilterBypass,
@@ -51,10 +53,5 @@ public class QueryFilterAnalyzer : DiagnosticAnalyzer
 				context.ReportDiagnostic(diagnostic);
 			}
 		}
-	}
-
-	private static bool IsEntityFrameworkMethod(IMethodSymbol method)
-	{
-		return method.ContainingNamespace.ToDisplayString().StartsWith("Microsoft.EntityFrameworkCore");
 	}
 }
