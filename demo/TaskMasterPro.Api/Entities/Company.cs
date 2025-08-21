@@ -1,6 +1,8 @@
-﻿namespace TaskMasterPro.Api.Entities;
+﻿using Multitenant.Enforcer.Core;
 
-public class Company: ICrossTenantAccessible
+namespace TaskMasterPro.Api.Entities;
+
+public class Company
 {
 	public Guid Id { get; set; }
 	public string Name { get; set; } = string.Empty;

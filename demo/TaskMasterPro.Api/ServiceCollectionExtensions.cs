@@ -3,6 +3,9 @@ using Microsoft.Extensions.Configuration;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.DependencyInjection;
 using TaskMasterPro.Api.Data;
+using TaskMasterPro.Api.Features.Admin;
+using TaskMasterPro.Api.Features.Projects;
+using TaskMasterPro.Api.Features.Tasks;
 
 namespace TaskMasterPro.Api;
 
@@ -41,18 +44,6 @@ public static class ServiceCollectionExtensions
 	public static IServiceCollection AddMultiTenantEnforcer(this WebApplicationBuilder builder)
 	{
 		var services = builder.Services;
-		// Database configuration - SQLite In-Memory
-		services.AddDbContext<TaskMasterDbContext>(options =>
-			options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"), sqliteOptions =>
-			{
-				sqliteOptions.CommandTimeout(builder.Configuration.GetValue<int>("Database:CommandTimeout"));
-			}));
-
-		services.AddDbContext<TenantsStoreDbContext>(options =>
-			options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"), sqliteOptions =>
-			{
-				sqliteOptions.CommandTimeout(builder.Configuration.GetValue<int>("Database:CommandTimeout"));
-			}));
 
 		services.AddMultiTenantIsolation(options =>
 			{
@@ -67,6 +58,19 @@ public static class ServiceCollectionExtensions
 				options.ExcludedSubdomains = ["www", "api", "admin", "localhost", "localhost:5266", "localhost:7058", "localhost:5001"];
 				options.SystemAdminClaimValue = "SystemAdmin";
 			});
+
+		return services;
+	}
+
+	public static IServiceCollection ConfigureEntityFramework(this WebApplicationBuilder builder)
+	{
+		var services = builder.Services;
+		var configuration = builder.Configuration;
+		// Database configuration - SQLite In-Memory
+		services.AddGlobalDataAccess(configuration)
+				.AddAdminDataContext(configuration)
+				.AddProjectsDataAccess(configuration)
+				.AddTasksDataAccess(configuration);
 
 		return services;
 	}

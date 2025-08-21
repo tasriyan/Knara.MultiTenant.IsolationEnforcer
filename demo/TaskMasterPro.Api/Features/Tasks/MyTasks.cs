@@ -1,4 +1,8 @@
-﻿using TaskMasterPro.Api.Shared;
+﻿using Microsoft.EntityFrameworkCore;
+using MultiTenant.Enforcer.EntityFramework;
+using TaskMasterPro.Api.Data;
+using TaskMasterPro.Api.Entities;
+using TaskMasterPro.Api.Shared;
 
 namespace TaskMasterPro.Api.Features.Tasks;
 
@@ -8,13 +12,18 @@ public sealed class GetMyTasks : IEndpoint
 	{
 
 		app.MapGet("/api/tasks/my-tasks",
-			async (ITasksDataAccess repository,
+			async (TenantRepository<ProjectTask, UnsafeDbContext> repository,
 					CurrentUserService userSvc) =>
 			{
 				if (!Guid.TryParse(userSvc!.UserId, out var userId))
 					return Results.BadRequest("User id not provided.");
 
-				var tasks = await repository.GetTasksByUserAsync(userId);
+				var tasks = await repository.Query()
+								.AsNoTracking()
+								.Include(t => t.Project)
+								.Where(t => t.AssignedToId == userId)
+								.OrderBy(t => t.DueDate ?? DateTime.MaxValue)
+								.ToListAsync();
 
 				return Results.Ok(tasks
 					.Select(t => new ProjectTaskResponse(t.Id, 

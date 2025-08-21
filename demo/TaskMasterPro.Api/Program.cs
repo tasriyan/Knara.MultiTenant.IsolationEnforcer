@@ -3,8 +3,6 @@ using Multitenant.Enforcer.AspnetCore;
 using Serilog;
 using TaskMasterPro.Api;
 using TaskMasterPro.Api.Data;
-using TaskMasterPro.Api.Features.Projects;
-using TaskMasterPro.Api.Features.Tasks;
 using TaskMasterPro.Api.Shared;
 
 
@@ -21,6 +19,9 @@ builder.Host.UseSerilog();
 
 // Debugging code to verify configuration loading - not for production use
 builder.LogConfigurationValues();
+
+//setup database contexts
+builder.ConfigureEntityFramework();
 
 // Add multi-tenant enforcer services
 builder.AddMultiTenantEnforcer();
@@ -41,8 +42,6 @@ builder.Services.AddAuthorizationBuilder()
 
 
 // Register features services
-builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
-builder.Services.AddScoped<ITasksDataAccess, TasksDataAccess>();
 builder.Services.AddScoped<CurrentUserService>();
 builder.Services.RegisterApplicationEndpoints();
 

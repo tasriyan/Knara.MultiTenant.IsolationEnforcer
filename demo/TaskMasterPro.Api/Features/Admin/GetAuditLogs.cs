@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Multitenant.Enforcer.AspnetCore;
 using Multitenant.Enforcer.Core;
-using TaskMasterPro.Api.Data;
 using TaskMasterPro.Api.Shared;
 
 namespace TaskMasterPro.Api.Features.Admin;
@@ -17,7 +16,7 @@ public sealed class GetAuditLogs : IEndpoint
 	{
 		app.MapGet("/api/admin/audit-logs",
 			async(ICrossTenantOperationManager crossTenantManager,
-					TaskMasterDbContext context,
+					NotTenantIsolatedAdminDbContext context,
 					CurrentUserService userSvc,
 					[FromQuery] Guid ? tenantId = null,
 					[FromQuery] DateTime ? fromDate = null,
@@ -25,7 +24,7 @@ public sealed class GetAuditLogs : IEndpoint
 			{
 				return await crossTenantManager.ExecuteCrossTenantOperationAsync(async () =>
 				{
-					var query = context.AdminAuditLogs.AsQueryable();
+					var query = context.AuditLogs.AsQueryable();
 
 					if (tenantId.HasValue)
 					{

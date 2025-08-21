@@ -1,4 +1,7 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using Microsoft.EntityFrameworkCore;
+using MultiTenant.Enforcer.EntityFramework;
+using TaskMasterPro.Api.Data;
+using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
 
 namespace TaskMasterPro.Api.Features.Tasks;
@@ -11,9 +14,15 @@ public sealed class ProjectTasks : IEndpoint
 		app.MapGet("/api/tasks/project/{projectId:guid}",
 			async (
 				Guid projectId,
-				ITasksDataAccess repository) =>
+				TenantRepository<ProjectTask, UnsafeDbContext> repository) =>
 			{
-				var tasks = await repository.GetTasksByProjectAsync(projectId);
+				var tasks = await repository.Query()
+								.AsNoTracking()
+								.Include(t => t.AssignedTo)
+								.Where(t => t.ProjectId == projectId)
+								.OrderBy(t => t.Priority)
+								.ThenBy(t => t.DueDate)
+								.ToListAsync();
 
 				return Results.Ok(tasks
 					.Select(t => new ProjectTaskResponse(t.Id,

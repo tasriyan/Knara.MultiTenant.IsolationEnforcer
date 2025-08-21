@@ -2,7 +2,7 @@
 
 namespace TaskMasterPro.Api.Entities;
 
-public class AdminAuditLog : ICrossTenantAccessible
+public class AdminAuditLog
 {
 	public Guid Id { get; set; }
 	public Guid TenantId { get; set; }
