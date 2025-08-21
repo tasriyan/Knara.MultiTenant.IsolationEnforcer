@@ -19,7 +19,7 @@ public class QueryFilterAnalyzer : DiagnosticAnalyzer
 		context.RegisterSyntaxNodeAction(AnalyzeInvocationExpression, SyntaxKind.InvocationExpression);
 	}
 
-	private static void AnalyzeInvocationExpression(SyntaxNodeAnalysisContext context)
+	public static void AnalyzeInvocationExpression(SyntaxNodeAnalysisContext context)
 	{
 		var invocation = (InvocationExpressionSyntax)context.Node;
 		var memberAccess = invocation.Expression as MemberAccessExpressionSyntax;
@@ -30,7 +30,7 @@ public class QueryFilterAnalyzer : DiagnosticAnalyzer
 		if (symbolInfo.Symbol is IMethodSymbol method)
 		{
 			// Check for IgnoreQueryFilters() usage
-			if (method.Name == "IgnoreQueryFilters" && CommonChecks.IsEntityFrameworkMethod(method))
+			if (method.Name == "IgnoreQueryFilters" && EntityFrameworkChecks.IsEntityFrameworkMethod(method))
 			{
 				// This might bypass tenant filtering
 				var diagnostic = Diagnostic.Create(
@@ -43,7 +43,7 @@ public class QueryFilterAnalyzer : DiagnosticAnalyzer
 
 			// Check for FromSqlRaw/FromSqlInterpolated usage
 			if ((method.Name == "FromSqlRaw" || method.Name == "FromSqlInterpolated") &&
-				CommonChecks.IsEntityFrameworkMethod(method))
+				EntityFrameworkChecks.IsEntityFrameworkMethod(method))
 			{
 				var diagnostic = Diagnostic.Create(
 					DiagnosticDescriptors.PotentialFilterBypass,

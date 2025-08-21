@@ -19,7 +19,7 @@ public class TenantDbContextAnalyzer : DiagnosticAnalyzer
 		context.RegisterSyntaxNodeAction(AnalyzeClassDeclaration, SyntaxKind.ClassDeclaration);
 	}
 
-	private static void AnalyzeClassDeclaration(SyntaxNodeAnalysisContext context)
+	public static void AnalyzeClassDeclaration(SyntaxNodeAnalysisContext context)
 	{
 		var classDeclaration = (ClassDeclarationSyntax)context.Node;
 		var classSymbol = context.SemanticModel.GetDeclaredSymbol(classDeclaration);
@@ -28,11 +28,11 @@ public class TenantDbContextAnalyzer : DiagnosticAnalyzer
 			return;
 
 		// Check if class directly inherits from DbContext
-		if (!IsDirectDbContextInheritance(classSymbol))
+		if (!EntityFrameworkChecks.IsDirectDbContextInheritance(classSymbol))
 			return;
 
 		// Check if class has DbSet properties with tenant-isolated entities
-		var tenantIsolatedDbSets = GetTenantIsolatedDbSetProperties(classSymbol);
+		var tenantIsolatedDbSets = TenantChecks.GetTenantIsolatedDbSetProperties(classSymbol);
 
 		if (tenantIsolatedDbSets.Any())
 		{
@@ -43,25 +43,5 @@ public class TenantDbContextAnalyzer : DiagnosticAnalyzer
 
 			context.ReportDiagnostic(diagnostic);
 		}
-	}
-
-	private static bool IsDirectDbContextInheritance(INamedTypeSymbol classSymbol)
-	{
-		var baseType = classSymbol.BaseType;
-		if (baseType == null)
-			return false;
-
-		// Check if the immediate base class is DbContext
-		return baseType.Name == "DbContext" &&
-			CommonChecks.IsEntityFrameworkMethod(baseType);
-			   //baseType.ContainingNamespace.ToDisplayString().StartsWith("Microsoft.EntityFrameworkCore");
-	}
-
-	private static IEnumerable<IPropertySymbol> GetTenantIsolatedDbSetProperties(INamedTypeSymbol classSymbol)
-	{
-		return classSymbol.GetMembers()
-			.OfType<IPropertySymbol>()
-			.Where(CommonChecks.IsDbSetProperty)
-			.Where(property => CommonChecks.HasTenantIsolatedTypeArgument(property));
 	}
 }

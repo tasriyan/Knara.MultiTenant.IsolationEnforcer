@@ -19,7 +19,7 @@ public class DirectDbAccessAnalyzer : DiagnosticAnalyzer
 		context.RegisterSyntaxNodeAction(AnalyzeMemberAccess, SyntaxKind.SimpleMemberAccessExpression);
 	}
 
-	private static void AnalyzeMemberAccess(SyntaxNodeAnalysisContext context)
+	public static void AnalyzeMemberAccess(SyntaxNodeAnalysisContext context)
 	{
 		var memberAccess = (MemberAccessExpressionSyntax)context.Node;
 		var memberSymbol = context.SemanticModel.GetSymbolInfo(memberAccess).Symbol;
@@ -28,10 +28,10 @@ public class DirectDbAccessAnalyzer : DiagnosticAnalyzer
 		{
 			// Check for direct DbSet<T> access where T : ITenantIsolated
 			var firstTypeArg = method.TypeArguments.FirstOrDefault();
-			if (CommonChecks.IsDbSetMethod(method) && firstTypeArg != null && CommonChecks.IsTenantIsolatedEntity(firstTypeArg))
+			if (EntityFrameworkChecks.IsDbSetMethod(method) && firstTypeArg != null && TenantChecks.IsTenantIsolatedEntity(firstTypeArg))
 			{
 				// Check if this access is safe (through TenantDbContext)
-				if (!IsSafeDbAccess(memberAccess, context.SemanticModel))
+				if (!TenantChecks.IsSafeDbAccess(memberAccess, context.SemanticModel))
 				{
 					var entityTypeName = firstTypeArg.Name;
 					var diagnostic = Diagnostic.Create(
@@ -44,10 +44,10 @@ public class DirectDbAccessAnalyzer : DiagnosticAnalyzer
 			}
 
 			// Check for DbContext.Set<T>() method calls
-			if (CommonChecks.IsDbContextSetMethod(method) && firstTypeArg != null && CommonChecks.IsTenantIsolatedEntity(firstTypeArg))
+			if (EntityFrameworkChecks.IsDbContextSetMethod(method) && firstTypeArg != null && TenantChecks.IsTenantIsolatedEntity(firstTypeArg))
 			{
 				// Check if this access is safe (through TenantDbContext)
-				if (!IsSafeDbAccess(memberAccess, context.SemanticModel))
+				if (!TenantChecks.IsSafeDbAccess(memberAccess, context.SemanticModel))
 				{
 					var entityTypeName = firstTypeArg.Name;
 					var diagnostic = Diagnostic.Create(
@@ -61,14 +61,14 @@ public class DirectDbAccessAnalyzer : DiagnosticAnalyzer
 		}
 
 		// Check for DbSet property access
-		if (memberSymbol is IPropertySymbol property && CommonChecks.IsDbSetProperty(property))
+		if (memberSymbol is IPropertySymbol property && EntityFrameworkChecks.IsDbSetProperty(property))
 		{
 			if (property.Type is INamedTypeSymbol namedType &&
 				namedType.TypeArguments.Length > 0 &&
-				CommonChecks.IsTenantIsolatedEntity(namedType.TypeArguments.First()))
+				TenantChecks.IsTenantIsolatedEntity(namedType.TypeArguments.First()))
 			{
 				// Check if this access is safe (through TenantDbContext)
-				if (!IsSafeDbAccess(memberAccess, context.SemanticModel))
+				if (!TenantChecks.IsSafeDbAccess(memberAccess, context.SemanticModel))
 				{
 					var entityTypeName = namedType.TypeArguments.First().Name;
 					var diagnostic = Diagnostic.Create(
@@ -80,21 +80,5 @@ public class DirectDbAccessAnalyzer : DiagnosticAnalyzer
 				}
 			}
 		}
-	}
-
-	private static bool IsSafeDbAccess(MemberAccessExpressionSyntax memberAccess, SemanticModel semanticModel)
-	{
-		// Get the expression that we're accessing the member on (e.g., "context" in "context.ProjectTasks")
-		var expression = memberAccess.Expression;
-		var expressionTypeInfo = semanticModel.GetTypeInfo(expression);
-		var expressionType = expressionTypeInfo.Type;
-
-		if (expressionType != null)
-		{
-			// Check if the type is a safe DbContext (inherits from TenantDbContext)
-			return CommonChecks.IsTenantDbContextType(expressionType);
-		}
-
-		return false;
 	}
 }
