@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <Compile Remove="Analyzers\RepositoryRequiredAnalyzer.cs" />
+    <Compile Remove="Analyzers\TenantDbContextAnalyzer.cs" />
   </ItemGroup>
 
   <ItemGroup>

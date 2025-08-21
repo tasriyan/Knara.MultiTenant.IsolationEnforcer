@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <Compile Remove="Helpers.cs" />
+    <Compile Remove="TenantDbContextAnalyzerTests.cs" />
     <Compile Remove="TenantIsolationAnalyzerIntegrationTests.cs" />
     <Compile Remove="TenantIsolationAnalyzerTests.cs" />
     <Compile Remove="TenantIsolationCodeFixProviderTests.cs" />
