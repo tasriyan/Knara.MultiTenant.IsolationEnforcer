@@ -58,12 +58,16 @@ public class TenantRepository<T, TContext>(
 
 	public virtual IQueryable<T> Query()
 	{
-		// The global query filter in TenantDbContext will automatically apply tenant filtering
+		var tenantContext = _tenantAccessor.Current;
 		var query = _context.Set<T>().AsQueryable();
 
-		// Log query for performance monitoring
-		var tenantContext = _tenantAccessor.Current;
-		logger.LogDebug("Creating query for {EntityType} with tenant context {TenantId} (System: {IsSystem})",
+		// MANUAL tenant filtering - don't rely on global filters that may not exist
+		if (!tenantContext.IsSystemContext)
+		{
+			query = query.Where(e => e.TenantId == tenantContext.TenantId);
+		}
+
+		logger.LogDebug("Creating tenant-filtered query for {EntityType} with tenant context {TenantId} (System: {IsSystem})",
 			typeof(T).Name, tenantContext.TenantId, tenantContext.IsSystemContext);
 
 		return query;
@@ -107,7 +111,8 @@ public class TenantRepository<T, TContext>(
 	{
 		ArgumentNullException.ThrowIfNull(entity);
 
-		ValidateTenantOwnership(entity);
+		// CRITICAL: Validate that we own this entity BEFORE updating
+		await ValidateTenantOwnershipAsync(entity, cancellationToken);
 
 		_context.Set<T>().Update(entity);
 		await SaveChangesAsync(cancellationToken);
@@ -123,9 +128,11 @@ public class TenantRepository<T, TContext>(
 		ArgumentNullException.ThrowIfNull(entities);
 
 		var entityList = entities.ToList();
+		
+		// CRITICAL: Validate ALL entities before updating ANY
 		foreach (var entity in entityList)
 		{
-			ValidateTenantOwnership(entity);
+			await ValidateTenantOwnershipAsync(entity, cancellationToken);
 		}
 
 		_context.Set<T>().UpdateRange(entityList);
@@ -139,7 +146,8 @@ public class TenantRepository<T, TContext>(
 
 	public virtual async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
 	{
-		var entity = await GetByIdAsync(id, cancellationToken);
+		// Use tenant-filtered query to get entity - if not found, it doesn't belong to us
+		var entity = await Query().FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id, cancellationToken);
 		if (entity == null)
 			return false;
 
@@ -151,7 +159,8 @@ public class TenantRepository<T, TContext>(
 	{
 		ArgumentNullException.ThrowIfNull(entity);
 
-		ValidateTenantOwnership(entity);
+		// CRITICAL: Validate that we own this entity BEFORE deleting
+		await ValidateTenantOwnershipAsync(entity, cancellationToken);
 
 		_context.Set<T>().Remove(entity);
 		await SaveChangesAsync(cancellationToken);
@@ -167,9 +176,11 @@ public class TenantRepository<T, TContext>(
 		ArgumentNullException.ThrowIfNull(entities);
 
 		var entityList = entities.ToList();
+		
+		// CRITICAL: Validate ALL entities before deleting ANY
 		foreach (var entity in entityList)
 		{
-			ValidateTenantOwnership(entity);
+			await ValidateTenantOwnershipAsync(entity, cancellationToken);
 		}
 
 		_context.Set<T>().RemoveRange(entityList);
@@ -220,22 +231,42 @@ public class TenantRepository<T, TContext>(
 		}
 	}
 
-	protected virtual void ValidateTenantOwnership(T entity)
+	protected virtual async Task ValidateTenantOwnershipAsync(T entity, CancellationToken cancellationToken = default)
 	{
 		var tenantContext = _tenantAccessor.Current;
 
 		if (tenantContext.IsSystemContext)
 			return; // System context can modify any tenant's data
 
-		if (entity.TenantId != tenantContext.TenantId)
+		// CRITICAL: For updates/deletes, we need to verify the entity actually exists in our tenant
+		// Don't trust the TenantId on the incoming entity - verify it exists in our filtered query
+		var entityId = GetEntityId(entity);
+		if (entityId.HasValue)
 		{
-			throw new TenantIsolationViolationException(
-				$"Cross-tenant modification detected. Current tenant: {tenantContext.TenantId}, " +
-				$"entity tenant: {entity.TenantId}",
-				tenantContext.TenantId,
-				entity.TenantId,
-				typeof(T).Name,
-				GetEntityId(entity));
+			var exists = await Query().AnyAsync(e => EF.Property<Guid>(e, "Id") == entityId.Value, cancellationToken);
+			if (!exists)
+			{
+				throw new TenantIsolationViolationException(
+					$"Entity {typeof(T).Name} with ID {entityId} does not exist or does not belong to tenant {tenantContext.TenantId}",
+					tenantContext.TenantId,
+					entity.TenantId,
+					typeof(T).Name,
+					entityId);
+			}
+		}
+		else
+		{
+			// Fallback to basic tenant ID check if we can't get entity ID
+			if (entity.TenantId != tenantContext.TenantId)
+			{
+				throw new TenantIsolationViolationException(
+					$"Cross-tenant modification detected. Current tenant: {tenantContext.TenantId}, " +
+					$"entity tenant: {entity.TenantId}",
+					tenantContext.TenantId,
+					entity.TenantId,
+					typeof(T).Name,
+					GetEntityId(entity));
+			}
 		}
 	}
 

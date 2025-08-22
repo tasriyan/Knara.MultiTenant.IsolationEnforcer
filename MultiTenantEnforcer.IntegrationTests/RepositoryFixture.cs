@@ -32,7 +32,7 @@ public class RepositoryFixture : IAsyncLifetime
 
 		// Create database schema once
 		using var scope = _serviceProvider.CreateScope();
-		using var context = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+		using var context = scope.ServiceProvider.GetRequiredService<UnsafeTestDbContext>();
 		await context.Database.EnsureCreatedAsync();
 
 		using var tenantsContext = scope.ServiceProvider.GetRequiredService<TestTenantsStoreDbContext>();
@@ -61,7 +61,7 @@ public class RepositoryFixture : IAsyncLifetime
 
         services.AddSingleton<IConfiguration>(configuration);
 
-        services.AddDbContext<TestDbContext>(options =>
+        services.AddDbContext<UnsafeTestDbContext>(options =>
             options.UseNpgsql(ConnectionString));
 
         services.AddDbContext<TestTenantsStoreDbContext>(options =>
@@ -81,7 +81,7 @@ public class RepositoryFixture : IAsyncLifetime
                 options.SystemAdminClaimValue = "SystemAdmin";
             });
 
-        services.AddScoped<ITenantRepository<TestEntity>, TenantRepository<TestEntity, TestDbContext>>();
+        services.AddScoped<ITenantRepository<TestEntity>, TenantRepository<TestEntity, UnsafeTestDbContext>>();
     }
 
 	public IServiceScope CreateScope()

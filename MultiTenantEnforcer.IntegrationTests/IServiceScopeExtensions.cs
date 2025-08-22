@@ -6,9 +6,9 @@ namespace MultiTenantEnforcer.IntegrationTests;
 
 public static class IServiceScopeExtensions
 {
-	public static TestDbContext GetDbContext(this IServiceScope scope)
+	public static UnsafeTestDbContext GetDbContext(this IServiceScope scope)
 	{
-		return scope.ServiceProvider.GetRequiredService<TestDbContext>();
+		return scope.ServiceProvider.GetRequiredService<UnsafeTestDbContext>();
 	}
 
 	public static ITenantRepository<TestEntity> GetRepository(this IServiceScope scope)

@@ -5,9 +5,26 @@ using Multitenant.Enforcer.EntityFramework;
 
 namespace MultiTenantEnforcer.IntegrationTests;
 
-public class TestDbContext(DbContextOptions<TestDbContext> options, 
+public class TenantIsolatedDbContext(DbContextOptions<TenantIsolatedDbContext> options, 
 	ITenantContextAccessor tenantAccessor, 
-	ILogger<TestDbContext> logger) : TenantDbContext(options, tenantAccessor, logger)
+	ILogger<TenantIsolatedDbContext> logger) : TenantDbContext(options, tenantAccessor, logger)
+{
+	public DbSet<TestEntity> TestEntities { get; set; }
+
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
+	{
+		base.OnModelCreating(modelBuilder);
+
+		modelBuilder.Entity<TestEntity>(entity =>
+		{
+			entity.HasKey(e => e.Id);
+			entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+			entity.HasIndex(e => new { e.TenantId, e.Name });
+		});
+	}
+}
+
+public class UnsafeTestDbContext(DbContextOptions<UnsafeTestDbContext> options) : DbContext(options)
 {
 	public DbSet<TestEntity> TestEntities { get; set; }
 
