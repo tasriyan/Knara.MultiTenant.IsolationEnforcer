@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Multitenant.Enforcer.AspnetCore;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.DomainResolvers;
@@ -19,14 +20,14 @@ public static class ServiceCollectionExtensions
 				opts = MultiTenantOptions.DefaultOptions;
 		});
 
-		services.AddScoped<ICurrentUserService, CurrentUserService>();
+		services.TryAddScoped<ICurrentUserService, CurrentUserService>();
+		services.TryAddScoped<ITenantLookupService, TenantLookupService>();
 		services.AddScoped<ITenantContextAccessor, TenantContextAccessor>();
 		services.AddScoped<ICrossTenantOperationManager, CrossTenantOperationManager>();
-		services.AddScoped<ITenantLookupService, TenantLookupService>();
 
 		//add performance monitoring
-		services.AddScoped<ITenantMetricsCollector, LoggingMetricsCollector>();
-		services.AddScoped<ITenantPerformanceMonitor, TenantPerformanceMonitor>();
+		services.TryAddScoped<ITenantMetricsCollector, LoggingMetricsCollector>();
+		services.TryAddScoped<ITenantPerformanceMonitor, TenantPerformanceMonitor>();
 
 
 		return new MultitenantIsolationBuilder(services);
