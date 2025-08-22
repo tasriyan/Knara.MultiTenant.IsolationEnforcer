@@ -5,10 +5,10 @@ using System.Linq.Expressions;
 
 namespace MultiTenant.Enforcer.EntityFramework;
 
-public class TenantRepository<T, TContext>(
+public class TenantIsolatedRepository<T, TContext>(
 	TContext context,
 	ITenantContextAccessor tenantAccessor,
-	ILogger<TenantRepository<T, TContext>> logger) : ITenantRepository<T, TContext>
+	ILogger<TenantIsolatedRepository<T, TContext>> logger) : ITenantIsolatedRepository<T, TContext>
 	where T : class, ITenantIsolated
 	where TContext : DbContext
 {

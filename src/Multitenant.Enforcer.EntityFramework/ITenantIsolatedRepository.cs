@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace MultiTenant.Enforcer.EntityFramework;
 
-    public interface ITenantRepository<T> where T : class, ITenantIsolated
+    public interface ITenantIsolatedRepository<T> where T : class, ITenantIsolated
     {
         Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<List<T>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
@@ -22,7 +22,7 @@ namespace MultiTenant.Enforcer.EntityFramework;
         Task<List<T>> DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
     }
 
-    public interface ITenantRepository<T, TContext> : ITenantRepository<T> 
+    public interface ITenantIsolatedRepository<T, TContext> : ITenantIsolatedRepository<T> 
         where T : class, ITenantIsolated
         where TContext : class
     {

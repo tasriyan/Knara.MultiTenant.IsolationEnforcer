@@ -9,10 +9,10 @@ namespace Multitenant.Enforcer.EntityFramework;
 /// Base DbContext class that automatically enforces tenant isolation.
 /// All DbContext classes should inherit from this to get tenant protection.
 /// </summary>
-public abstract class TenantDbContext(
+public abstract class TenantIsolatedDbContext(
 	DbContextOptions options,
 	ITenantContextAccessor tenantAccessor,
-	ILogger<TenantDbContext> logger) : DbContext(options)
+	ILogger<TenantIsolatedDbContext> logger) : DbContext(options)
 {
 	private readonly ITenantContextAccessor _tenantAccessor = tenantAccessor ?? throw new ArgumentNullException(nameof(tenantAccessor));
 
@@ -80,7 +80,7 @@ public abstract class TenantDbContext(
 						.HasIndex(nameof(ITenantIsolated.TenantId));
 
 				// Apply global query filter for tenant isolation
-				var method = typeof(TenantDbContext)
+				var method = typeof(TenantIsolatedDbContext)
 					.GetMethod(nameof(SetGlobalQueryFilter), BindingFlags.NonPublic | BindingFlags.Instance)!
 					.MakeGenericMethod(entityType.ClrType);
 

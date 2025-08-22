@@ -8,11 +8,11 @@ public static class DiagnosticDescriptors
 	public static readonly DiagnosticDescriptor DirectDbSetAccess = new(
 		"MTI001",
 		"Direct DbSet access on tenant-isolated entity",
-		"Use ITenantRepository<{0}> instead of direct DbSet access to ensure tenant isolation",
+		"Use ITenantIsolatedRepository<{0}> instead of direct DbSet access to ensure tenant isolation",
 		"Security",
 		DiagnosticSeverity.Error,
 		isEnabledByDefault: true,
-		description: "Direct access to DbSet<T> bypasses tenant isolation. Use ITenantRepository<T> instead.",
+		description: "Direct access to DbSet<T> bypasses tenant isolation. Use ITenantIsolatedRepository<T> instead.",
 		helpLinkUri: "https://docs.multitenant.enforcer/rules/MTI001",
 		customTags: [WellKnownDiagnosticTags.Telemetry]);
 
@@ -44,11 +44,11 @@ public static class DiagnosticDescriptors
 	public static readonly DiagnosticDescriptor TenantEntityWithoutRepository = new(
 		"MTI004",
 		"Tenant-isolated entity accessed without repository",
-		"Entity {0} implements ITenantIsolated but is not accessed through ITenantRepository<T>",
+		"Entity {0} implements ITenantIsolated but is not accessed through ITenantIsolatedRepository<T>",
 		"Security",
 		DiagnosticSeverity.Warning,
 		isEnabledByDefault: true,
-		description: "Tenant-isolated entities should be accessed through ITenantRepository<T> for proper isolation.",
+		description: "Tenant-isolated entities should be accessed through ITenantIsolatedRepository<T> for proper isolation.",
 		helpLinkUri: "https://docs.multitenant.enforcer/rules/MTI004",
 		customTags: [WellKnownDiagnosticTags.Telemetry]);
 
@@ -67,12 +67,12 @@ public static class DiagnosticDescriptors
 	// Error: DbContext with tenant-isolated entities must inherit from TenantDbContext
 	public static readonly DiagnosticDescriptor DbContextMustInheritTenantDbContext = new(
 		"MTI006",
-		"DbContext with tenant-isolated entities must inherit from TenantDbContext",
-		"Class '{0}' contains DbSet properties for tenant-isolated entities but inherits directly from DbContext instead of TenantDbContext",
+		"DbContext with tenant-isolated entities must inherit from TenantIsolatedDbContext",
+		"Class '{0}' contains DbSet properties for tenant-isolated entities but inherits directly from DbContext instead of TenantIsolatedDbContext",
 		"Security",
 		DiagnosticSeverity.Error,
 		isEnabledByDefault: true,
-		description: "DbContext classes that contain DbSet properties for entities implementing ITenantIsolated must inherit from TenantDbContext to ensure proper tenant isolation is applied.",
+		description: "DbContext classes that contain DbSet properties for entities implementing ITenantIsolated must inherit from TenantIsolatedDbContext to ensure proper tenant isolation is applied.",
 		helpLinkUri: "https://docs.multitenant.enforcer/rules/MTI006",
 		customTags: [WellKnownDiagnosticTags.Telemetry]);
 }

@@ -49,7 +49,7 @@ public static class TenantChecks
 		var current = type;
 		while (current != null)
 		{
-			if (current.Name == "TenantDbContext" && IsTenantEnforcerMethod(current))
+			if (current.Name == "TenantIsolatedDbContext" && IsTenantEnforcerMethod(current))
 			{
 				return true;
 			}

@@ -7,7 +7,7 @@
 /// tenant-specific data, such as active tenant IDs and detailed tenant information. Implementations of this interface
 /// should ensure thread safety and handle cancellation tokens appropriately to support asynchronous
 /// operations.</remarks>
-public interface IReadOnlyTenants
+public interface ITenantStore
 {
 	Task<TenantInfo?> GetTenantInfoByDomainAsync(string domain, CancellationToken cancellationToken = default);
 

@@ -30,7 +30,7 @@ public class DirectDbAccessAnalyzer : DiagnosticAnalyzer
 			var firstTypeArg = method.TypeArguments.FirstOrDefault();
 			if (EntityFrameworkChecks.IsDbSetMethod(method) && firstTypeArg != null && TenantChecks.IsTenantIsolatedEntity(firstTypeArg))
 			{
-				// Check if this access is safe (through TenantDbContext)
+				// Check if this access is safe (through TenantIsolatedDbContext)
 				if (!TenantChecks.IsSafeDbAccess(memberAccess, context.SemanticModel))
 				{
 					var entityTypeName = firstTypeArg.Name;
@@ -46,7 +46,7 @@ public class DirectDbAccessAnalyzer : DiagnosticAnalyzer
 			// Check for DbContext.Set<T>() method calls
 			if (EntityFrameworkChecks.IsDbContextSetMethod(method) && firstTypeArg != null && TenantChecks.IsTenantIsolatedEntity(firstTypeArg))
 			{
-				// Check if this access is safe (through TenantDbContext)
+				// Check if this access is safe (through TenantIsolatedDbContext)
 				if (!TenantChecks.IsSafeDbAccess(memberAccess, context.SemanticModel))
 				{
 					var entityTypeName = firstTypeArg.Name;
@@ -67,7 +67,7 @@ public class DirectDbAccessAnalyzer : DiagnosticAnalyzer
 				namedType.TypeArguments.Length > 0 &&
 				TenantChecks.IsTenantIsolatedEntity(namedType.TypeArguments.First()))
 			{
-				// Check if this access is safe (through TenantDbContext)
+				// Check if this access is safe (through TenantIsolatedDbContext)
 				if (!TenantChecks.IsSafeDbAccess(memberAccess, context.SemanticModel))
 				{
 					var entityTypeName = namedType.TypeArguments.First().Name;
