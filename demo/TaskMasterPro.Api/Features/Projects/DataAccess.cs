@@ -69,7 +69,7 @@ public class TenantIsolatedProjectRepository(UnsafeDbContext context,
 
 	public async Task AddAsync(Project project)
 	{
-		await AddAsync(project);
+		await base.AddAsync(project);
 	}
 }
 

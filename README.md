@@ -406,7 +406,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 
 ---
-
-**⚡ Made by developers, for developers who are tired of tenant data leaks.**
-
-*"The best security bug is the one that can't be introduced in the first place."*
