@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Multitenant.Enforcer.Core;
+using Serilog;
 
 namespace TaskMasterPro.Api.Data;
 
@@ -28,7 +30,28 @@ public static class ServiceCollectionsExtensions
 					sqliteOptions.CommandTimeout(config.GetValue<int>("Database:CommandTimeout"));
 				}));
 
-		services.AddScoped<IReadOnlyTenants, TaskMasterProTenants>();
 		return services;
+	}
+
+	// Ensure the TaskMasterPro database is created
+	public static WebApplication EnsureDatabaseCreated(this WebApplication app)
+	{
+		try
+		{
+			Log.Information("Ensuring tasks master database is created");
+
+			using var scope = app.Services.CreateScope();
+			var scopedServices = scope.ServiceProvider;
+			var context = scopedServices.GetRequiredService<TaskMasterDbContext>();
+			context.Database.EnsureCreated();
+
+			Log.Information("Tasks master database creation check completed");
+		}
+		catch (Exception ex)
+		{
+			Log.Error(ex, "An error occurred while ensuring the database was created");
+			throw;
+		}
+		return app;
 	}
 }

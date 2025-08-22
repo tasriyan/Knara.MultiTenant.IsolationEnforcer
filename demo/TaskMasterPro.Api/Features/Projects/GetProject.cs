@@ -1,4 +1,5 @@
-﻿using TaskMasterPro.Api.Entities;
+﻿using Multitenant.Enforcer.Core;
+using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
 
 namespace TaskMasterPro.Api.Features.Projects;
@@ -32,7 +33,7 @@ public sealed class GetProject : IEndpoint
 			async (Guid id,
 					IProjectRepository projectRepository,
 					ILogger<GetProject> logger,
-					CurrentUserService userSvc) =>
+					ICurrentUserService userSvc) =>
 			{
 				var project = await projectRepository.GetProjectWithTasksAsync(id);
 

@@ -9,7 +9,7 @@ public interface IEndpoint
 
 public static class IEndpointExtensions
 {
-	public static IEndpointRouteBuilder MapApplicationEndpoints(this IEndpointRouteBuilder epRouteBuilder)
+	public static IEndpointRouteBuilder MapTaskMasterProEndpoints(this IEndpointRouteBuilder epRouteBuilder)
 	{
 		foreach (var ep in epRouteBuilder.ServiceProvider.GetServices<IEndpoint>())
 		{
@@ -19,7 +19,7 @@ public static class IEndpointExtensions
 		return epRouteBuilder;
 	}
 
-	public static IServiceCollection RegisterApplicationEndpoints(this IServiceCollection services)
+	public static IServiceCollection RegisterTaskMasterProEndpoints(this IServiceCollection services)
 	{
 		var currentAssembly = Assembly.GetExecutingAssembly();
 

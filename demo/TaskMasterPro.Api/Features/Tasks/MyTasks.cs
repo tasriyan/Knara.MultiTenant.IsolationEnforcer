@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Multitenant.Enforcer.Core;
 using MultiTenant.Enforcer.EntityFramework;
 using TaskMasterPro.Api.Data;
 using TaskMasterPro.Api.Entities;
@@ -13,7 +14,7 @@ public sealed class GetMyTasks : IEndpoint
 
 		app.MapGet("/api/tasks/my-tasks",
 			async (TenantRepository<ProjectTask, UnsafeDbContext> repository,
-					CurrentUserService userSvc) =>
+					ICurrentUserService userSvc) =>
 			{
 				if (!Guid.TryParse(userSvc!.UserId, out var userId))
 					return Results.BadRequest("User id not provided.");

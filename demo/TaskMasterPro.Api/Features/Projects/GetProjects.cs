@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Multitenant.Enforcer.Core;
-using TaskMasterPro.Api.Data;
+﻿using Multitenant.Enforcer.Core;
 using TaskMasterPro.Api.Shared;
 
 namespace TaskMasterPro.Api.Features.Projects;
@@ -15,7 +13,7 @@ public sealed class GetProjects : IEndpoint
 					IProjectRepository projectRepository,
 					ITenantContextAccessor tenantAccessor,
 					ILogger<GetProjects> logger,
-					CurrentUserService userSvc) =>
+					ICurrentUserService userSvc) =>
 			{
 				var projects = await projectRepository.GetProjectsAsync(filter ?? "all");
 

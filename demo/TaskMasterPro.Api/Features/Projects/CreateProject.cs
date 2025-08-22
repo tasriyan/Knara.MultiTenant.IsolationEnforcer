@@ -24,7 +24,7 @@ public sealed class CreateProject : IEndpoint
 					IProjectRepository projectRepository,
 					ITenantContextAccessor tenantAccessor,
 					ILogger<GetProject> logger,
-					CurrentUserService userSvc) =>
+					ICurrentUserService userSvc) =>
 			{
 				var project = new Project
 				{

@@ -17,7 +17,7 @@ public sealed class GetAllCompanies : IEndpoint
 		app.MapGet("/api/admin/companies/",
 			async (ICrossTenantOperationManager crossTenantManager,
 					TaskMasterDbContext context,
-					CurrentUserService userSvc) =>
+					ICurrentUserService userSvc) =>
 			{
 				return await crossTenantManager.ExecuteCrossTenantOperationAsync(async () =>
 				{

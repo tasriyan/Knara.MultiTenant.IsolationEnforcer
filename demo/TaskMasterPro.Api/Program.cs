@@ -8,7 +8,6 @@ using TaskMasterPro.Api.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Serilog from appsettings configuration
 Log.Logger = new LoggerConfiguration()
 	.ReadFrom.Configuration(builder.Configuration)
 	.Enrich.WithProperty("ApplicationName", "TaskMasterPro.Api")
@@ -19,12 +18,6 @@ builder.Host.UseSerilog();
 
 // Debugging code to verify configuration loading - not for production use
 builder.LogConfigurationValues();
-
-//setup database contexts
-builder.ConfigureEntityFramework();
-
-// Add multi-tenant enforcer services
-builder.AddMultiTenantEnforcer();
 
 // Configure api
 builder.Services.AddEndpointsApiExplorer();
@@ -40,28 +33,28 @@ builder.Services.AddAuthorizationBuilder()
 		policy.RequireClaim("scope", "taskmasterpro-api");
 	});
 
+//setup database contexts
+builder.ConfigureEntityFramework();
 
-// Register features services
-builder.Services.AddScoped<CurrentUserService>();
-builder.Services.RegisterApplicationEndpoints();
+// Add multi-tenant enforcer services
+builder.AddMultiTenantEnforcer();
+
+// Register features endpoints
+builder.Services.RegisterTaskMasterProEndpoints();
 
 var app = builder.Build();
 
-// Ensure the database is created and seeded
 app.EnsureDatabaseCreated();
 
-// Configure request pipeline
 app.UseHttpsRedirection();
 
-// Configure authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.LogUserClaims();			// Debugging middleware to log claims - not for production use					
-app.UseMultiTenantIsolation();  // Multi-tenant middleware must come before authorization
+app.UseMultiTenantIsolation();  // Multi-tenant middleware ensures isolation based on tenant resolution
 
-// Configure api endpoints
-app.MapApplicationEndpoints();
+app.MapTaskMasterProEndpoints();
 
 app.Run();
 
@@ -82,28 +75,6 @@ static class DevelopmentExtensions
 		}
 
 		return builder;
-	}
-
-	// Ensure the TaskMasterPro database is created
-	public static WebApplication EnsureDatabaseCreated(this WebApplication app)
-	{
-		try
-		{
-			Log.Information("Ensuring tasks master database is created");
-
-			using var scope = app.Services.CreateScope();
-			var scopedServices = scope.ServiceProvider;
-			var context = scopedServices.GetRequiredService<TaskMasterDbContext>();
-			context.Database.EnsureCreated();
-
-			Log.Information("Tasks master database creation check completed");
-		}
-		catch (Exception ex)
-		{
-			Log.Error(ex, "An error occurred while ensuring the database was created");
-			throw;
-		}
-		return app;
 	}
 
 	// Debugging middleware to log claims
