@@ -32,4 +32,8 @@ public static class IServiceScopeExtensions
 		var tenantAccessor = GetTenantAccessor(scope);
 		tenantAccessor.SetContext(TenantContext.SystemContext(source));
 	}
+	public static TenantIsolatedDbContext GetTenantDbContext(this IServiceScope scope)
+	{
+		return scope.ServiceProvider.GetRequiredService<TenantIsolatedDbContext>();
+	}
 }
