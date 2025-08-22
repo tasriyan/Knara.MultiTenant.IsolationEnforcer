@@ -40,8 +40,4 @@
     <Using Include="Shouldly" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="PerformanceMonitor\" />
-  </ItemGroup>
-
 </Project>
