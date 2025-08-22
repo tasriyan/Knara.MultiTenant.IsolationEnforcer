@@ -1,5 +1,5 @@
 ﻿using MultiTenant.Enforcer.EntityFramework;
-using TaskMasterPro.Api.Data;
+using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
 
@@ -16,7 +16,7 @@ public sealed class ModifyTaskStatus : IEndpoint
 			async (
 				Guid id,
 				UpdateTaskStatusDto dto,
-				TenantRepository<ProjectTask, UnsafeDbContext> repository) =>
+				TenantIsolatedRepository<ProjectTask, UnsafeDbContext> repository) =>
 			{
 				var task = await repository.GetByIdAsync(id);
 

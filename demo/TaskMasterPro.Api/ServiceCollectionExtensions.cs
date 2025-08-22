@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.DependencyInjection;
 using MultiTenant.Enforcer.EntityFramework;
-using TaskMasterPro.Api.Data;
+using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Features.Admin;
 using TaskMasterPro.Api.Features.Projects;
@@ -53,7 +53,7 @@ public static class ServiceCollectionExtensions
 				options.CacheExpirationMinutes = 30;
 			})
 			.WithInMemoryTenantCache()
-			.WithTenantsStore<TaskMasterProTenants>()
+			.WithTenantsStore<TaskMasterProTenantStore>()
 			.WithSubdomainResolutionStrategy(options =>
 			{
 				options.CacheMappings = true;
@@ -80,7 +80,7 @@ public static class ServiceCollectionExtensions
 		// services.AddScoped<IProjectRepository, TenantIsolatedProjectRepository>();
 
 		// Tasks required services
-		services.AddScoped<TenantRepository<ProjectTask, UnsafeDbContext>>();
+		services.AddScoped<TenantIsolatedRepository<ProjectTask, UnsafeDbContext>>();
 
 		return services;
 	}

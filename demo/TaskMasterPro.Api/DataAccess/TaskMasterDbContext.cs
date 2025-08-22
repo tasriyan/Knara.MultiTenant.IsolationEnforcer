@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.EntityFramework;
-using TaskMasterPro.Api.Data.Configurations;
+using TaskMasterPro.Api.DataAccess.Configurations;
+using TaskMasterPro.Api.DataAccess.Data;
 using TaskMasterPro.Api.Entities;
 
-namespace TaskMasterPro.Api.Data;
+namespace TaskMasterPro.Api.DataAccess;
 
-public class TaskMasterDbContext : TenantDbContext
+public class TaskMasterDbContext : TenantIsolatedDbContext
 {
 	public DbSet<Company> Companies { get; set; }
 	public DbSet<User> Users { get; set; }

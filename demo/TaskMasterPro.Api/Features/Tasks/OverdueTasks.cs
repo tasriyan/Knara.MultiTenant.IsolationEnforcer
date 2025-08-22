@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MultiTenant.Enforcer.EntityFramework;
-using TaskMasterPro.Api.Data;
+using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
 
@@ -12,7 +12,7 @@ public sealed class OverdueTasks : IEndpoint
 	{
 
 		app.MapGet("/api/tasks/overdue",
-			async (TenantRepository<ProjectTask, UnsafeDbContext> repository) =>
+			async (TenantIsolatedRepository<ProjectTask, UnsafeDbContext> repository) =>
 			{
 				var today = DateTime.UtcNow.Date;
 				var tasks = await repository.Query()

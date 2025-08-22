@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Multitenant.Enforcer.Core;
 using MultiTenant.Enforcer.EntityFramework;
-using TaskMasterPro.Api.Data;
-using TaskMasterPro.Api.Data.Configurations;
+using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Entities;
 
 namespace TaskMasterPro.Api.Features.Projects;
@@ -21,7 +20,7 @@ public interface IProjectRepository
 public class TenantIsolatedProjectRepository(UnsafeDbContext context, 
 		ITenantContextAccessor tenantAccessor, 
 		ILogger<TenantIsolatedProjectRepository> logger)
-		: TenantRepository<Project, UnsafeDbContext>(context, tenantAccessor, logger), IProjectRepository
+		: TenantIsolatedRepository<Project, UnsafeDbContext>(context, tenantAccessor, logger), IProjectRepository
 {
 	public async Task<Project?> GetByIdAsync(Guid id)
 	{

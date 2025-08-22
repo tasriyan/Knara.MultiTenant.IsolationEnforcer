@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Multitenant.Enforcer.Core;
-using TaskMasterPro.Api.Data.Configurations;
+using TaskMasterPro.Api.DataAccess.Configurations;
 using TaskMasterPro.Api.Entities;
 
-namespace TaskMasterPro.Api.Data;
+namespace TaskMasterPro.Api.DataAccess;
 
-public class TenantsStoreDbContext(DbContextOptions<TenantsStoreDbContext> options) : DbContext(options)
+public class TenantStoreDbContext(DbContextOptions<TenantStoreDbContext> options) : DbContext(options)
 {
 	public DbSet<Company> Companies { get; set; }
 
@@ -15,12 +15,12 @@ public class TenantsStoreDbContext(DbContextOptions<TenantsStoreDbContext> optio
 	}
 }
 
-public class TaskMasterProTenants(
-	TenantsStoreDbContext context,
-	ILogger<TaskMasterProTenants> logger) : IReadOnlyTenants
+public class TaskMasterProTenantStore(
+	TenantStoreDbContext context,
+	ILogger<TaskMasterProTenantStore> logger) : ITenantStore
 {
-	private readonly TenantsStoreDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
-	private readonly ILogger<TaskMasterProTenants> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+	private readonly TenantStoreDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
+	private readonly ILogger<TaskMasterProTenantStore> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 	public async Task<TenantInfo?> GetTenantInfoByDomainAsync(string domain,
 				CancellationToken cancellationToken = default)

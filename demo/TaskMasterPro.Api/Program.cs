@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Multitenant.Enforcer.AspnetCore;
 using Serilog;
 using TaskMasterPro.Api;
-using TaskMasterPro.Api.Data;
+using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Shared;
 
 

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TaskMasterPro.Api.Data.Configurations;
+using TaskMasterPro.Api.DataAccess.Configurations;
 using TaskMasterPro.Api.Entities;
 
 namespace TaskMasterPro.Api.Features.Admin;

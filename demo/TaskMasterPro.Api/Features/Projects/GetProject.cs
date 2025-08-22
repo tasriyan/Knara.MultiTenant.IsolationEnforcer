@@ -31,7 +31,7 @@ public sealed class GetProject : IEndpoint
 
 		app.MapGet("/api/projects/{id:guid}",
 			async (Guid id,
-					IProjectRepository projectRepository,
+					TenantIsolatedProjectRepositorySecondOption projectRepository,
 					ILogger<GetProject> logger,
 					ICurrentUserService userSvc) =>
 			{

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Multitenant.Enforcer.Core;
 using MultiTenant.Enforcer.EntityFramework;
-using TaskMasterPro.Api.Data;
+using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
 
@@ -13,7 +13,7 @@ public sealed class GetMyTasks : IEndpoint
 	{
 
 		app.MapGet("/api/tasks/my-tasks",
-			async (TenantRepository<ProjectTask, UnsafeDbContext> repository,
+			async (TenantIsolatedRepository<ProjectTask, UnsafeDbContext> repository,
 					ICurrentUserService userSvc) =>
 			{
 				if (!Guid.TryParse(userSvc!.UserId, out var userId))

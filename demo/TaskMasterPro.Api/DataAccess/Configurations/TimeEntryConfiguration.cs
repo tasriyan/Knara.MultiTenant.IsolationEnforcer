@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TaskMasterPro.Api.Entities;
 
-namespace TaskMasterPro.Api.Data.Configurations;
+namespace TaskMasterPro.Api.DataAccess.Configurations;
 
 public class TimeEntryConfiguration : IEntityTypeConfiguration<TimeEntry>
 {

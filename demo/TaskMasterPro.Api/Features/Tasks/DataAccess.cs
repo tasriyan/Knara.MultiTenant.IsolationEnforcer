@@ -1,9 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using TaskMasterPro.Api.Data;
-using TaskMasterPro.Api.Data.Configurations;
-using TaskMasterPro.Api.Entities;
-
-namespace TaskMasterPro.Api.Features.Tasks;
+﻿namespace TaskMasterPro.Api.Features.Tasks;
 
 // DEMO:
 // Uses UNSAFE db context

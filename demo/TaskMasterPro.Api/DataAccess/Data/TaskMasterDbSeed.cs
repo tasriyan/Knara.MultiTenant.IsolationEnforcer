@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskMasterPro.Api.Entities;
 
-namespace TaskMasterPro.Api.Data;
+namespace TaskMasterPro.Api.DataAccess.Data;
 
 public static class TaskMasterDbSeed
 {

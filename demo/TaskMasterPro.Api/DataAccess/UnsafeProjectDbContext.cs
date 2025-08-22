@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TaskMasterPro.Api.Data.Configurations;
+using TaskMasterPro.Api.DataAccess.Configurations;
+using TaskMasterPro.Api.DataAccess.Data;
 using TaskMasterPro.Api.Entities;
 
-namespace TaskMasterPro.Api.Data;
+namespace TaskMasterPro.Api.DataAccess;
 
 public class UnsafeDbContext(DbContextOptions<UnsafeDbContext> options) : DbContext(options)
 {

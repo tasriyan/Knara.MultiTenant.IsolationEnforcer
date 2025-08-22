@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Multitenant.Enforcer.Core;
 using Serilog;
 
-namespace TaskMasterPro.Api.Data;
+namespace TaskMasterPro.Api.DataAccess;
 
 public static class ServiceCollectionsExtensions
 {
@@ -18,7 +16,7 @@ public static class ServiceCollectionsExtensions
 				sqliteOptions.CommandTimeout(config.GetValue<int>("Database:CommandTimeout"));
 			}));
 
-		services.AddDbContext<TenantsStoreDbContext>(options =>
+		services.AddDbContext<TenantStoreDbContext>(options =>
 			options.UseSqlite(config.GetConnectionString("DefaultConnection"), sqliteOptions =>
 			{
 				sqliteOptions.CommandTimeout(config.GetValue<int>("Database:CommandTimeout"));

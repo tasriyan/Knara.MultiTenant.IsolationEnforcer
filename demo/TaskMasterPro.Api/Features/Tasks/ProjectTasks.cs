@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MultiTenant.Enforcer.EntityFramework;
-using TaskMasterPro.Api.Data;
+using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
 
@@ -14,7 +14,7 @@ public sealed class ProjectTasks : IEndpoint
 		app.MapGet("/api/tasks/project/{projectId:guid}",
 			async (
 				Guid projectId,
-				TenantRepository<ProjectTask, UnsafeDbContext> repository) =>
+				TenantIsolatedRepository<ProjectTask, UnsafeDbContext> repository) =>
 			{
 				var tasks = await repository.Query()
 								.AsNoTracking()

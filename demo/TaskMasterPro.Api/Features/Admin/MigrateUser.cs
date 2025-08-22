@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Multitenant.Enforcer.AspnetCore;
 using Multitenant.Enforcer.Core;
-using TaskMasterPro.Api.Data;
+using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
 
