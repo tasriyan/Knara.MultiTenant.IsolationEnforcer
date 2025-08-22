@@ -40,6 +40,7 @@ builder.ConfigureEntityFramework();
 builder.AddMultiTenantEnforcer();
 
 // Register features endpoints
+builder.Services.AddTaskMasterProServices(builder.Configuration);
 builder.Services.RegisterTaskMasterProEndpoints();
 
 var app = builder.Build();

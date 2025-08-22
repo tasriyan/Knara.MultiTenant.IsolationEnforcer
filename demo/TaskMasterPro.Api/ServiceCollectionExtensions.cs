@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.DependencyInjection;
+using MultiTenant.Enforcer.EntityFramework;
 using TaskMasterPro.Api.Data;
+using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Features.Admin;
 using TaskMasterPro.Api.Features.Projects;
 using TaskMasterPro.Api.Features.Tasks;
@@ -62,15 +64,34 @@ public static class ServiceCollectionExtensions
 		return services;
 	}
 
+	public static IServiceCollection AddTaskMasterProServices(this IServiceCollection services, IConfiguration config)
+	{
+		// Admin requeired services
+		services.AddDbContext<NotTenantIsolatedAdminDbContext>(options =>
+			options.UseSqlite(config.GetConnectionString("DefaultConnection"), sqliteOptions =>
+			{
+				sqliteOptions.CommandTimeout(config.GetValue<int>("Database:CommandTimeout"));
+			}));
+
+		// Projects required services
+		services.AddScoped<IProjectRepository, TenantIsolatedProjectRepositorySecondOption>();
+
+		// Register the repository using the unsafe DbContext
+		// services.AddScoped<IProjectRepository, TenantIsolatedProjectRepository>();
+
+		// Tasks required services
+		services.AddScoped<TenantRepository<ProjectTask, UnsafeDbContext>>();
+
+		return services;
+	}
+
 	public static IServiceCollection ConfigureEntityFramework(this WebApplicationBuilder builder)
 	{
 		var services = builder.Services;
 		var configuration = builder.Configuration;
+
 		// Database configuration - SQLite In-Memory
-		services.AddGlobalDataAccess(configuration)
-				.AddAdminDataContext(configuration)
-				.AddProjectsDataAccess(configuration)
-				.AddTasksDataAccess(configuration);
+		services.AddGlobalDataAccess(configuration);
 
 		return services;
 	}
