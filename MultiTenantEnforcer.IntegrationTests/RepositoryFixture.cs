@@ -81,7 +81,7 @@ public class RepositoryFixture : IAsyncLifetime
                 options.SystemAdminClaimValue = "SystemAdmin";
             });
 
-        services.AddScoped<ITenantRepository<TestEntity>, TenantRepository<TestEntity, UnsafeTestDbContext>>();
+        services.AddScoped<ITenantIsolatedRepository<TestEntity>, TenantIsolatedRepository<TestEntity, UnsafeTestDbContext>>();
     }
 
 	public IServiceScope CreateScope()

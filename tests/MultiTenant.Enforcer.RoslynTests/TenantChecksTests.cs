@@ -200,7 +200,7 @@ public class TenantChecksTests
 			var mockType = new Mock<ITypeSymbol>();
 			var mockNamespace = new Mock<INamespaceSymbol>();
 
-			mockType.Setup(x => x.Name).Returns("TenantDbContext");
+			mockType.Setup(x => x.Name).Returns("TenantIsolatedDbContext");
 			mockType.Setup(x => x.ContainingNamespace).Returns(mockNamespace.Object);
 			mockType.Setup(x => x.BaseType).Returns((INamedTypeSymbol)null);
 			mockNamespace.Setup(x => x.ToDisplayString(It.IsAny<SymbolDisplayFormat>())).Returns("Multitenant.Enforcer.EntityFramework");
@@ -226,7 +226,7 @@ public class TenantChecksTests
 			mockDerivedType.Setup(x => x.BaseType).Returns(mockBaseType.Object);
 			mockDerivedNamespace.Setup(x => x.ToDisplayString(It.IsAny<SymbolDisplayFormat>())).Returns("MyApp.Data"); ;
 
-			mockBaseType.Setup(x => x.Name).Returns("TenantDbContext");
+			mockBaseType.Setup(x => x.Name).Returns("TenantIsolatedDbContext");
 			mockBaseType.Setup(x => x.ContainingNamespace).Returns(mockNamespace.Object);
 			mockBaseType.Setup(x => x.BaseType).Returns((INamedTypeSymbol)null);
 			mockNamespace.Setup(x => x.ToDisplayString(It.IsAny<SymbolDisplayFormat>())).Returns("Multitenant.Enforcer.EntityFramework");
@@ -434,7 +434,7 @@ public class TenantChecksTests
 			var mockExpressionType = new Mock<ITypeSymbol>();
 			var mockNamespace = new Mock<INamespaceSymbol>();
 
-			mockExpressionType.Setup(x => x.Name).Returns("TenantDbContext");
+			mockExpressionType.Setup(x => x.Name).Returns("TenantIsolatedDbContext");
 			mockExpressionType.Setup(x => x.ContainingNamespace).Returns(mockNamespace.Object);
 			mockExpressionType.Setup(x => x.BaseType).Returns((INamedTypeSymbol)null);
 			mockNamespace.Setup(x => x.ToDisplayString(It.IsAny<SymbolDisplayFormat>())).Returns("Multitenant.Enforcer.EntityFramework");
@@ -455,14 +455,14 @@ public class TenantChecksTests
 			var mockNamespace = new Mock<INamespaceSymbol>();
 			var mockDerivedNamespace = new Mock<INamespaceSymbol>();
 
-			// Setup derived type that inherits from TenantDbContext
+			// Setup derived type that inherits from TenantIsolatedDbContext
 			mockDerivedType.Setup(x => x.Name).Returns("MyTenantDbContext");
 			mockDerivedType.Setup(x => x.ContainingNamespace).Returns(mockDerivedNamespace.Object);
 			mockDerivedType.Setup(x => x.BaseType).Returns(mockBaseType.Object);
 			mockDerivedNamespace.Setup(x => x.ToDisplayString(It.IsAny<SymbolDisplayFormat>())).Returns("MyApp.Data");
 
-			// Setup the base type as TenantDbContext
-			mockBaseType.Setup(x => x.Name).Returns("TenantDbContext");
+			// Setup the base type as TenantIsolatedDbContext
+			mockBaseType.Setup(x => x.Name).Returns("TenantIsolatedDbContext");
 			mockBaseType.Setup(x => x.ContainingNamespace).Returns(mockNamespace.Object);
 			mockBaseType.Setup(x => x.BaseType).Returns((INamedTypeSymbol)null);
 			mockNamespace.Setup(x => x.ToDisplayString(It.IsAny<SymbolDisplayFormat>())).Returns("Multitenant.Enforcer.EntityFramework");

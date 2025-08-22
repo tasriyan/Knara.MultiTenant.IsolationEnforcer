@@ -10,7 +10,7 @@ public class TenantCacheManagerTests
 {
     private readonly Mock<ITenantsCache> _mockCache;
     private readonly Mock<ILogger<TenantCacheManager>> _mockLogger;
-    private readonly Mock<IReadOnlyTenants> _mockDataProvider;
+    private readonly Mock<ITenantStore> _mockDataProvider;
     private readonly MemoryCacheEntryOptions _options;
     private readonly TenantCacheManager _cacheManager;
 
@@ -18,7 +18,7 @@ public class TenantCacheManagerTests
     {
         _mockCache = new Mock<ITenantsCache>();
         _mockLogger = new Mock<ILogger<TenantCacheManager>>();
-        _mockDataProvider = new Mock<IReadOnlyTenants>();
+        _mockDataProvider = new Mock<ITenantStore>();
         _options = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(15) };
         
         var optionsWrapper = Options.Create(_options);

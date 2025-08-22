@@ -11,9 +11,9 @@ public static class IServiceScopeExtensions
 		return scope.ServiceProvider.GetRequiredService<UnsafeTestDbContext>();
 	}
 
-	public static ITenantRepository<TestEntity> GetRepository(this IServiceScope scope)
+	public static ITenantIsolatedRepository<TestEntity> GetRepository(this IServiceScope scope)
 	{
-		return scope.ServiceProvider.GetRequiredService<ITenantRepository<TestEntity>>();
+		return scope.ServiceProvider.GetRequiredService<ITenantIsolatedRepository<TestEntity>>();
 	}
 
 	public static ITenantContextAccessor GetTenantAccessor(this IServiceScope scope)

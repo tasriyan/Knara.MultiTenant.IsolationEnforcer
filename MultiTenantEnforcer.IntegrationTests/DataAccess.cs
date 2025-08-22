@@ -7,7 +7,7 @@ namespace MultiTenantEnforcer.IntegrationTests;
 
 public class TenantIsolatedDbContext(DbContextOptions<TenantIsolatedDbContext> options, 
 	ITenantContextAccessor tenantAccessor, 
-	ILogger<TenantIsolatedDbContext> logger) : TenantDbContext(options, tenantAccessor, logger)
+	ILogger<TenantIsolatedDbContext> logger) : Multitenant.Enforcer.EntityFramework.TenantIsolatedDbContext(options, tenantAccessor, logger)
 {
 	public DbSet<TestEntity> TestEntities { get; set; }
 
@@ -65,7 +65,7 @@ public class TestTenant
 	public bool IsActive { get; set; } = true;
 }
 
-public class TestTenantStore(TestTenantsStoreDbContext context) : IReadOnlyTenants
+public class TestTenantStore(TestTenantsStoreDbContext context) : ITenantStore
 {
 	public async Task<TenantInfo[]> GetAllActiveTenantsAsync(CancellationToken cancellationToken)
 	{

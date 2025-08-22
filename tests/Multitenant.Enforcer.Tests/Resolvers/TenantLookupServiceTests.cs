@@ -12,7 +12,7 @@ public class TenantLookupServiceTests
 	private readonly Mock<ITenantsCache> _mockTenantCache;
 	private readonly Mock<ILogger<TenantLookupService>> _mockLogger;
 	private readonly Mock<IOptions<MultiTenantOptions>> _mockOptions;
-	private readonly Mock<IReadOnlyTenants> _mockTenantStore;
+	private readonly Mock<ITenantStore> _mockTenantStore;
 	private readonly MultiTenantOptions _defaultOptions;
 	private readonly TenantLookupService _service;
 
@@ -21,7 +21,7 @@ public class TenantLookupServiceTests
 		_mockTenantCache = new Mock<ITenantsCache>();
 		_mockLogger = new Mock<ILogger<TenantLookupService>>();
 		_mockOptions = new Mock<IOptions<MultiTenantOptions>>();
-		_mockTenantStore = new Mock<IReadOnlyTenants>();
+		_mockTenantStore = new Mock<ITenantStore>();
 		_defaultOptions = new MultiTenantOptions
 		{
 			CacheTenantResolution = true,

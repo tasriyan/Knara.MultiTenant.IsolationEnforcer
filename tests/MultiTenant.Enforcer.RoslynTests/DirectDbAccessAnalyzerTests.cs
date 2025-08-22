@@ -44,15 +44,15 @@ namespace Multitenant.Enforcer.Core
 
 namespace Multitenant.Enforcer.EntityFramework
 {
-    public abstract class TenantDbContext : DbContext
+    public abstract class TenantIsolatedDbContext : DbContext
     {
-        protected TenantDbContext(DbContextOptions options, Multitenant.Enforcer.Core.ITenantContextAccessor tenantAccessor, ILogger logger) : base(options) { }
+        protected TenantIsolatedDbContext(DbContextOptions options, Multitenant.Enforcer.Core.ITenantContextAccessor tenantAccessor, ILogger logger) : base(options) { }
     }
     
-    public abstract class TenantRepository<TEntity, TContext> where TEntity : class where TContext : DbContext
+    public abstract class TenantIsolatedRepository<TEntity, TContext> where TEntity : class where TContext : DbContext
     {
         protected TContext Context { get; }
-        protected TenantRepository(TContext context, Multitenant.Enforcer.Core.ITenantContextAccessor tenantAccessor, ILogger logger) 
+        protected TenantIsolatedRepository(TContext context, Multitenant.Enforcer.Core.ITenantContextAccessor tenantAccessor, ILogger logger) 
         {
             Context = context;
         }
@@ -139,7 +139,7 @@ namespace TestApp.Configurations
 namespace TestApp.Data
 {
     // SAFE: Derived from TenantDbContext
-    public class SafeDbContext : Multitenant.Enforcer.EntityFramework.TenantDbContext
+    public class SafeDbContext : Multitenant.Enforcer.EntityFramework.TenantIsolatedDbContext
     {
         public SafeDbContext(DbContextOptions<SafeDbContext> options,
                             Multitenant.Enforcer.Core.ITenantContextAccessor tenantAccessor,
@@ -163,19 +163,19 @@ namespace TestApp.Services
     {
         public async Task<TestApp.Entities.Project?> GetProjectAsync(TestApp.Data.SafeDbContext context, Guid id)
         {
-            // This should NOT trigger MTI001 because SafeDbContext derives from TenantDbContext
+            // This should NOT trigger MTI001 because SafeDbContext derives from TenantIsolatedDbContext
             return await context.Projects.FirstOrDefaultAsync(p => p.Id == id);
         }
         
         public async Task<List<TestApp.Entities.Project>> GetAllProjectsAsync(TestApp.Data.SafeDbContext context)
         {
-            // This should NOT trigger MTI001 because SafeDbContext derives from TenantDbContext
+            // This should NOT trigger MTI001 because SafeDbContext derives from TenantIsolatedDbContext
             return await context.Projects.ToListAsync();
         }
         
         public async Task<TestApp.Entities.Project?> GetProjectUsingSetAsync(TestApp.Data.SafeDbContext context, Guid id)
         {
-            // This should NOT trigger MTI001 because SafeDbContext derives from TenantDbContext
+            // This should NOT trigger MTI001 because SafeDbContext derives from TenantIsolatedDbContext
             return await context.Set<TestApp.Entities.Project>().FirstOrDefaultAsync(p => p.Id == id);
         }
     }
@@ -293,7 +293,7 @@ namespace TestApp.Data
 namespace TestApp.Repositories
 {
     // SAFE: Derived from TenantRepository
-    public sealed class SafeRepository : Multitenant.Enforcer.EntityFramework.TenantRepository<TestApp.Entities.Project, TestApp.Data.UnsafeDbContext>
+    public sealed class SafeRepository : Multitenant.Enforcer.EntityFramework.TenantIsolatedRepository<TestApp.Entities.Project, TestApp.Data.UnsafeDbContext>
     {
         public SafeRepository(TestApp.Data.UnsafeDbContext context,
                              Multitenant.Enforcer.Core.ITenantContextAccessor tenantAccessor,
@@ -331,7 +331,7 @@ namespace TestApp.Repositories
 		var testCode = BaseTestCode + @"
 namespace TestApp.Data
 {
-    public class SafeDbContext : Multitenant.Enforcer.EntityFramework.TenantDbContext
+    public class SafeDbContext : Multitenant.Enforcer.EntityFramework.TenantIsolatedDbContext
     {
         public SafeDbContext(DbContextOptions<SafeDbContext> options,
                             Multitenant.Enforcer.Core.ITenantContextAccessor tenantAccessor,
@@ -361,13 +361,13 @@ namespace TestApp.Services
 
         public async Task<TestApp.Entities.Project?> GetByIdAsync(Guid id)
         {
-            // Should NOT trigger MTI001 because SafeDbContext derives from TenantDbContext
+            // Should NOT trigger MTI001 because SafeDbContext derives from TenantIsolatedDbContext
             return await _context.Projects.FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<List<TestApp.Entities.Project>> DoSomething(Guid managerId)
         {
-            // Should NOT trigger MTI001 because SafeDbContext derives from TenantDbContext
+            // Should NOT trigger MTI001 because SafeDbContext derives from TenantIsolatedDbContext
             return await _context.Projects.ToListAsync();
         }
     }
@@ -458,7 +458,7 @@ namespace TestApp.Repositories
 		var testCode = BaseTestCode + @"
 namespace TestApp.Data
 {
-    public class SafeDbContext : Multitenant.Enforcer.EntityFramework.TenantDbContext
+    public class SafeDbContext : Multitenant.Enforcer.EntityFramework.TenantIsolatedDbContext
     {
         public SafeDbContext(DbContextOptions<SafeDbContext> options,
                             Multitenant.Enforcer.Core.ITenantContextAccessor tenantAccessor,
@@ -515,7 +515,7 @@ namespace TestApp.Endpoints
 		var testCode = BaseTestCode + @"
 namespace TestApp.Data
 {
-    public class SafeDbContext : Multitenant.Enforcer.EntityFramework.TenantDbContext
+    public class SafeDbContext : Multitenant.Enforcer.EntityFramework.TenantIsolatedDbContext
     {
         public SafeDbContext(DbContextOptions<SafeDbContext> options,
                             Multitenant.Enforcer.Core.ITenantContextAccessor tenantAccessor,
@@ -623,7 +623,7 @@ namespace TestApp.Data
 
 namespace TestApp.Repositories
 {
-    public sealed class SafeRepository : Multitenant.Enforcer.EntityFramework.TenantRepository<TestApp.Entities.Project, TestApp.Data.UnsafeDbContext>
+    public sealed class SafeRepository : Multitenant.Enforcer.EntityFramework.TenantIsolatedRepository<TestApp.Entities.Project, TestApp.Data.UnsafeDbContext>
     {
         public SafeRepository(TestApp.Data.UnsafeDbContext context,
                              Multitenant.Enforcer.Core.ITenantContextAccessor tenantAccessor,

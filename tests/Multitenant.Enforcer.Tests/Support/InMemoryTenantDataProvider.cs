@@ -6,7 +6,7 @@ namespace MultiTenant.Enforcer.Tests.Support;
 /// <summary>
 /// In-memory implementation for testing or simple scenarios.
 /// </summary>
-public class InMemoryTenantDataProvider(TenantInfo[] tenants) : IReadOnlyTenants
+public class InMemoryTenantDataProvider(TenantInfo[] tenants) : ITenantStore
 {
 	private readonly TenantInfo[] _tenants = tenants ?? [];
 
