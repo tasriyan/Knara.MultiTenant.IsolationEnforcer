@@ -13,4 +13,6 @@ public class PerformanceMonitoringOptions
 
 	/// Whether to collect metrics for performance dashboards.
 	public bool CollectMetrics { get; set; } = true;
+
+	public bool LogViolations { get; set; } = true; // ALWAYS true - not configurable
 }
