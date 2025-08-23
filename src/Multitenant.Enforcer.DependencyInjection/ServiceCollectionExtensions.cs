@@ -10,7 +10,7 @@ namespace Multitenant.Enforcer.DependencyInjection;
 public static class ServiceCollectionExtensions
 {
 	public static MultitenantIsolationBuilder AddMultiTenantIsolation(this IServiceCollection services,
-		Action<MultiTenantOptions>? configure)
+		Action<MultiTenantOptions>? configure = null)
 	{
 		services.AddOptions<MultiTenantOptions>().Configure(opts =>
 		{
@@ -20,16 +20,26 @@ public static class ServiceCollectionExtensions
 				opts = MultiTenantOptions.DefaultOptions;
 		});
 
-		services.TryAddScoped<ICurrentUserService, CurrentUserService>();
+		// Core services - always required
 		services.TryAddScoped<ITenantLookupService, TenantLookupService>();
 		services.AddScoped<ITenantContextAccessor, TenantContextAccessor>();
 		services.AddScoped<ICrossTenantOperationManager, CrossTenantOperationManager>();
-
-		//add performance monitoring
+		
+		// Performance monitoring - MANDATORY (opinionated library philosophy)
+		// But allow configuration through PerformanceMonitoringOptions
+		services.AddOptions<PerformanceMonitoringOptions>().Configure(opts =>
+		{
+			// Default configuration - can be overridden via WithPerformanceMonitoring()
+			opts.Enabled = true;
+			opts.SlowQueryThresholdMs = 1000;
+			opts.CollectMetrics = true;
+		});
+		
+		services.TryAddScoped<ICurrentUserService, CurrentUserService>();
 		services.TryAddScoped<ITenantMetricsCollector, LoggingMetricsCollector>();
 		services.TryAddScoped<ITenantPerformanceMonitor, TenantPerformanceMonitor>();
-
 
 		return new MultitenantIsolationBuilder(services);
 	}
 }
+
