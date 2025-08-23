@@ -13,36 +13,36 @@ namespace TaskMasterPro.Api;
 
 public static class ServiceCollectionExtensions
 {
-/*	
-	* ------------------------
-	* Multi-tenant Enforcer configuration examples
-	* ------------------------
+	/*	
+		* ------------------------
+		* Multi-tenant Enforcer configuration examples
+		* ------------------------
 
-	* Simple registration (class with parameterless constructor)
-	* services.AddMultiTenantIsolation()
-	*	.WithInMemoryTenantCache()
-	*	.WithTenantStore<MyTenantStore>();
-	*
-	* Factory-based registration (for complex dependencies)
-	* services.AddMultiTenantIsolation()
-	*	.WithTenantDomainCache<RedisTenantCache>(provider => 
-	*		new RedisTenantCache(provider.GetRequiredService<IConnectionMultiplexer>()))
-	*	.WithTenantStore<EFCoreTenantStore>(provider =>
-	*		new EFCoreTenantStore(provider.GetRequiredService<MyDbContext>()));
-	*
-	* Full configuration example
-	* services.AddMultiTenantIsolation(options =>
-	*	{
-	*		options.CacheTenantResolution = true;
-	*		options.CacheExpirationMinutes = 30;
-	*	})
-	*	.WithInMemoryTenantCache()
-	*	.WithTenantStore<EFCoreTenantStore>()
-	*	.WithSubdomainResolutionStrategy(options =>
-	*	{
-	*		options.ExcludedSubdomains = new[] { "www", "api" };
-	*	});
-*/
+		* Simple registration (class with parameterless constructor)
+		* services.AddMultiTenantIsolation()
+		*	.WithInMemoryTenantCache()
+		*	.WithTenantStore<MyTenantStore>();
+		*
+		* Factory-based registration (for complex dependencies)
+		* services.AddMultiTenantIsolation()
+		*	.WithTenantDomainCache<RedisTenantCache>(provider => 
+		*		new RedisTenantCache(provider.GetRequiredService<IConnectionMultiplexer>()))
+		*	.WithTenantStore<EFCoreTenantStore>(provider =>
+		*		new EFCoreTenantStore(provider.GetRequiredService<MyDbContext>()));
+		*
+		* Full configuration example
+		* services.AddMultiTenantIsolation(options =>
+		*	{
+		*		options.CacheTenantResolution = true;
+		*		options.CacheExpirationMinutes = 30;
+		*	})
+		*	.WithInMemoryTenantCache()
+		*	.WithTenantStore<EFCoreTenantStore>()
+		*	.WithSubdomainResolutionStrategy(options =>
+		*	{
+		*		options.ExcludedSubdomains = new[] { "www", "api" };
+		*	});
+	*/
 	public static IServiceCollection AddMultiTenantEnforcer(this WebApplicationBuilder builder)
 	{
 		var services = builder.Services;
@@ -59,6 +59,12 @@ public static class ServiceCollectionExtensions
 				options.CacheMappings = true;
 				options.ExcludedSubdomains = ["www", "api", "admin", "localhost", "localhost:5266", "localhost:7058", "localhost:5001"];
 				options.SystemAdminClaimValue = "SystemAdmin";
+			})
+			.WithPerformanceMonitoring(options =>
+			{
+				options.Enabled = true;
+				options.SlowQueryThresholdMs = 500; // Stricter threshold for demo
+				options.CollectMetrics = true;
 			});
 
 		return services;
