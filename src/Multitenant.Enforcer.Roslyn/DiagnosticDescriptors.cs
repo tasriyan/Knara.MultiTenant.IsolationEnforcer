@@ -40,18 +40,6 @@ public static class DiagnosticDescriptors
 		helpLinkUri: "https://docs.multitenant.enforcer/rules/MTI003",
 		customTags: [WellKnownDiagnosticTags.Telemetry]);
 
-	// Warning: Tenant isolated entity without proper repository
-	public static readonly DiagnosticDescriptor TenantEntityWithoutRepository = new(
-		"MTI004",
-		"Tenant-isolated entity accessed without repository",
-		"Entity {0} implements ITenantIsolated but is not accessed through ITenantIsolatedRepository<T>",
-		"Security",
-		DiagnosticSeverity.Warning,
-		isEnabledByDefault: true,
-		description: "Tenant-isolated entities should be accessed through ITenantIsolatedRepository<T> for proper isolation.",
-		helpLinkUri: "https://docs.multitenant.enforcer/rules/MTI004",
-		customTags: [WellKnownDiagnosticTags.Telemetry]);
-
 	// Error: System context usage without authorization
 	public static readonly DiagnosticDescriptor UnauthorizedSystemContext = new(
 		"MTI005",
@@ -62,17 +50,5 @@ public static class DiagnosticDescriptors
 		isEnabledByDefault: true,
 		description: "Creating system context requires explicit authorization.",
 		helpLinkUri: "https://docs.multitenant.enforcer/rules/MTI005",
-		customTags: [WellKnownDiagnosticTags.Telemetry]);
-
-	// Error: DbContext with tenant-isolated entities must inherit from TenantDbContext
-	public static readonly DiagnosticDescriptor DbContextMustInheritTenantDbContext = new(
-		"MTI006",
-		"DbContext with tenant-isolated entities must inherit from TenantIsolatedDbContext",
-		"Class '{0}' contains DbSet properties for tenant-isolated entities but inherits directly from DbContext instead of TenantIsolatedDbContext",
-		"Security",
-		DiagnosticSeverity.Error,
-		isEnabledByDefault: true,
-		description: "DbContext classes that contain DbSet properties for entities implementing ITenantIsolated must inherit from TenantIsolatedDbContext to ensure proper tenant isolation is applied.",
-		helpLinkUri: "https://docs.multitenant.enforcer/rules/MTI006",
 		customTags: [WellKnownDiagnosticTags.Telemetry]);
 }
