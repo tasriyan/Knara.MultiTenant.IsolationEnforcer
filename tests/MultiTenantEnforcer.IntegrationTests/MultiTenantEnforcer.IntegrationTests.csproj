@@ -33,9 +33,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Multitenant.Enforcer.Cache\Multitenant.Enforcer.Cache.csproj" />
-    <ProjectReference Include="..\src\Multitenant.Enforcer.DependencyInjection\Multitenant.Enforcer.DependencyInjection.csproj" />
-    <ProjectReference Include="..\src\Multitenant.Enforcer.EntityFramework\Multitenant.Enforcer.EntityFramework.csproj" />
+    <ProjectReference Include="..\..\src\Multitenant.Enforcer.Cache\Multitenant.Enforcer.Cache.csproj" />
+    <ProjectReference Include="..\..\src\Multitenant.Enforcer.DependencyInjection\Multitenant.Enforcer.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\Multitenant.Enforcer.EntityFramework\Multitenant.Enforcer.EntityFramework.csproj" />
   </ItemGroup>
 
   <ItemGroup>
