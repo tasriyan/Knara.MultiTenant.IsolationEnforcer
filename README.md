@@ -1,42 +1,12 @@
 # 🛡️ Multi-Tenant Data Isolation Enforcer
 
-**Multi-tenant data isolation for .NET 8 SaaS applications**
-
+**Multi-tenant data isolation for .NET applications with compile-time enforcement**
 
 ## 🎯 What This Solves
 
 **The Problem**: Your team will accidentally create tenant data leaks. It's not a matter of "if" but "when."
 
-**The Solution**: This enforcer makes it **impossible** to deploy code that violates tenant isolation.
-
-**How Is This Different From Other Solutions?** 
-
-Looking at it objectively compared to existing libraries such as [Finbuckle.MultiTenant](), my solution is not really novel.
-Finbuckle.MultiTenant already does:
-
-- Tenant resolution (better than mine actually)
-- EF Core integration
-- ASP.NET Core middleware
-- Multiple tenant storage strategies
-
-****What's potentially different in mine:****
-
-- More Aggressive Compile-Time Enforcement 
-- The Roslyn analyzers are more comprehensive than most libraries. 
-- Making _context.Set<Order>() a compile error is pretty strict.
-- Specific Focus on "Developer-Proof" : most libraries assume competent developers. Mine assumes they'll screw up and tries to make that impossible.
-- Batteries-included approach that combines analyzers + runtime + performance monitoring in one opinionated package.
-
-But honestly:
-
-- Global query filters? Standard EF Core
-- Tenant middleware? Everyone does this
-- Repository pattern? Ancient
-- Even tenant-aware analyzers exist in some form
-
-***The real difference is philosophical***: Most multi-tenant libraries give you flexible tools. Mine tries to be an opinionated, hard-to-break solution for teams that keep making tenant isolation mistakes.
-So it's more "existing patterns with more guardrails" than genuinely novel architecture. The specific analyzer rules and "fail-safe" approach might be the only somewhat unique parts.
-Nothing revolutionary - just paranoid about tenant data leaks.
+**The Solution**: This library makes it **impossible** to deploy code that violates tenant isolation.
 
 ### ❌ Before (Dangerous)
 ```csharp
@@ -56,7 +26,7 @@ public async Task<List<Order>> GetOrders()
 }
 
 // Trying the old way gives COMPILE ERROR:
-// Error MTI001: Use ITenantRepository<Order> instead of direct DbSet access
+// Error MTI001: Use ITenantIsolatedRepository<Order> instead of direct DbSet access
 ```
 
 ## 🚀 Quick Start
@@ -66,14 +36,19 @@ public async Task<List<Order>> GetOrders()
 dotnet add package MultiTenant.Enforcer
 ```
 
-### 2. Configure Your Startup (3 lines)
+### 2. Configure Services
 ```csharp
-// Program.cs
-services.AddMultiTenantIsolation<YourDbContext>();
+services.AddMultiTenantIsolation()
+    .WithInMemoryTenantCache()
+    .WithTenantsStore<YourTenantStore>()
+    .WithSubdomainResolutionStrategy(options =>
+    {
+        options.ExcludedSubdomains = new[] { "www", "api", "admin" };
+    });
 
-// Pipeline
+// Add middleware
 app.UseAuthentication();
-app.UseMultiTenantIsolation(); // Must be after UseAuthentication()
+app.UseMultiTenantIsolation(); 
 ```
 
 ### 3. Update Your DbContext
@@ -82,7 +57,7 @@ app.UseMultiTenantIsolation(); // Must be after UseAuthentication()
 public class YourDbContext : DbContext
 
 // To this:
-public class YourDbContext : TenantDbContext
+public class YourDbContext : TenantIsolatedDbContext
 {
     public YourDbContext(DbContextOptions<YourDbContext> options, 
         ITenantContextAccessor tenantAccessor, 
@@ -102,11 +77,11 @@ public class Order : ITenantIsolated
 }
 ```
 
-### 5. Use Repositories (Enforced by Analyzer)
+### 5. Use Repositories (Enforced by Roslyn Analyzers)
 ```csharp
-public class OrderController : ControllerBase
+public class OrderService
 {
-    private readonly ITenantRepository<Order> _orderRepo; // ✅ Required by analyzer
+    private readonly TenantIsolatedRepository<Order, YourDbContext> _orderRepo;
     
     public async Task<List<Order>> GetOrders()
     {
@@ -115,74 +90,40 @@ public class OrderController : ControllerBase
 }
 ```
 
-## 🛡️ Triple-Layer Protection
+## 🛡️ What Makes This Different
 
-### 1. **Compile-Time (Roslyn Analyzers)**
+**Compared to other multi-tenant libraries** (like Finbuckle.MultiTenant), this one is more paranoid:
+
+- **Compile-time enforcement**: Roslyn analyzers prevent unsafe code from building
+- **Assumes developers will mess up**: Makes dangerous operations impossible, not just discouraged  
+- **Mandatory monitoring**: Performance tracking is required, not optional
+- **Opinionated approach**: Fewer choices, more guardrails
+
+Most multi-tenant libraries give you flexible tools assuming competent developers. Mine assumes they'll screw up and tries to make that impossible.
+
+
+## 📋 Protection Layers
+
+### 1. Compile-Time (Roslyn Analyzers)
 - **MTI001**: Direct DbSet access → Compilation ERROR
 - **MTI002**: Missing cross-tenant authorization → Compilation ERROR  
 - **MTI003**: Potential filter bypasses → WARNING
-- **MTI004**: Entities without repositories → WARNING
 - **MTI005**: Unauthorized system context → Compilation ERROR
 
-### 2. **Runtime (EF Core Global Filters)**
-- Automatic `WHERE TenantId = @currentTenant` on ALL queries
+### 2. Runtime Protection
+- Global query filters: `WHERE TenantId = @currentTenant` on all queries
 - SaveChanges validation prevents cross-tenant modifications
-- Automatic TenantId assignment on new entities
+- Automatic TenantId assignment for new entities
+- Exception throwing on tenant violations
 
-### 3. **Database (Performance Indexes)**
-- Automatic `(TenantId, ...)` indexes on all tenant entities
-- Query performance monitoring and optimization
-
-## 📊 What Your Team Cannot Break
-
-| Violation Type | Protection Level | Result |
-|---------------|------------------|---------|
-| `_context.Orders.ToListAsync()` | **Compile Error** | Won't build |
-| Cross-tenant entity modification | **Runtime Exception** | App crashes safely |
-| Missing tenant in queries | **Global Filters** | Automatic filtering |
-| Performance issues | **Auto Indexes** | Optimized queries |
-| Unauthorized cross-tenant ops | **Compile Error** | Won't build |
-
-## 🔧 Advanced Configuration
-
-### JWT Tenant Resolution
-```csharp
-services.AddMultiTenantIsolation<MyDbContext>(options =>
-{
-    options.UseJwtTenantResolver(jwt =>
-    {
-        jwt.TenantIdClaimType = "tenant_id";
-        jwt.SystemAdminClaimType = "role";
-        jwt.SystemAdminClaimValue = "SystemAdmin";
-    });
-});
-```
-
-### Subdomain Tenant Resolution
-```csharp
-services.AddMultiTenantIsolation<MyDbContext>(options =>
-{
-    options.UseSubdomainTenantResolver(subdomain =>
-    {
-        subdomain.ExcludedSubdomains = new[] { "www", "api", "admin" };
-        subdomain.CacheMappings = true;
-    });
-});
-```
-
-### Performance Monitoring
-```csharp
-services.AddMultiTenantIsolation<MyDbContext>(options =>
-{
-    options.PerformanceMonitoring.Enabled = true;
-    options.PerformanceMonitoring.SlowQueryThresholdMs = 500;
-    options.PerformanceMonitoring.LogQueryPlans = true;
-});
-```
+### 3. Performance Monitoring
+- Mandatory query performance tracking
+- Tenant isolation violation logging
+- Cross-tenant operation auditing
 
 ## 🚨 Cross-Tenant Operations (Admin Functions)
 
-For legitimate cross-tenant access (admin reports, user migration):
+For legitimate cross-tenant access:
 
 ```csharp
 [AllowCrossTenantAccess("Admin needs to view all tenants", "SystemAdmin")]
@@ -191,53 +132,45 @@ public async Task<AdminReport> GetGlobalReport()
     return await _crossTenantManager.ExecuteCrossTenantOperationAsync(async () =>
     {
         // This runs in system context - can access all tenants
-        var allOrders = await _context.Orders.ToListAsync();
-        return GenerateReport(allOrders);
+        return await GenerateReport();
     }, "Global admin reporting");
 }
 ```
 
-## 📈 Performance Features
+## 📚 Documentation
 
-### Automatic Optimization
-- **Tenant-based indexes**: `(TenantId, OtherColumns)` on all entities
-- **Query monitoring**: Slow query detection and logging
-- **Bulk operations**: Tenant-safe bulk updates and deletes
-- **Connection pooling**: Efficient resource usage
+- **[Configuration Guide](Configuration.md)** - Complete setup and configuration options
+- **[Features Overview](Features.md)** - What the library does and why
+- **[Tenant Resolvers](TenantResolvers.md)** - How tenant detection works
 
-### Performance Monitoring
-```json
-{
-  "Level": "Information", 
-  "Message": "Query executed: Order.GetOverdue took 45ms, returned 23 rows, tenant: acme-corp",
-  "TenantId": "11111111-1111-1111-1111-111111111111",
-  "ExecutionTimeMs": 45,
-  "RowsReturned": 23
-}
-```
+## 🔧 Tenant Resolution Strategies
 
-## 🔍 Visual Studio Experience
+The library includes several built-in ways to determine which tenant a request belongs to:
 
-### Real-Time Error Detection
 ```csharp
-public async Task<List<Order>> BadMethod()
-{
-    return await _context.Orders.ToListAsync();
-    //           ^^^^^^^^^^^^^^^ 
-    //           Red squiggly line with error:
-    //           "Use ITenantRepository<Order> instead"
-    //           💡 Click for automatic fix
-}
+// Subdomain: tenant1.yourapp.com → tenant1
+.WithSubdomainResolutionStrategy()
+
+// JWT claims: Extract from authentication token  
+.WithJwtResolutionStrategy()
+
+// HTTP headers: X-Tenant-ID header
+.WithHeaderResolutionStrategy()
+
+// URL path: /tenant1/api/users → tenant1
+.WithPathResolutionStrategy()
+
+// Multiple strategies with fallback
+.WithCompositeResolutionStrategy(
+    typeof(JwtTenantResolver),
+    typeof(SubdomainTenantResolver)
+)
 ```
 
-### Automatic Code Fixes
-- **F1 Error**: Direct DbSet access detected
-- **Ctrl+.**: Shows "Use ITenantRepository instead" 
-- **Enter**: Automatically fixes the code
+See the [Tenant Resolvers Guide](TenantResolvers.md) for details on each approach.
 
 ## 🧪 Testing Support
 
-### Unit Testing
 ```csharp
 [Test]
 public async Task Repository_Should_Filter_By_Tenant()
@@ -254,155 +187,34 @@ public async Task Repository_Should_Filter_By_Tenant()
 }
 ```
 
-### Integration Testing
-```csharp
-[Test] 
-public async Task CrossTenantAccess_Should_Throw_Exception()
-{
-    // Arrange
-    var tenant1Order = CreateOrderForTenant(tenant1Id);
-    SetCurrentTenant(tenant2Id);
-    
-    // Act & Assert
-    await Assert.ThrowsAsync<TenantIsolationViolationException>(
-        () => _orderRepository.UpdateAsync(tenant1Order));
-}
-```
+## 🛠️ Migration from Existing Apps
 
-## 📋 Migration Guide
+1. **Install package and configure services**
+2. **Change DbContext base class**: `DbContext` → `TenantIsolatedDbContext`  
+3. **Add ITenantIsolated interface** to tenant entities
+4. **Replace direct DbContext usage** with repositories
+5. **Fix compilation errors** (the analyzers will guide you)
+6. **Add database migration** for TenantId columns
 
-### From Existing Applications
+The Roslyn analyzers will catch most issues during the migration process.
 
-1. **Install the package**:
-   ```bash
-   dotnet add package MultiTenant.Enforcer
-   ```
+## 🎯 When to Use This
 
-2. **Update your DbContext**:
-   ```csharp
-   // Before
-   public class MyDbContext : DbContext
-   
-   // After  
-   public class MyDbContext : TenantDbContext
-   ```
+**Good fit:**
+- Your team keeps making tenant isolation mistakes
+- You want compile-time safety over flexibility
+- You're building a new multi-tenant application
+- You prefer opinionated tools with fewer configuration options
 
-3. **Add the interface to entities**:
-   ```csharp
-   public class Order : ITenantIsolated
-   {
-       public Guid TenantId { get; set; } // Add this property
-       // ... existing properties
-   }
-   ```
-
-4. **Fix compilation errors**:
-   - Replace `_context.Orders` with `_orderRepository`
-   - Inject `ITenantRepository<Order>` instead of `DbContext`
-
-5. **Add migration for TenantId**:
-   ```bash
-   dotnet ef migrations add AddTenantIdToEntities
-   dotnet ef database update
-   ```
-
-## 🎛️ Configuration Options
-
-```csharp
-services.AddMultiTenantIsolation<MyDbContext>(options =>
-{
-    // Tenant resolution
-    options.UseJwtTenantResolver();
-    // or options.UseSubdomainTenantResolver();
-    // or options.UseCompositeResolver(typeof(JwtResolver), typeof(SubdomainResolver));
-    
-    // Security
-    options.LogViolations = true;
-    options.CacheTenantResolution = true;
-    options.CacheExpirationMinutes = 5;
-    
-    // Performance
-    options.PerformanceMonitoring.Enabled = true;
-    options.PerformanceMonitoring.SlowQueryThresholdMs = 1000;
-    options.PerformanceMonitoring.CollectMetrics = true;
-});
-```
-
-## 🎭 Example Scenarios
-
-### E-Commerce SaaS
-```csharp
-// Each store (tenant) sees only their products
-public class Product : ITenantIsolated
-{
-    public Guid TenantId { get; set; } // Store ID
-    public string Name { get; set; }
-    public decimal Price { get; set; }
-}
-
-// Automatically filtered by store
-var products = await _productRepository.GetAllAsync();
-```
-
-### Project Management SaaS  
-```csharp
-// Each company (tenant) sees only their projects
-public class Project : ITenantIsolated  
-{
-    public Guid TenantId { get; set; } // Company ID
-    public string Name { get; set; }
-    public List<Task> Tasks { get; set; }
-}
-```
-
-### Healthcare SaaS
-```csharp
-// Each clinic (tenant) sees only their patients
-public class Patient : ITenantIsolated
-{
-    public Guid TenantId { get; set; } // Clinic ID
-    public string Name { get; set; }
-    public List<MedicalRecord> Records { get; set; }
-}
-```
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-**Q: Getting MTI001 errors everywhere**
-A: This is expected! The analyzer is protecting you. Replace direct DbSet access with repositories:
-```csharp
-// ❌ This
-_context.Orders.ToListAsync()
-
-// ✅ With this  
-_orderRepository.GetAllAsync()
-```
-
-**Q: How do I access data across all tenants?**
-A: Use the cross-tenant operation manager with proper authorization:
-```csharp
-[AllowCrossTenantAccess("Admin reporting", "Admin")]
-public async Task<Report> GetGlobalReport()
-{
-    return await _crossTenantManager.ExecuteCrossTenantOperationAsync(
-        async () => { /* cross-tenant logic */ }, 
-        "Global reporting");
-}
-```
-
-**Q: Performance is slow**
-A: Check that tenant indexes are created. The package auto-creates them, but verify:
-```sql
--- Should exist for each tenant entity
-CREATE INDEX IX_Orders_TenantId ON Orders(TenantId);
-```
-
+**Not a good fit:**  
+- You need maximum flexibility in your multi-tenant approach
+- You have complex tenant resolution requirements that don't fit the built-in resolvers
+- You're working with a large existing codebase that can't easily adopt the repository pattern
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
+MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
+
+**The goal**: Make tenant data leaks impossible to deploy, not just unlikely.
