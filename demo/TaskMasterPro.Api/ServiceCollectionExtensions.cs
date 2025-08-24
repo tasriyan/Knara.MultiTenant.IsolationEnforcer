@@ -107,11 +107,10 @@ public static class ServiceCollectionExtensions
 		// Projects required services
 
 		// First option: registers repository with unsafe DbContext - the repo is safe because it inherits from TenantIsolatedRepository
-		// Uncomment the following line to use this option instead of second option
-		// services.AddScoped<IProjectRepository, TenantIsolatedProjectRepository>();
+		services.AddScoped<IProjectRepository, TenantIsolatedProjectRepository>();
 
 		// Second option: registers repository with safe DbContext
-		services.AddScoped<IProjectRepository, TenantIsolatedProjectRepositorySecondOption>();
+		services.AddScoped<TenantIsolatedProjectRepositorySecondOption>();
 
 		// Tasks required services
 		services.AddScoped<TenantIsolatedRepository<ProjectTask, UnsafeDbContext>>();

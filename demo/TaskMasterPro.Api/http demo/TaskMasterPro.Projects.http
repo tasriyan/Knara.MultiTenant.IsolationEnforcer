@@ -106,10 +106,11 @@ Content-Type: application/json
   "startDate": "2024-08-20T09:00:00Z"
 }
 
-### 3. CREATE PROJECT - PASS: Should return 201 with tenantId = techInnovationsTenantId
-# Expected: 201 Forbidden
-# Response body: tenantId should equal "22222222-2222-2222-2222-222222222222"
-# HOWEVER: The response should be 401 if JWT resolver enabled instead less restrictive Subdomain resolver
+### 3. CREATE PROJECT - PASS: If subdomain resolver is used, should return 201 with tenantId = techInnovationsTenantId,
+# however, if JWT resolver used, it should be 400 BAD REQUEST
+# Expected: 201 Created OR 400 BadRequest depending on resolver
+# Response body: tenantId should equal "22222222-2222-2222-2222-222222222222" or problem details
+# The response should be 400 if JWT resolver enabled instead less restrictive Subdomain resolver
 POST {{baseUrl}}/projects
 Authorization: Bearer {{acmeProjectManagerJwt}}
 Host: techinnovations.taskmasterpro.com

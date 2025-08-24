@@ -15,12 +15,12 @@ public sealed class GetAuditLogs : IEndpoint
 	public void AddEndpoint(IEndpointRouteBuilder app)
 	{
 		app.MapGet("/api/admin/audit-logs",
-			async(ICrossTenantOperationManager crossTenantManager,
-					NotTenantIsolatedAdminDbContext context,
-					CurrentUserService userSvc,
-					[FromQuery] Guid ? tenantId = null,
-					[FromQuery] DateTime ? fromDate = null,
-					[FromQuery] int take = 100) =>
+			async([FromServices] ICrossTenantOperationManager crossTenantManager,
+					[FromServices] NotTenantIsolatedAdminDbContext context,
+					[FromServices] ICurrentUserService userSvc,
+					[FromQuery] Guid ? tenantId,
+					[FromQuery] DateTime ? fromDate,
+					[FromQuery] int? take) =>
 			{
 				return await crossTenantManager.ExecuteCrossTenantOperationAsync(async () =>
 				{
@@ -38,7 +38,7 @@ public sealed class GetAuditLogs : IEndpoint
 
 					var logs = await query
 						.OrderByDescending(log => log.Timestamp)
-						.Take(take)
+						.Take(take ?? 100)
 						.ToListAsync();
 
 					return Results.Ok(logs.Select(l => new AdminAuditLogResponse(Id: l.Id,

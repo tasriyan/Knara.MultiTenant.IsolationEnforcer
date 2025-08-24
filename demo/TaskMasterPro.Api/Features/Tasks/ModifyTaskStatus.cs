@@ -1,4 +1,5 @@
-﻿using MultiTenant.Enforcer.EntityFramework;
+﻿using Microsoft.AspNetCore.Mvc;
+using MultiTenant.Enforcer.EntityFramework;
 using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
@@ -15,7 +16,7 @@ public sealed class ModifyTaskStatus : IEndpoint
 		app.MapPut("/api/tasks/{id:guid}/status",
 			async (
 				Guid id,
-				UpdateTaskStatusDto dto,
+				[FromBody] UpdateTaskStatusDto dto,
 				TenantIsolatedRepository<ProjectTask, UnsafeDbContext> repository) =>
 			{
 				var task = await repository.GetByIdAsync(id);

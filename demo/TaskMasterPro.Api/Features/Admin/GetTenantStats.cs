@@ -26,7 +26,7 @@ public sealed class GetTenantStats : IEndpoint
 		app.MapGet("/api/admin/tenant-statistics",
 			async (ICrossTenantOperationManager crossTenantManager,
 					TaskMasterDbContext context,
-					CurrentUserService userSvc,
+					ICurrentUserService userSvc,
 					[FromQuery] Guid? tenantId = null,
 					[FromQuery] DateTime? fromDate = null,
 					[FromQuery] int take = 100) =>

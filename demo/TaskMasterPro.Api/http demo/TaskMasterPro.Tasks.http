@@ -76,8 +76,8 @@ Authorization: Bearer {{acmeMember1Jwt}}
 Host: acme.taskmasterpro.com
 
 ### 2. GET MY TASKS - FAIL: Tech user sees only their assigned tasks
-# Expected: 200 OK
-# Response: Should be empty tasks list because acme user request comes from techinnovations subdomain
+# Expected if used JWT resolver: 200 OK; if configured subdomain resolver: 400 BAD REQUEST
+# Response: if used JWT resolver: Should be empty tasks list because acme user request comes from techinnovations subdomain; otherwise, error details
 GET {{baseUrl}}/tasks/my-tasks
 Authorization: Bearer {{acmeMember1Jwt}}
 Host: techinnovations.taskmasterpro.com
@@ -95,8 +95,8 @@ Authorization: Bearer {{acmeUserJwt}}
 Host: acme.taskmasterpro.com
 
 ### 5. GET OVERDUE TASKS - FAIL: Tech user sees only their tenant's overdue tasks
-# Expected: 200 OK
-# Response: Should be empty tasks list because acme user request comes from techinnovations subdomain
+# Expected if used JWT resolver: 200 OK; if configured subdomain resolver: 400 BAD REQUEST
+# Response: if used JWT resolver: Should be empty tasks list because acme user request comes from techinnovations subdomain; otherwise, error details
 GET {{baseUrl}}/tasks/overdue
 Authorization: Bearer {{acmeUserJwt}}
 Host: techinnovations.taskmasterpro.com
@@ -109,13 +109,13 @@ Authorization: Bearer {{acmeUserJwt}}
 Host: acme.taskmasterpro.com
 
 ### 7. GET OVERDUE TASKS - FAIL: Tech user sees only their tenant's overdue tasks
-# Expected: 200 OK
-# Response: Should be empty tasks list because acme user request comes from techinnovations subdomain
+# Expected if used JWT resolver: 200 OK; if configured subdomain resolver: 400 BAD REQUEST
+# Response: if used JWT resolver: Should be empty tasks list because acme user request comes from techinnovations subdomain; otherwise, error details
 GET {{baseUrl}}/tasks/project/{{acmeProject1Id}}
 Authorization: Bearer {{acmeUserJwt}}
 Host: techinnovations.taskmasterpro.com
 
-### 7. GET PROJECT TASKS - FAIL: Tech user cannot access Acme project tasks
+### 8. GET PROJECT TASKS - FAIL: Tech user cannot access Acme project tasks
 # Expected: 200 OK (but empty array - project doesn't exist in their tenant)
 # Response: Empty array or tasks from different project in Tech tenant
 GET {{baseUrl}}/tasks/project/{{acmeProject1Id}}

@@ -19,7 +19,7 @@ public sealed class MigrateUser : IEndpoint
 			async (ICrossTenantOperationManager crossTenantManager,
 					ILogger<MigrateUser> logger,
 					TaskMasterDbContext context,
-					CurrentUserService userSvc,
+					ICurrentUserService userSvc,
 					[FromBody] MigrateUserDto dto,
 					[FromQuery] Guid? tenantId = null,
 					[FromQuery] DateTime? fromDate = null,
