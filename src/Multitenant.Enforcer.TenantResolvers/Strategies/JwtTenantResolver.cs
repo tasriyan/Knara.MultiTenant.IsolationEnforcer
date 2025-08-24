@@ -64,7 +64,7 @@ public class JwtTenantResolver(
 		}
 
 		//otherwise, look up the tenant by name(s)
-		//assuming that the user has multiple tenants listed in claim, e.g. allowed_claims="acme.com,acme,contoso,contoso.com"
+		//assuming that the user has multiple tenants listed in claim, e.g. allowed_tenants="acme.com,acme,contoso,contoso.com"
 		var claims = claimValue.Split(separator: [',', ' ', ';'], options: StringSplitOptions.RemoveEmptyEntries);
 		foreach (var claim in claims)
 		{

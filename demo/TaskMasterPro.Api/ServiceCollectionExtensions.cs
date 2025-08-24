@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.DependencyInjection;
+using Multitenant.Enforcer.TenantResolvers.Strategies;
 using MultiTenant.Enforcer.EntityFramework;
 using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Entities;
@@ -23,13 +24,15 @@ public static class ServiceCollectionExtensions
 		*	.WithInMemoryTenantCache()
 		*	.WithTenantStore<MyTenantStore>();
 		*
+		*
 		* Factory-based registration (for complex dependencies)
 		* services.AddMultiTenantIsolation()
 		*	.WithTenantDomainCache<RedisTenantCache>(provider => 
 		*		new RedisTenantCache(provider.GetRequiredService<IConnectionMultiplexer>()))
 		*	.WithTenantStore<EFCoreTenantStore>(provider =>
 		*		new EFCoreTenantStore(provider.GetRequiredService<MyDbContext>()));
-		*
+		
+		*---------------------------------
 		* Full configuration example
 		* services.AddMultiTenantIsolation(options =>
 		*	{
@@ -41,6 +44,28 @@ public static class ServiceCollectionExtensions
 		*	.WithSubdomainResolutionStrategy(options =>
 		*	{
 		*		options.ExcludedSubdomains = new[] { "www", "api" };
+		*	});
+		
+		*---------------------------------	
+		*	More complex example with multiple strategies and performance monitoring
+		*	services.AddMultiTenantIsolation(options =>
+		*	{
+		*		options.CacheTenantResolution = true;
+		*		options.CacheExpirationMinutes = 30;
+		*	})
+		*	.WithInMemoryTenantCache()
+		*	.WithTenantsStore<TaskMasterProTenantStore>()
+		*	.WithSubdomainResolutionStrategy(options =>
+		*	{
+		*		options.CacheMappings = true;
+		*		options.ExcludedSubdomains = ["www", "api", "admin", "localhost", "localhost:5266", "localhost:7058", "localhost:5001"];
+		*		options.SystemAdminClaimValue = "SystemAdmin";
+		*	})
+		*	.WithPerformanceMonitoring(options =>
+		*	{
+		*		options.Enabled = true;
+		*		options.SlowQueryThresholdMs = 500; // Stricter threshold for demo
+		*		options.CollectMetrics = true;
 		*	});
 	*/
 	public static IServiceCollection AddMultiTenantEnforcer(this WebApplicationBuilder builder)
@@ -54,12 +79,12 @@ public static class ServiceCollectionExtensions
 			})
 			.WithInMemoryTenantCache()
 			.WithTenantsStore<TaskMasterProTenantStore>()
-			.WithSubdomainResolutionStrategy(options =>
-			{
-				options.CacheMappings = true;
-				options.ExcludedSubdomains = ["www", "api", "admin", "localhost", "localhost:5266", "localhost:7058", "localhost:5001"];
-				options.SystemAdminClaimValue = "SystemAdmin";
-			})
+			.WithJwtResolutionStrategy(options =>
+				{
+					options.CacheMappings = true;
+					options.TenantIdClaimTypes = ["tenant_id", "allowed_tenants"];
+					options.DomainValidationMode = TenantDomainValidationMode.ValidateAgainstSubdomain;
+				})
 			.WithPerformanceMonitoring(options =>
 			{
 				options.Enabled = true;
@@ -80,10 +105,13 @@ public static class ServiceCollectionExtensions
 			}));
 
 		// Projects required services
-		services.AddScoped<IProjectRepository, TenantIsolatedProjectRepositorySecondOption>();
 
-		// Register the repository using the unsafe DbContext
+		// First option: registers repository with unsafe DbContext - the repo is safe because it inherits from TenantIsolatedRepository
+		// Uncomment the following line to use this option instead of second option
 		// services.AddScoped<IProjectRepository, TenantIsolatedProjectRepository>();
+
+		// Second option: registers repository with safe DbContext
+		services.AddScoped<IProjectRepository, TenantIsolatedProjectRepositorySecondOption>();
 
 		// Tasks required services
 		services.AddScoped<TenantIsolatedRepository<ProjectTask, UnsafeDbContext>>();
