@@ -33,7 +33,10 @@ public static class HttpContextExtensions
 	//		https://localhost:5000 (no subdomain)
 	public static string TenantFromSubdomain(this HttpContext context, string[] excludedSubdomains)
 	{
-		var host = context.Request.Host.Host;
+		if (context.Request?.Host == null) 
+			throw new ArgumentNullException("Host not provided");
+
+		var host = context.Request.Host.Host ?? string.Empty;
 		var parts = host.Split('.');
 
 		// Need at least 3 parts for subdomain: subdomain.domain.com
@@ -42,8 +45,7 @@ public static class HttpContextExtensions
 		// Check if first part should be skipped (www, admin, etc.)
 		if (excludedSubdomains?.Contains(parts[0], StringComparer.OrdinalIgnoreCase) == true)
 		{
-			// Use second part as tenant: www.globex.yourapp.com -> "globex"
-			return parts.Length >= 3 ? parts[1] : string.Empty;
+			return parts[1];
 		}
 
 		// Use first part as tenant: acme-corp.yourapp.com -> "acme-corp"
@@ -66,7 +68,7 @@ public static class HttpContextExtensions
 				return queryValue.FirstOrDefault();
 			}
 		}
-		return null;
+		return string.Empty;
 	}
 
 	// Assuming header-based tenancy
@@ -84,7 +86,7 @@ public static class HttpContextExtensions
 				return headerValue.FirstOrDefault();
 			}
 		}
-		return null;
+		return string.Empty;
 	}
 
 	// Assuming path-based tenancy
@@ -106,6 +108,6 @@ public static class HttpContextExtensions
 			else
 				return segment; // Return the first non-excluded segment as subdomain
 		}
-		return null;
+		return string.Empty;
 	}
 }

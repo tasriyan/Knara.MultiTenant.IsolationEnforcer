@@ -55,9 +55,9 @@ public class JwtTenantResolver(
 			var tenantInfo = await _tenantLookupService.GetTenantInfoAsync(tenantId, cancellationToken);
 			if (tenantInfo != null && tenantInfo.IsActive)
 			{
-				var id = await domainValidator.ValidateTenantDomainAsync(context, cancellationToken);
-				if (id == tenantInfo!.Id)
-					return id;
+				var isValid = await domainValidator.ValidateTenantDomainAsync(tenantInfo.Id, context, cancellationToken);
+				if (isValid)
+					return tenantInfo.Id;
 			}
 			return Guid.Empty;
 
@@ -71,9 +71,9 @@ public class JwtTenantResolver(
 			var tenantInfo = await _tenantLookupService.GetTenantInfoByDomainAsync(claim, cancellationToken);
 			if (tenantInfo != null && tenantInfo.IsActive)
 			{
-				var id = await domainValidator.ValidateTenantDomainAsync(context, cancellationToken);
-				if (id == tenantInfo!.Id)
-					return id;
+				var isValid = await domainValidator.ValidateTenantDomainAsync(tenantInfo.Id, context, cancellationToken);
+				if (isValid)
+					return tenantInfo.Id;
 			}
 		}
 
@@ -85,7 +85,7 @@ public class JwtTenantResolverOptions : TenantResolverOptions
 {
 	public string[] TenantIdClaimTypes { get; set; } = ["tenant_id", "tenantId", "tid"];
 
-	public TenantDomainValidationMode RequestDomainResolver { get; set; } = TenantDomainValidationMode.ValidateAgainstSubdomain;
+	public TenantDomainValidationMode DomainValidationMode { get; set; } = TenantDomainValidationMode.ValidateAgainstSubdomain;
 
 	public static JwtTenantResolverOptions DefaultOptions { get; } = new JwtTenantResolverOptions();
 }
@@ -97,3 +97,4 @@ public enum TenantDomainValidationMode
 	ValidateAgainstHeaderOrQuery,
 	ValidateAgainstSubdomain
 }
+

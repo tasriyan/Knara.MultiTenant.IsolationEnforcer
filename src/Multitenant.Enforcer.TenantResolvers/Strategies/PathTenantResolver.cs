@@ -12,6 +12,7 @@ public class PathTenantResolver(
 {
 	private readonly ITenantLookupService _tenantLookupService = tenantLookupService ?? throw new ArgumentNullException(nameof(tenantLookupService));
 	private readonly PathTenantResolverOptions _options = options?.Value ?? PathTenantResolverOptions.DefaultOptions;
+
 	public async Task<TenantContext> GetTenantContextAsync(HttpContext context, CancellationToken cancellationToken)
 	{
 		logger.LogDebug("Resolving tenant from request path {Path}", context.Request.Path);
@@ -23,14 +24,27 @@ public class PathTenantResolver(
 			return TenantContext.SystemContext();
 		}
 
-
 		return await ResolveTenantContext(context, cancellationToken);
 	}
 
-	public async Task<Guid?> ValidateTenantDomainAsync(HttpContext context, CancellationToken cancellationToken)
+	public async Task<bool> ValidateTenantDomainAsync(Guid tenantId, HttpContext context, CancellationToken cancellationToken)
 	{
-		var tenantContext = await ResolveTenantContext(context, cancellationToken);
-		return tenantContext!.TenantId;
+		try
+		{
+			var tenantFromPath = context.TenantFromPath(_options.ExcludedPaths);
+			if (string.IsNullOrWhiteSpace(tenantFromPath))
+			{
+				return false;
+			}
+
+			var tenantInfo = await _tenantLookupService.GetTenantInfoByDomainAsync(tenantFromPath!, cancellationToken);
+			return tenantInfo?.Id == tenantId && tenantInfo.IsActive;
+		}
+		catch (Exception ex)
+		{
+			logger.LogError(ex, "Error validating tenant domain for tenant {TenantId}", tenantId);
+			return false;
+		}
 	}
 
 	private async Task<TenantContext> ResolveTenantContext(HttpContext context, CancellationToken cancellationToken)
@@ -47,6 +61,7 @@ public class PathTenantResolver(
 		}
 		return await CreateTenantContext(tenant!, cancellationToken);
 	}
+
 	private async Task<TenantContext> CreateTenantContext(string tenant, CancellationToken cancellationToken)
 	{
 		var tenantInfo = await _tenantLookupService.GetTenantInfoByDomainAsync(tenant, cancellationToken);

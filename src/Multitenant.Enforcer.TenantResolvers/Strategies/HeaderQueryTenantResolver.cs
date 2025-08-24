@@ -27,16 +27,37 @@ public class HeaderQueryTenantResolver(
 		return await ResolveTenantContext(context, cancellationToken);
 	}
 
-	public async Task<Guid?> ValidateTenantDomainAsync(HttpContext context, CancellationToken cancellationToken)
+	public async Task<bool> ValidateTenantDomainAsync(Guid tenantId, HttpContext context, CancellationToken cancellationToken)
 	{
-		var tenantContext = await ResolveTenantContext(context, cancellationToken);
-		return tenantContext.TenantId;
+		try
+		{
+			var tenantFromHeader = GetHeaderOrQueryStringValue(context);
+			if (!Validators.IsValidTenantIdentifier(tenantFromHeader))
+			{
+				return false;
+			}
+
+			// If the tenant value is a GUID, validate it matches the provided tenantId
+			if (Guid.TryParse(tenantFromHeader, out var parsedTenantId))
+			{
+				return parsedTenantId == tenantId;
+			}
+
+			// If the tenant value is a domain name, look it up and validate
+			var tenantInfo = await _tenantLookupService.GetTenantInfoByDomainAsync(tenantFromHeader!, cancellationToken);
+			return tenantInfo?.Id == tenantId && tenantInfo.IsActive;
+		}
+		catch (Exception ex)
+		{
+			logger.LogError(ex, "Error validating tenant domain for tenant {TenantId}", tenantId);
+			return false;
+		}
 	}
 
 	private async Task<TenantContext> ResolveTenantContext(HttpContext context, CancellationToken cancellationToken)
 	{
 		var tenant = GetHeaderOrQueryStringValue(context);
-		if (string.IsNullOrWhiteSpace(tenant))
+		if (!Validators.IsValidTenantIdentifier(tenant))
 		{
 			logger.LogDebug("No tenant found in request headers {Headers} or query parameters {Query}",
 				context.Request.Headers, context.Request.QueryString);

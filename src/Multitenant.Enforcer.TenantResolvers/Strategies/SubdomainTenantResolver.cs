@@ -26,10 +26,24 @@ public class SubdomainTenantResolver(
 		return await ResolveTenantContext(context, cancellationToken);
 	}
 
-	public async Task<Guid?> ValidateTenantDomainAsync(HttpContext context, CancellationToken cancellationToken)
+	public async Task<bool> ValidateTenantDomainAsync(Guid tenantId, HttpContext context, CancellationToken cancellationToken)
 	{
-		var tenantContext = await ResolveTenantContext(context, cancellationToken);
-		return tenantContext!.TenantId;
+		try
+		{
+			var tenantDomain = context.TenantFromSubdomain(_options.ExcludedSubdomains);
+			if (string.IsNullOrWhiteSpace(tenantDomain))
+			{
+				return false;
+			}
+
+			var tenantInfo = await _tenantLookupService.GetTenantInfoByDomainAsync(tenantDomain, cancellationToken);
+			return tenantInfo?.Id == tenantId && tenantInfo.IsActive;
+		}
+		catch (Exception ex)
+		{
+			logger.LogError(ex, "Error validating tenant domain for tenant {TenantId}", tenantId);
+			return false;
+		}
 	}
 
 	private async Task<TenantContext> ResolveTenantContext(HttpContext context, CancellationToken cancellationToken)
@@ -65,4 +79,5 @@ public class SubdomainTenantResolverOptions : TenantResolverOptions
 
 	public static SubdomainTenantResolverOptions DefaultOptions { get; } = new SubdomainTenantResolverOptions();
 }
+
 
