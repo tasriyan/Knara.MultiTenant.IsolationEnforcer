@@ -10,7 +10,7 @@
     <ProjectReference Include="..\Multitenant.Enforcer.AspNetCore\Multitenant.Enforcer.AspNetCore.csproj" />
     <ProjectReference Include="..\Multitenant.Enforcer.Cache\Multitenant.Enforcer.Cache.csproj" />
     <ProjectReference Include="..\Multitenant.Enforcer.Core\Multitenant.Enforcer.Core.csproj" />
-    <ProjectReference Include="..\Multitenant.Enforcer.DomainResolvers\Multitenant.Enforcer.DomainResolvers.csproj" />
+    <ProjectReference Include="..\Multitenant.Enforcer.DomainResolvers\Multitenant.Enforcer.TenantResolvers.csproj" />
     <ProjectReference Include="..\Multitenant.Enforcer.EntityFramework\Multitenant.Enforcer.EntityFramework.csproj" />
     <ProjectReference Include="..\Multitenant.Enforcer.PerformanceMonitor\Multitenant.Enforcer.PerformanceMonitor.csproj" />
   </ItemGroup>

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.DomainResolvers;
+using Multitenant.Enforcer.TenantResolvers;
 using System.Text.Json;
 
 namespace Multitenant.Enforcer.AspnetCore;
@@ -24,7 +24,7 @@ public class TenantContextMiddleware
 	{
 		try
 		{
-			var tenantContext = await tenantResolver.ResolveTenantAsync(context, CancellationToken.None);
+			var tenantContext = await tenantResolver.GetTenantContextAsync(context, CancellationToken.None);
 			tenantAccessor.SetContext(tenantContext);
 
 			using (_logger.BeginScope(new Dictionary<string, object>

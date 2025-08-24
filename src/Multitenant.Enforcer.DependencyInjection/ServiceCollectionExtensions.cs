@@ -2,8 +2,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Multitenant.Enforcer.AspnetCore;
 using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.DomainResolvers;
 using Multitenant.Enforcer.PerformanceMonitor;
+using Multitenant.Enforcer.TenantResolvers;
 
 namespace Multitenant.Enforcer.DependencyInjection;
 

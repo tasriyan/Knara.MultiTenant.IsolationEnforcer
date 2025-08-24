@@ -2,9 +2,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Multitenant.Enforcer.Cache;
 using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.DomainResolvers;
 using Multitenant.Enforcer.PerformanceMonitor;
-	
+using Multitenant.Enforcer.TenantResolvers;
+using Multitenant.Enforcer.TenantResolvers.Strategies;
+
 namespace Multitenant.Enforcer.DependencyInjection;
 
 public class MultitenantIsolationBuilder(IServiceCollection services)
@@ -70,13 +71,43 @@ public class MultitenantIsolationBuilder(IServiceCollection services)
 
 	public MultitenantIsolationBuilder WithJwtResolutionStrategy(Action<JwtTenantResolverOptions>? configure = null)
 	{
-		_services.AddOptions<JwtTenantResolverOptions>().Configure(opts =>
+		services.AddOptions<JwtTenantResolverOptions>().Configure(opts =>
 		{
 			if (configure != null)
 				configure.Invoke(opts);
 			else
 				opts = JwtTenantResolverOptions.DefaultOptions;
 		});
+
+
+		_services.AddScoped<DomainValidationResolverFactory>();
+		_services.AddScoped<ITenantResolver, JwtTenantResolver>();
+		return this;
+	}
+
+	public MultitenantIsolationBuilder WithJwtResolutionStrategy(JwtTenantResolverOptions? options = null)
+	{
+		if (options == null)
+			options = JwtTenantResolverOptions.DefaultOptions;
+
+		if (options.RequestDomainResolver == JwtRequestDomainResolvers.Path)
+		{
+			_services.AddScoped<PathTenantResolver>();
+		}
+		else if (options.RequestDomainResolver == JwtRequestDomainResolvers.HeaderOrQuery)
+		{
+			_services.AddScoped<HeaderQueryTenantResolver>();
+		}
+		else if (options.RequestDomainResolver == JwtRequestDomainResolvers.Subdomain)
+		{
+			_services.AddScoped<SubdomainTenantResolver>();
+		}
+		else
+		{
+			_services.AddScoped<NoOpTenantResolver>();
+		}
+
+		_services.AddScoped<DomainValidationResolverFactory>();
 		_services.AddScoped<ITenantResolver, JwtTenantResolver>();
 		return this;
 	}
@@ -94,16 +125,16 @@ public class MultitenantIsolationBuilder(IServiceCollection services)
 		return this;
 	}
 
-	public MultitenantIsolationBuilder WithHeaderResolutionStrategy(Action<HeaderTenantResolverOptions>? configure = null)
+	public MultitenantIsolationBuilder WithHeaderResolutionStrategy(Action<HeaderQueryTenantResolverOptions>? configure = null)
 	{
-		_services.AddOptions<HeaderTenantResolverOptions>().Configure(opts =>
+		_services.AddOptions<HeaderQueryTenantResolverOptions>().Configure(opts =>
 		{
 			if (configure != null)
 				configure.Invoke(opts);
 			else
-				opts = HeaderTenantResolverOptions.DefaultOptions;
+				opts = HeaderQueryTenantResolverOptions.DefaultOptions;
 		});
-		_services.AddScoped<ITenantResolver, HeaderTenantResolver>();
+		_services.AddScoped<ITenantResolver, HeaderQueryTenantResolver>();
 		return this;
 	}
 
