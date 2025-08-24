@@ -16,7 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		multitenant_configuration.md = multitenant_configuration.md
 		multitenant_features.md = multitenant_features.md
 		README.md = README.md
-		README1.md = README1.md
 		tenant_resolvers.md = tenant_resolvers.md
 	EndProjectSection
 EndProject

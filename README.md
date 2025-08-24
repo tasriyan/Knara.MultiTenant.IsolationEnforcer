@@ -95,7 +95,6 @@ public class OrderService
 **Compared to other multi-tenant libraries** (like Finbuckle.MultiTenant), this one is more paranoid:
 
 - **Compile-time enforcement**: Roslyn analyzers prevent unsafe code from building
-- **Assumes developers will mess up**: Makes dangerous operations impossible, not just discouraged  
 - **Mandatory monitoring**: Performance tracking is required, not optional
 - **Opinionated approach**: Fewer choices, more guardrails
 
