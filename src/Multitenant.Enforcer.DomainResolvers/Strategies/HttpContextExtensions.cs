@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Multitenant.Enforcer.DomainResolvers;
+namespace Multitenant.Enforcer.TenantResolvers.Strategies;
 
 public static class HttpContextExtensions
 {
 	// Patterns:
 	//	{claim types, claim_values}: {"role", "SystemAdmin"}, {"http://schemas.microsoft.com/.../identity/claims/role", "admin" }, {"is_admin", "true"}
-	public static bool IsUserASystemAdmin(this HttpContext context, string[] systemAdminClaimTypes, string systemAdminClaimValue)
+	public static bool IsUserASystemAdmin(this HttpContext context, 
+						string[] systemAdminClaimTypes, 
+						string systemAdminClaimValue)
 	{
 		var user = context.User;
 		if (user == null || user.Identity?.IsAuthenticated == false)
@@ -29,7 +31,7 @@ public static class HttpContextExtensions
 	//		https://admin.initech.yourapp.com
 	//		https://yourapp.com (no subdomain)
 	//		https://localhost:5000 (no subdomain)
-	public static string ExtractSubdomainFromDomain(this HttpContext context, string[] excludedSubdomains)
+	public static string TenantFromSubdomain(this HttpContext context, string[] excludedSubdomains)
 	{
 		var host = context.Request.Host.Host;
 		var parts = host.Split('.');
@@ -54,7 +56,7 @@ public static class HttpContextExtensions
 	//		https://yourapp.com?subdomain=globex
 	//		https://yourapp.com?tenant=admin
 	//		https://yourapp.com?tenantId=11111111-1111-1111-1111-111111111111
-	public static string ExtractSubdomaintFromQuery(this HttpContext context, string[] includedQueryParameters)
+	public static string TenantFromQuery(this HttpContext context, string[] includedQueryParameters)
 	{
 		// Try query parameter
 		foreach (var header in includedQueryParameters)
@@ -73,7 +75,7 @@ public static class HttpContextExtensions
 	//		X-Tenant-Subdomain: globex
 	//		X-Tenant: admin
 	//		X-Tenant-Id: 11111111-1111-1111-1111-111111111111
-	public static string? ExtractSubdomainFromHeader(this HttpContext context, string[] includedHeaders)
+	public static string? TenantFromHeader(this HttpContext context, string[] includedHeaders)
 	{
 		foreach (var header in includedHeaders)
 		{
@@ -92,7 +94,7 @@ public static class HttpContextExtensions
 	//		https://yourapp.com/admin
 	//		https://yourapp.com/tenant/initech/settings
 	//		https://yourapp.com/api/v1/globex/users
-	public static string? ExtractSubdomainFromPath(this HttpContext context, string[] excludedPathSegments)
+	public static string? TenantFromPath(this HttpContext context, string[] excludedPathSegments)
 	{
 		var pathSegments = context.Request.Path.Value?.Split(['/'], options: StringSplitOptions.RemoveEmptyEntries);
 		if (pathSegments == null || pathSegments.Length == 0) 

@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Multitenant.Enforcer.Core;
 
-namespace Multitenant.Enforcer.DomainResolvers;
+namespace Multitenant.Enforcer.TenantResolvers.Strategies;
 
 public class CompositeTenantResolver(ITenantResolver[] resolvers, ILogger<CompositeTenantResolver> logger) : ITenantResolver
 {
 	private readonly ITenantResolver[] _resolvers = resolvers ?? throw new ArgumentNullException(nameof(resolvers));
 
-	public async Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken)
+	public async Task<TenantContext> GetTenantContextAsync(HttpContext context, CancellationToken cancellationToken)
 	{
 		var exceptions = new List<Exception>();
 
@@ -16,7 +16,7 @@ public class CompositeTenantResolver(ITenantResolver[] resolvers, ILogger<Compos
 		{
 			try
 			{
-				var result = await resolver.ResolveTenantAsync(context, cancellationToken);
+				var result = await resolver.GetTenantContextAsync(context, cancellationToken);
 				logger.LogDebug("Tenant resolved using {ResolverType}: {TenantId}",
 					resolver.GetType().Name, result.TenantId);
 				return result;

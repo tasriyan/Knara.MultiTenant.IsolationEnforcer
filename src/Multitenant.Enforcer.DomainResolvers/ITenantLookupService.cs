@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using Multitenant.Enforcer.Cache;
 using Multitenant.Enforcer.Core;
 
-namespace Multitenant.Enforcer.DomainResolvers;
+namespace Multitenant.Enforcer.TenantResolvers;
 
 public interface ITenantLookupService
 {

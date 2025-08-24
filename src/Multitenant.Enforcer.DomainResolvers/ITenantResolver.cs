@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using Multitenant.Enforcer.Core;
 
-namespace Multitenant.Enforcer.DomainResolvers;
+namespace Multitenant.Enforcer.TenantResolvers;
 
 public interface ITenantResolver
 {
-	Task<TenantContext> ResolveTenantAsync(HttpContext context, CancellationToken cancellationToken);
+	Task<TenantContext> GetTenantContextAsync(HttpContext context, CancellationToken cancellationToken);
 }

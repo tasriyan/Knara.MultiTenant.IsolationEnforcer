@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace Multitenant.Enforcer.DomainResolvers;
+namespace Multitenant.Enforcer.TenantResolvers;
 
 public interface ITenantResolverOptions
 {
