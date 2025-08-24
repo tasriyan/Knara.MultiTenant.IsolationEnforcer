@@ -64,7 +64,7 @@ public class HeaderQueryTenantResolver(
 			throw new TenantResolutionException(
 				"Could not extract tenant from request",
 				context.Request.Host.Host,
-				"HeaderOrQuery");
+				"HeaderQuery");
 		}
 
 		if (Guid.TryParse(tenant, out var tenantId))
@@ -95,10 +95,10 @@ public class HeaderQueryTenantResolver(
 			throw new TenantResolutionException(
 				$"No active tenant found for {tenantId}",
 				tenantId.ToString(),
-				"HeaderOrQuery");
+				"HeaderQuery");
 		}
 		logger.LogDebug("Tenant {TenantId} resolved from header or query string", tenantId);
-		return TenantContext.ForTenant(tenantId, $"HeaderOrQuery:{tenantId}");
+		return TenantContext.ForTenant(tenantId, $"HeaderQuery:{tenantId}");
 	}
 
 	private async Task<TenantContext> CreateTenantContextFromTenantName(string tenant, CancellationToken cancellationToken)
@@ -109,10 +109,10 @@ public class HeaderQueryTenantResolver(
 			throw new TenantResolutionException(
 				$"No active tenant found for {tenant}",
 				tenant,
-				"HeaderOrQuery");
+				"HeaderQuery");
 		}
 		logger.LogDebug("Tenant {TenantId} resolved from header or query string", tenantInfo.Id);
-		return TenantContext.ForTenant(tenantInfo.Id, $"HeaderOrQuery:{tenant}");
+		return TenantContext.ForTenant(tenantInfo.Id, $"HeaderQuery:{tenant}");
 	}
 }
 

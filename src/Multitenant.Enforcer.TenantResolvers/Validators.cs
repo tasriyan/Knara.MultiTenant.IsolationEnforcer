@@ -12,7 +12,7 @@ public static class Validators
 		if (string.IsNullOrWhiteSpace(value)) return false;
 
 		// Validate against injection attacks
-		if (value.Contains("../") || value.Contains("..\\")) return false;
+		if (value!.Contains("../") || value.Contains("..\\")) return false;
 		if (value.Any(c => char.IsControl(c))) return false;
 
 		return value.Length <= 100; // Reasonable limit
