@@ -71,7 +71,11 @@ public class MultitenantIsolationBuilder(IServiceCollection services)
 
 	public MultitenantIsolationBuilder WithJwtResolutionStrategy(Action<JwtTenantResolverOptions>? configure = null)
 	{
-		services.AddOptions<JwtTenantResolverOptions>().Configure(opts =>
+		var options = JwtTenantResolverOptions.DefaultOptions;
+
+		configure?.Invoke(options);
+
+		_services.AddOptions<JwtTenantResolverOptions>().Configure(opts =>
 		{
 			if (configure != null)
 				configure.Invoke(opts);
@@ -79,35 +83,22 @@ public class MultitenantIsolationBuilder(IServiceCollection services)
 				opts = JwtTenantResolverOptions.DefaultOptions;
 		});
 
-
-		_services.AddScoped<DomainValidationResolverFactory>();
-		_services.AddScoped<ITenantResolver, JwtTenantResolver>();
-		return this;
-	}
-
-	public MultitenantIsolationBuilder WithJwtResolutionStrategy(JwtTenantResolverOptions? options = null)
-	{
-		if (options == null)
-			options = JwtTenantResolverOptions.DefaultOptions;
-
-		if (options.RequestDomainResolver == JwtRequestDomainResolvers.Path)
+		switch (options.DomainValidationMode)
 		{
-			_services.AddScoped<PathTenantResolver>();
-		}
-		else if (options.RequestDomainResolver == JwtRequestDomainResolvers.HeaderOrQuery)
-		{
-			_services.AddScoped<HeaderQueryTenantResolver>();
-		}
-		else if (options.RequestDomainResolver == JwtRequestDomainResolvers.Subdomain)
-		{
-			_services.AddScoped<SubdomainTenantResolver>();
-		}
-		else
-		{
-			_services.AddScoped<NoOpTenantResolver>();
+			case TenantDomainValidationMode.ValidateAgainstPath:
+				_services.AddScoped<ITenantDomainValidator, PathTenantResolver>();
+				break;
+			case TenantDomainValidationMode.ValidateAgainstHeaderOrQuery:
+				_services.AddScoped<ITenantDomainValidator, HeaderQueryTenantResolver>();
+				break;
+			case TenantDomainValidationMode.ValidateAgainstSubdomain:
+				_services.AddScoped<ITenantDomainValidator, SubdomainTenantResolver>();
+				break;
+			default:
+				_services.AddScoped<ITenantDomainValidator, NoOpTenantResolver>();
+				break;
 		}
 
-		_services.AddScoped<DomainValidationResolverFactory>();
 		_services.AddScoped<ITenantResolver, JwtTenantResolver>();
 		return this;
 	}
