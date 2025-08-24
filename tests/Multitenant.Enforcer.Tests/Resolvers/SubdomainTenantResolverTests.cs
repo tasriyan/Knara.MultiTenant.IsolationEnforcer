@@ -2,7 +2,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.DomainResolvers;
+using Multitenant.Enforcer.TenantResolvers;
+using Multitenant.Enforcer.TenantResolvers.Strategies;
 using System.Security.Claims;
 
 namespace Multitenant.Enforcer.Tests.Resolvers;
@@ -43,7 +44,7 @@ public class SubdomainTenantResolverTests
 			.ReturnsAsync(tenantInfo);
 
 		// Act
-		var result = await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+		var result = await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		result.ShouldNotBeNull();
@@ -64,7 +65,7 @@ public class SubdomainTenantResolverTests
 			.ReturnsAsync(tenantInfo);
 
 		// Act
-		var result = await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+		var result = await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		result.TenantId.ShouldBe(tenantId);
@@ -79,9 +80,9 @@ public class SubdomainTenantResolverTests
 
 		// Act & Assert
 		var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-			_resolver.ResolveTenantAsync(context, CancellationToken.None));
+			_resolver.GetTenantContextAsync(context, CancellationToken.None));
 
-		exception.Message.ShouldBe("No subdomain found in request");
+		exception.Message.ShouldBe("Could not extract tenant from request");
 		exception.AttemptedTenantIdentifier.ShouldBe("example.com");
 		exception.ResolutionMethod.ShouldBe("Subdomain");
 	}
@@ -94,9 +95,9 @@ public class SubdomainTenantResolverTests
 
 		// Act & Assert
 		var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-			_resolver.ResolveTenantAsync(context, CancellationToken.None));
+			_resolver.GetTenantContextAsync(context, CancellationToken.None));
 
-		exception.Message.ShouldBe("No subdomain found in request");
+		exception.Message.ShouldBe("Could not extract tenant from request");
 		exception.AttemptedTenantIdentifier.ShouldBe("localhost");
 		exception.ResolutionMethod.ShouldBe("Subdomain");
 	}
@@ -109,7 +110,7 @@ public class SubdomainTenantResolverTests
 
 		// Act & Assert
 		await Assert.ThrowsAsync<TenantResolutionException>(() =>
-			_resolver.ResolveTenantAsync(context, CancellationToken.None));
+			_resolver.GetTenantContextAsync(context, CancellationToken.None));
 	}
 
 	[Fact]
@@ -123,9 +124,9 @@ public class SubdomainTenantResolverTests
 
 		// Act & Assert
 		var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-			_resolver.ResolveTenantAsync(context, CancellationToken.None));
+			_resolver.GetTenantContextAsync(context, CancellationToken.None));
 
-		exception.Message.ShouldBe("No active tenant found for domain: nonexistent");
+		exception.Message.ShouldBe("No active tenant found for nonexistent");
 		exception.AttemptedTenantIdentifier.ShouldBe("nonexistent.example.com");
 		exception.ResolutionMethod.ShouldBe("Subdomain");
 	}
@@ -142,9 +143,9 @@ public class SubdomainTenantResolverTests
 
 		// Act & Assert
 		var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-			_resolver.ResolveTenantAsync(context, CancellationToken.None));
+			_resolver.GetTenantContextAsync(context, CancellationToken.None));
 
-		exception.Message.ShouldBe("No active tenant found for domain: inactive");
+		exception.Message.ShouldBe("No active tenant found for inactive");
 		exception.AttemptedTenantIdentifier.ShouldBe("inactive.example.com");
 		exception.ResolutionMethod.ShouldBe("Subdomain");
 	}
@@ -161,7 +162,7 @@ public class SubdomainTenantResolverTests
 			.ReturnsAsync(tenantInfo);
 
 		// Act
-		var result = await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+		var result = await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		result.TenantId.ShouldBe(tenantId);
@@ -187,7 +188,7 @@ public class SubdomainTenantResolverTests
 			.ReturnsAsync(tenantInfo);
 
 		// Act
-		var result = await resolver.ResolveTenantAsync(context, CancellationToken.None);
+		var result = await resolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		result.TenantId.ShouldBe(tenantId);
@@ -206,7 +207,7 @@ public class SubdomainTenantResolverTests
 			.ReturnsAsync(tenantInfo);
 
 		// Act
-		await _resolver.ResolveTenantAsync(context, cancellationToken);
+		await _resolver.GetTenantContextAsync(context, cancellationToken);
 
 		// Assert
 		_mockTenantLookupService.Verify(x => x.GetTenantInfoByDomainAsync("test", cancellationToken), Times.Once);

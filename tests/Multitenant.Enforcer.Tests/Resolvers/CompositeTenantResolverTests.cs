@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.DomainResolvers;
+using Multitenant.Enforcer.TenantResolvers;
+using Multitenant.Enforcer.TenantResolvers.Strategies;
 using System.Security.Claims;
 
 namespace Multitenant.Enforcer.Tests.Resolvers;
@@ -31,15 +32,15 @@ public class CompositeTenantResolverTests
 		var resolvers = new[] { _mockResolver1.Object, _mockResolver2.Object };
 		var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
 
-		_mockResolver1.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver1.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.ReturnsAsync(expectedContext);
 
 		// Act
-		var result = await compositeResolver.ResolveTenantAsync(context, CancellationToken.None);
+		var result = await compositeResolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		result.ShouldBe(expectedContext);
-		_mockResolver2.Verify(x => x.ResolveTenantAsync(It.IsAny<HttpContext>(), It.IsAny<CancellationToken>()), Times.Never);
+		_mockResolver2.Verify(x => x.GetTenantContextAsync(It.IsAny<HttpContext>(), It.IsAny<CancellationToken>()), Times.Never);
 	}
 
 	[Fact]
@@ -52,18 +53,18 @@ public class CompositeTenantResolverTests
 		var resolvers = new[] { _mockResolver1.Object, _mockResolver2.Object };
 		var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
 
-		_mockResolver1.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver1.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new TenantResolutionException("First failed", "test", "First"));
-		_mockResolver2.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver2.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.ReturnsAsync(expectedContext);
 
 		// Act
-		var result = await compositeResolver.ResolveTenantAsync(context, CancellationToken.None);
+		var result = await compositeResolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		result.ShouldBe(expectedContext);
-		_mockResolver1.Verify(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()), Times.Once);
-		_mockResolver2.Verify(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()), Times.Once);
+		_mockResolver1.Verify(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()), Times.Once);
+		_mockResolver2.Verify(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()), Times.Once);
 	}
 
 	[Fact]
@@ -74,16 +75,16 @@ public class CompositeTenantResolverTests
 		var resolvers = new[] { _mockResolver1.Object, _mockResolver2.Object, _mockResolver3.Object };
 		var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
 
-		_mockResolver1.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver1.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new TenantResolutionException("First failed", "test1", "First"));
-		_mockResolver2.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver2.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new TenantResolutionException("Second failed", "test2", "Second"));
-		_mockResolver3.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver3.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new TenantResolutionException("Third failed", "test3", "Third"));
 
 		// Act & Assert
 		var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-			compositeResolver.ResolveTenantAsync(context, CancellationToken.None));
+			compositeResolver.GetTenantContextAsync(context, CancellationToken.None));
 
 		exception.Message.ShouldContain("All tenant resolution strategies failed");
 		exception.ResolutionMethod.ShouldBe("Composite");
@@ -98,12 +99,12 @@ public class CompositeTenantResolverTests
 		var resolvers = new[] { _mockResolver1.Object };
 		var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
 
-		_mockResolver1.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver1.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new InvalidOperationException("Unexpected error"));
 
 		// Act & Assert
 		await Assert.ThrowsAsync<InvalidOperationException>(() =>
-			compositeResolver.ResolveTenantAsync(context, CancellationToken.None));
+			compositeResolver.GetTenantContextAsync(context, CancellationToken.None));
 	}
 
 	[Fact]
@@ -116,7 +117,7 @@ public class CompositeTenantResolverTests
 
 		// Act & Assert
 		var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-			compositeResolver.ResolveTenantAsync(context, CancellationToken.None));
+			compositeResolver.GetTenantContextAsync(context, CancellationToken.None));
 
 		exception.Message.ShouldContain("All tenant resolution strategies failed");
 		exception.ResolutionMethod.ShouldBe("Composite");
@@ -131,14 +132,14 @@ public class CompositeTenantResolverTests
 		var resolvers = new[] { _mockResolver1.Object };
 		var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
 
-		_mockResolver1.Setup(x => x.ResolveTenantAsync(context, cancellationToken))
+		_mockResolver1.Setup(x => x.GetTenantContextAsync(context, cancellationToken))
 			.ReturnsAsync(TenantContext.ForTenant(Guid.NewGuid(), "Test"));
 
 		// Act
-		await compositeResolver.ResolveTenantAsync(context, cancellationToken);
+		await compositeResolver.GetTenantContextAsync(context, cancellationToken);
 
 		// Assert
-		_mockResolver1.Verify(x => x.ResolveTenantAsync(context, cancellationToken), Times.Once);
+		_mockResolver1.Verify(x => x.GetTenantContextAsync(context, cancellationToken), Times.Once);
 	}
 
 	[Fact]
@@ -151,21 +152,21 @@ public class CompositeTenantResolverTests
 		var resolvers = new[] { _mockResolver1.Object, _mockResolver2.Object, _mockResolver3.Object };
 		var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
 
-		_mockResolver1.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver1.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new TenantResolutionException("First failed", "test1", "First"));
-		_mockResolver2.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver2.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new TenantResolutionException("Second failed", "test2", "Second"));
-		_mockResolver3.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver3.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.ReturnsAsync(expectedContext);
 
 		// Act
-		var result = await compositeResolver.ResolveTenantAsync(context, CancellationToken.None);
+		var result = await compositeResolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		result.ShouldBe(expectedContext);
-		_mockResolver1.Verify(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()), Times.Once);
-		_mockResolver2.Verify(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()), Times.Once);
-		_mockResolver3.Verify(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()), Times.Once);
+		_mockResolver1.Verify(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()), Times.Once);
+		_mockResolver2.Verify(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()), Times.Once);
+		_mockResolver3.Verify(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()), Times.Once);
 	}
 
 	[Fact]
@@ -177,11 +178,11 @@ public class CompositeTenantResolverTests
 		var resolvers = new[] { _mockResolver1.Object };
 		var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
 
-		_mockResolver1.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver1.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.ReturnsAsync(systemContext);
 
 		// Act
-		var result = await compositeResolver.ResolveTenantAsync(context, CancellationToken.None);
+		var result = await compositeResolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		result.ShouldBe(systemContext);
@@ -197,19 +198,19 @@ public class CompositeTenantResolverTests
 		var compositeResolver = new CompositeTenantResolver(resolvers, _mockLogger.Object);
 		var executionOrder = new List<int>();
 
-		_mockResolver1.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver1.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.Returns(() =>
 			{
 				executionOrder.Add(1);
 				throw new TenantResolutionException("First failed", "test1", "First");
 			});
-		_mockResolver2.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver2.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.Returns(() =>
 			{
 				executionOrder.Add(2);
 				throw new TenantResolutionException("Second failed", "test2", "Second");
 			});
-		_mockResolver3.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+		_mockResolver3.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
 			.Returns(() =>
 			{
 				executionOrder.Add(3);
@@ -217,7 +218,7 @@ public class CompositeTenantResolverTests
 			});
 
 		// Act
-		await compositeResolver.ResolveTenantAsync(context, CancellationToken.None);
+		await compositeResolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		executionOrder.ShouldBe(new[] { 1, 2, 3 });

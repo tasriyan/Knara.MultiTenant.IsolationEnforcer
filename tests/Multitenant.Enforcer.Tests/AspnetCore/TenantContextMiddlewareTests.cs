@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Multitenant.Enforcer.AspnetCore;
 using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.DomainResolvers;
+using Multitenant.Enforcer.TenantResolvers;
 using System.Text.Json;
 
 namespace MultiTenant.Enforcer.Tests.AspnetCore;
@@ -32,7 +32,7 @@ public class TenantContextMiddlewareTests
         var tenantId = Guid.NewGuid();
         var tenantContext = TenantContext.ForTenant(tenantId, "JWT");
 
-        _mockTenantResolver.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+        _mockTenantResolver.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
                          .ReturnsAsync(tenantContext);
 
         // Act
@@ -50,7 +50,7 @@ public class TenantContextMiddlewareTests
         var context = CreateHttpContext();
         var tenantContext = TenantContext.SystemContext("SystemAdmin");
 
-        _mockTenantResolver.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+        _mockTenantResolver.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
                          .ReturnsAsync(tenantContext);
 
         // Act
@@ -68,7 +68,7 @@ public class TenantContextMiddlewareTests
         var context = CreateHttpContext();
         var exception = new TenantResolutionException("Failed to resolve tenant", "invalid-domain", "Subdomain");
 
-        _mockTenantResolver.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+        _mockTenantResolver.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
                          .ThrowsAsync(exception);
 
         // Act
@@ -89,7 +89,7 @@ public class TenantContextMiddlewareTests
         var context = CreateHttpContext();
         var exception = new TenantResolutionException("Failed to resolve tenant", "tenant1.example.com", "Subdomain");
 
-        _mockTenantResolver.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+        _mockTenantResolver.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
                          .ThrowsAsync(exception);
 
         // Act
@@ -113,7 +113,7 @@ public class TenantContextMiddlewareTests
         var context = CreateHttpContext();
         var exception = new InvalidOperationException("Unexpected error occurred");
 
-        _mockTenantResolver.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+        _mockTenantResolver.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
                          .ThrowsAsync(exception);
 
         // Act
@@ -134,7 +134,7 @@ public class TenantContextMiddlewareTests
         var context = CreateHttpContext();
         var exception = new InvalidOperationException("Unexpected error occurred");
 
-        _mockTenantResolver.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+        _mockTenantResolver.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
                          .ThrowsAsync(exception);
 
         // Act
@@ -157,7 +157,7 @@ public class TenantContextMiddlewareTests
         var tenantId = Guid.NewGuid();
         var tenantContext = TenantContext.ForTenant(tenantId, "JWT");
 
-        _mockTenantResolver.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+        _mockTenantResolver.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
                          .ReturnsAsync(tenantContext);
 
         // Act
@@ -181,7 +181,7 @@ public class TenantContextMiddlewareTests
         var context = CreateHttpContext("/admin/reports", "POST");
         var tenantContext = TenantContext.SystemContext("SystemAdmin");
 
-        _mockTenantResolver.Setup(x => x.ResolveTenantAsync(context, It.IsAny<CancellationToken>()))
+        _mockTenantResolver.Setup(x => x.GetTenantContextAsync(context, It.IsAny<CancellationToken>()))
                          .ReturnsAsync(tenantContext);
 
         // Act
@@ -206,14 +206,14 @@ public class TenantContextMiddlewareTests
         var tenantContext = TenantContext.ForTenant(Guid.NewGuid(), "JWT");
         var cancellationToken = new CancellationToken();
 
-        _mockTenantResolver.Setup(x => x.ResolveTenantAsync(context, cancellationToken))
+        _mockTenantResolver.Setup(x => x.GetTenantContextAsync(context, cancellationToken))
                          .ReturnsAsync(tenantContext);
 
         // Act
         await _middleware.InvokeAsync(context, _mockTenantAccessor.Object, _mockTenantResolver.Object);
 
         // Assert
-        _mockTenantResolver.Verify(x => x.ResolveTenantAsync(context, cancellationToken), Times.Once);
+        _mockTenantResolver.Verify(x => x.GetTenantContextAsync(context, cancellationToken), Times.Once);
     }
 
     private static DefaultHttpContext CreateHttpContext(string path = "/", string method = "GET")

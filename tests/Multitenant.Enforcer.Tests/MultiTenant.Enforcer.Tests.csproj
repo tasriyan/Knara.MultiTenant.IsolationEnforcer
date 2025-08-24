@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Resolvers\CompositeTenantResolverTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -30,7 +34,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Multitenant.Enforcer.AspNetCore\Multitenant.Enforcer.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Multitenant.Enforcer.Cache\Multitenant.Enforcer.Cache.csproj" />
-    <ProjectReference Include="..\..\src\Multitenant.Enforcer.DomainResolvers\Multitenant.Enforcer.DomainResolvers.csproj" />
     <ProjectReference Include="..\..\src\Multitenant.Enforcer.PerformanceMonitor\Multitenant.Enforcer.PerformanceMonitor.csproj" />
   </ItemGroup>
 

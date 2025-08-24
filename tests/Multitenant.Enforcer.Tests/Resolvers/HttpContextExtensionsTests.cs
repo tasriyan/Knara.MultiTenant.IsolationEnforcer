@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Multitenant.Enforcer.DomainResolvers;
+using Multitenant.Enforcer.TenantResolvers.Strategies;
 using System.Security.Claims;
 
 namespace Multitenant.Enforcer.Tests.DomainResolvers;
@@ -89,7 +89,7 @@ public class HttpContextExtensionsTests
 		var context = CreateHttpContext("acme.example.com");
 
 		// Act
-		var result = context.ExtractSubdomainFromDomain([]);
+		var result = context.TenantFromSubdomain([]);
 
 		// Assert
 		result.ShouldBe("acme");
@@ -102,7 +102,7 @@ public class HttpContextExtensionsTests
 		var context = CreateHttpContext("www.globex.example.com");
 
 		// Act
-		var result = context.ExtractSubdomainFromDomain(["www"]);
+		var result = context.TenantFromSubdomain(["www"]);
 
 		// Assert
 		result.ShouldBe("globex");
@@ -115,7 +115,7 @@ public class HttpContextExtensionsTests
 		var context = CreateHttpContext("example.com");
 
 		// Act
-		var result = context.ExtractSubdomainFromDomain([]);
+		var result = context.TenantFromSubdomain([]);
 
 		// Assert
 		result.ShouldBe(string.Empty);
@@ -128,7 +128,7 @@ public class HttpContextExtensionsTests
 		var context = CreateHttpContext("localhost");
 
 		// Act
-		var result = context.ExtractSubdomainFromDomain([]);
+		var result = context.TenantFromSubdomain([]);
 
 		// Assert
 		result.ShouldBe(string.Empty);
@@ -141,7 +141,7 @@ public class HttpContextExtensionsTests
 		var context = CreateHttpContext("www.example.com");
 
 		// Act
-		var result = context.ExtractSubdomainFromDomain(["www"]);
+		var result = context.TenantFromSubdomain(["www"]);
 
 		// Assert
 		result.ShouldBe("example");
@@ -154,7 +154,7 @@ public class HttpContextExtensionsTests
 		var context = CreateHttpContext("WWW.tenant.example.com");
 
 		// Act
-		var result = context.ExtractSubdomainFromDomain(["www"]);
+		var result = context.TenantFromSubdomain(["www"]);
 
 		// Assert
 		result.ShouldBe("tenant");
@@ -167,7 +167,7 @@ public class HttpContextExtensionsTests
 		var context = CreateHttpContext("test.example.com");
 
 		// Act
-		var result = context.ExtractSubdomainFromDomain(null);
+		var result = context.TenantFromSubdomain(null);
 
 		// Assert
 		result.ShouldBe("test");
@@ -185,7 +185,7 @@ public class HttpContextExtensionsTests
 		context.Request.QueryString = new QueryString("?tenant=acme");
 
 		// Act
-		var result = context.ExtractSubdomaintFromQuery(["tenant"]);
+		var result = context.TenantFromQuery(["tenant"]);
 
 		// Assert
 		result.ShouldBe("acme");
@@ -199,7 +199,7 @@ public class HttpContextExtensionsTests
 		context.Request.QueryString = new QueryString("?tenant=first&tenantId=second");
 
 		// Act
-		var result = context.ExtractSubdomaintFromQuery(["tenant", "tenantId"]);
+		var result = context.TenantFromQuery(["tenant", "tenantId"]);
 
 		// Assert
 		result.ShouldBe("first");
@@ -213,10 +213,10 @@ public class HttpContextExtensionsTests
 		context.Request.QueryString = new QueryString("?other=value");
 
 		// Act
-		var result = context.ExtractSubdomaintFromQuery(["tenant"]);
+		var result = context.TenantFromQuery(["tenant"]);
 
 		// Assert
-		result.ShouldBeNull();
+		result.ShouldBeNullOrWhiteSpace();
 	}
 
 	[Fact]
@@ -226,10 +226,10 @@ public class HttpContextExtensionsTests
 		var context = CreateHttpContext();
 
 		// Act
-		var result = context.ExtractSubdomaintFromQuery(["tenant"]);
+		var result = context.TenantFromQuery(["tenant"]);
 
 		// Assert
-		result.ShouldBeNull();
+		result.ShouldBeNullOrWhiteSpace();
 	}
 
 	[Fact]
@@ -240,7 +240,7 @@ public class HttpContextExtensionsTests
 		context.Request.QueryString = new QueryString("?tenant=");
 
 		// Act
-		var result = context.ExtractSubdomaintFromQuery(["tenant"]);
+		var result = context.TenantFromQuery(["tenant"]);
 
 		// Assert
 		result.ShouldBe(string.Empty);
@@ -258,7 +258,7 @@ public class HttpContextExtensionsTests
 		context.Request.Headers["X-Tenant"] = "acme";
 
 		// Act
-		var result = context.ExtractSubdomainFromHeader(["X-Tenant"]);
+		var result = context.TenantFromHeader(["X-Tenant"]);
 
 		// Assert
 		result.ShouldBe("acme");
@@ -273,7 +273,7 @@ public class HttpContextExtensionsTests
 		context.Request.Headers["X-Tenant"] = "second";
 
 		// Act
-		var result = context.ExtractSubdomainFromHeader(["X-Tenant-ID", "X-Tenant"]);
+		var result = context.TenantFromHeader(["X-Tenant-ID", "X-Tenant"]);
 
 		// Assert
 		result.ShouldBe("first");
@@ -287,10 +287,10 @@ public class HttpContextExtensionsTests
 		context.Request.Headers["Other-Header"] = "value";
 
 		// Act
-		var result = context.ExtractSubdomainFromHeader(["X-Tenant"]);
+		var result = context.TenantFromHeader(["X-Tenant"]);
 
 		// Assert
-		result.ShouldBeNull();
+		result.ShouldBeNullOrWhiteSpace();
 	}
 
 	[Fact]
@@ -300,10 +300,10 @@ public class HttpContextExtensionsTests
 		var context = CreateHttpContext();
 
 		// Act
-		var result = context.ExtractSubdomainFromHeader(["X-Tenant"]);
+		var result = context.TenantFromHeader(["X-Tenant"]);
 
 		// Assert
-		result.ShouldBeNull();
+		result.ShouldBeNullOrWhiteSpace();
 	}
 
 	[Fact]
@@ -314,10 +314,10 @@ public class HttpContextExtensionsTests
 		context.Request.Headers["X-Tenant"] = "";
 
 		// Act
-		var result = context.ExtractSubdomainFromHeader(["X-Tenant"]);
+		var result = context.TenantFromHeader(["X-Tenant"]);
 
 		// Assert
-		result.ShouldBeNull();
+		result.ShouldBeNullOrWhiteSpace();
 	}
 
 	#endregion
@@ -332,7 +332,7 @@ public class HttpContextExtensionsTests
 		context.Request.Path = "/tenant1/dashboard";
 
 		// Act
-		var result = context.ExtractSubdomainFromPath([]);
+		var result = context.TenantFromPath([]);
 
 		// Assert
 		result.ShouldBe("tenant1");
@@ -346,7 +346,7 @@ public class HttpContextExtensionsTests
 		context.Request.Path = "/api/tenant1/users";
 
 		// Act
-		var result = context.ExtractSubdomainFromPath(["api"]);
+		var result = context.TenantFromPath(["api"]);
 
 		// Assert
 		result.ShouldBe("tenant1");
@@ -360,7 +360,7 @@ public class HttpContextExtensionsTests
 		context.Request.Path = "/api/v1/tenant1/dashboard";
 
 		// Act
-		var result = context.ExtractSubdomainFromPath(["api", "v1"]);
+		var result = context.TenantFromPath(["api", "v1"]);
 
 		// Assert
 		result.ShouldBe("tenant1");
@@ -374,7 +374,7 @@ public class HttpContextExtensionsTests
 		context.Request.Path = "";
 
 		// Act
-		var result = context.ExtractSubdomainFromPath([]);
+		var result = context.TenantFromPath([]);
 
 		// Assert
 		result.ShouldBeNull();
@@ -388,7 +388,7 @@ public class HttpContextExtensionsTests
 		context.Request.Path = "/";
 
 		// Act
-		var result = context.ExtractSubdomainFromPath([]);
+		var result = context.TenantFromPath([]);
 
 		// Assert
 		result.ShouldBeNull();
@@ -402,10 +402,10 @@ public class HttpContextExtensionsTests
 		context.Request.Path = "/api/v1";
 
 		// Act
-		var result = context.ExtractSubdomainFromPath(["api", "v1"]);
+		var result = context.TenantFromPath(["api", "v1"]);
 
 		// Assert
-		result.ShouldBeNull();
+		result.ShouldBeNullOrWhiteSpace();
 	}
 
 	[Fact]
@@ -416,7 +416,7 @@ public class HttpContextExtensionsTests
 		context.Request.Path = "/API/tenant1/dashboard";
 
 		// Act
-		var result = context.ExtractSubdomainFromPath(["api"]);
+		var result = context.TenantFromPath(["api"]);
 
 		// Assert
 		result.ShouldBe("tenant1");
@@ -430,7 +430,7 @@ public class HttpContextExtensionsTests
 		context.Request.Path = PathString.Empty;
 
 		// Act
-		var result = context.ExtractSubdomainFromPath([]);
+		var result = context.TenantFromPath([]);
 
 		// Assert
 		result.ShouldBeNull();

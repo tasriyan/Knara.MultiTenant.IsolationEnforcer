@@ -2,7 +2,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.DomainResolvers;
+using Multitenant.Enforcer.TenantResolvers;
+using Multitenant.Enforcer.TenantResolvers.Strategies;
 using System.Security.Claims;
 
 namespace Multitenant.Enforcer.Tests.Resolvers;
@@ -44,13 +45,13 @@ public class PathTenantResolverTests
 			.ReturnsAsync(tenantInfo);
 
 		// Act
-		var result = await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+		var result = await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		result.ShouldNotBeNull();
 		result.TenantId.ShouldBe(tenantId);
 		result.IsSystemContext.ShouldBeFalse();
-		result.ContextSource.ShouldBe("Header:tenant1");
+		result.ContextSource.ShouldBe("Path:tenant1");
 	}
 
 	[Fact]
@@ -66,11 +67,11 @@ public class PathTenantResolverTests
 			.ReturnsAsync(tenantInfo);
 
 		// Act
-		var result = await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+		var result = await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		result.TenantId.ShouldBe(tenantId);
-		result.ContextSource.ShouldBe("Header:tenant2");
+		result.ContextSource.ShouldBe("Path:tenant2");
 	}
 
 	[Fact]
@@ -86,11 +87,11 @@ public class PathTenantResolverTests
 			.ReturnsAsync(tenantInfo);
 
 		// Act
-		var result = await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+		var result = await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		result.TenantId.ShouldBe(tenantId);
-		result.ContextSource.ShouldBe("Header:tenant3");
+		result.ContextSource.ShouldBe("Path:tenant3");
 	}
 
 	[Fact]
@@ -102,11 +103,11 @@ public class PathTenantResolverTests
 
 		// Act & Assert
 		var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-			_resolver.ResolveTenantAsync(context, CancellationToken.None));
+			_resolver.GetTenantContextAsync(context, CancellationToken.None));
 
-		exception.Message.ShouldBe("No subdomain found in request");
+		exception.Message.ShouldBe("Could not extract tenant from request");
 		exception.AttemptedTenantIdentifier.ShouldBe("localhost");
-		exception.ResolutionMethod.ShouldBe("Subdomain");
+		exception.ResolutionMethod.ShouldBe("Path");
 	}
 
 	[Fact]
@@ -118,11 +119,11 @@ public class PathTenantResolverTests
 
 		// Act & Assert
 		var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-			_resolver.ResolveTenantAsync(context, CancellationToken.None));
+			_resolver.GetTenantContextAsync(context, CancellationToken.None));
 
-		exception.Message.ShouldBe("No subdomain found in request");
+		exception.Message.ShouldBe("Could not extract tenant from request");
 		exception.AttemptedTenantIdentifier.ShouldBe("localhost");
-		exception.ResolutionMethod.ShouldBe("Subdomain");
+		exception.ResolutionMethod.ShouldBe("Path");
 	}
 
 	[Fact]
@@ -134,11 +135,11 @@ public class PathTenantResolverTests
 
 		// Act & Assert
 		var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-			_resolver.ResolveTenantAsync(context, CancellationToken.None));
+			_resolver.GetTenantContextAsync(context, CancellationToken.None));
 
-		exception.Message.ShouldBe("No subdomain found in request");
+		exception.Message.ShouldBe("Could not extract tenant from request");
 		exception.AttemptedTenantIdentifier.ShouldBe("localhost");
-		exception.ResolutionMethod.ShouldBe("Subdomain");
+		exception.ResolutionMethod.ShouldBe("Path");
 	}
 
 	[Fact]
@@ -153,11 +154,11 @@ public class PathTenantResolverTests
 
 		// Act & Assert
 		var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-			_resolver.ResolveTenantAsync(context, CancellationToken.None));
+			_resolver.GetTenantContextAsync(context, CancellationToken.None));
 
-		exception.Message.ShouldBe("No active tenant found for domain: nonexistent");
+		exception.Message.ShouldBe("No active tenant found for nonexistent");
 		exception.AttemptedTenantIdentifier.ShouldBe("nonexistent");
-		exception.ResolutionMethod.ShouldBe("Header");
+		exception.ResolutionMethod.ShouldBe("Path");
 	}
 
 	[Fact]
@@ -173,11 +174,11 @@ public class PathTenantResolverTests
 
 		// Act & Assert
 		var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-			_resolver.ResolveTenantAsync(context, CancellationToken.None));
+			_resolver.GetTenantContextAsync(context, CancellationToken.None));
 
-		exception.Message.ShouldBe("No active tenant found for domain: inactive");
+		exception.Message.ShouldBe("No active tenant found for inactive");
 		exception.AttemptedTenantIdentifier.ShouldBe("inactive");
-		exception.ResolutionMethod.ShouldBe("Header");
+		exception.ResolutionMethod.ShouldBe("Path");
 	}
 
 	[Fact]
@@ -200,11 +201,11 @@ public class PathTenantResolverTests
 			.ReturnsAsync(tenantInfo);
 
 		// Act
-		var result = await resolver.ResolveTenantAsync(context, CancellationToken.None);
+		var result = await resolver.GetTenantContextAsync(context, CancellationToken.None);
 
 		// Assert
 		result.TenantId.ShouldBe(tenantId);
-		result.ContextSource.ShouldBe("Header:tenant4");
+		result.ContextSource.ShouldBe("Path:tenant4");
 	}
 
 	[Fact]
@@ -220,7 +221,7 @@ public class PathTenantResolverTests
 			.ReturnsAsync(tenantInfo);
 
 		// Act
-		await _resolver.ResolveTenantAsync(context, cancellationToken);
+		await _resolver.GetTenantContextAsync(context, cancellationToken);
 
 		// Assert
 		_mockTenantLookupService.Verify(x => x.GetTenantInfoByDomainAsync("test", cancellationToken), Times.Once);

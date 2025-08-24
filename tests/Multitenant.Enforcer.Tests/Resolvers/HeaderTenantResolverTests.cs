@@ -2,25 +2,26 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.DomainResolvers;
+using Multitenant.Enforcer.TenantResolvers;
+using Multitenant.Enforcer.TenantResolvers.Strategies;
 using System.Security.Claims;
 
 namespace Multitenant.Enforcer.Tests.Resolvers;
 
 public class HeaderTenantResolverTests
 {
-    private readonly Mock<ILogger<HeaderTenantResolver>> _mockLogger;
+    private readonly Mock<ILogger<HeaderQueryTenantResolver>> _mockLogger;
     private readonly Mock<ITenantLookupService> _mockTenantLookupService;
-    private readonly Mock<IOptions<HeaderTenantResolverOptions>> _mockOptions;
-    private readonly HeaderTenantResolverOptions _defaultOptions;
-    private readonly HeaderTenantResolver _resolver;
+    private readonly Mock<IOptions<HeaderQueryTenantResolverOptions>> _mockOptions;
+    private readonly HeaderQueryTenantResolverOptions _defaultOptions;
+    private readonly HeaderQueryTenantResolver _resolver;
 
     public HeaderTenantResolverTests()
     {
-        _mockLogger = new Mock<ILogger<HeaderTenantResolver>>();
+        _mockLogger = new Mock<ILogger<HeaderQueryTenantResolver>>();
         _mockTenantLookupService = new Mock<ITenantLookupService>();
-        _mockOptions = new Mock<IOptions<HeaderTenantResolverOptions>>();
-        _defaultOptions = new HeaderTenantResolverOptions
+        _mockOptions = new Mock<IOptions<HeaderQueryTenantResolverOptions>>();
+        _defaultOptions = new HeaderQueryTenantResolverOptions
         {
             IncludedHeaders = ["X-Tenant-ID", "X-Tenant"],
             IncludedQueryParameters = ["tenant", "tenant_id", "tenantId", "tid"],
@@ -29,7 +30,7 @@ public class HeaderTenantResolverTests
         };
         
         _mockOptions.Setup(x => x.Value).Returns(_defaultOptions);
-        _resolver = new HeaderTenantResolver(_mockLogger.Object, _mockTenantLookupService.Object, _mockOptions.Object);
+        _resolver = new HeaderQueryTenantResolver(_mockLogger.Object, _mockTenantLookupService.Object, _mockOptions.Object);
     }
 
     #region System Admin Tests
@@ -43,7 +44,7 @@ public class HeaderTenantResolverTests
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context, cancellationToken);
+        var result = await _resolver.GetTenantContextAsync(context, cancellationToken);
 
         // Assert
         result.ShouldNotBeNull();
@@ -65,7 +66,7 @@ public class HeaderTenantResolverTests
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context, cancellationToken);
+        var result = await _resolver.GetTenantContextAsync(context, cancellationToken);
 
         // Assert
         result.IsSystemContext.ShouldBeTrue();
@@ -85,7 +86,7 @@ public class HeaderTenantResolverTests
 
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context, cancellationToken: CancellationToken.None);
+        var result = await _resolver.GetTenantContextAsync(context, cancellationToken: CancellationToken.None);
 
         // Assert
         result.IsSystemContext.ShouldBeFalse();
@@ -109,13 +110,13 @@ public class HeaderTenantResolverTests
             .ReturnsAsync(tenantInfo);
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+        var result = await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
         // Assert
         result.ShouldNotBeNull();
         result.TenantId.ShouldBe(tenantGuid);
         result.IsSystemContext.ShouldBeFalse();
-        result.ContextSource.ShouldBe($"Header:{tenantGuid}");
+        result.ContextSource.ShouldBe($"HeaderQuery:{tenantGuid}");
         
         _mockTenantLookupService.Verify(x => x.GetTenantInfoAsync(tenantGuid, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -134,12 +135,12 @@ public class HeaderTenantResolverTests
             .ReturnsAsync(tenantInfo);
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+        var result = await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
         // Assert
         result.ShouldNotBeNull();
         result.TenantId.ShouldBe(tenantGuid);
-        result.ContextSource.ShouldBe($"Header:{tenantDomain}");
+        result.ContextSource.ShouldBe($"HeaderQuery:{tenantDomain}");
         
         _mockTenantLookupService.Verify(x => x.GetTenantInfoByDomainAsync(tenantDomain, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -157,10 +158,10 @@ public class HeaderTenantResolverTests
             .ReturnsAsync(tenantInfo);
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+        var result = await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
         // Assert
-        result.ContextSource.ShouldBe("Header:first-tenant");
+        result.ContextSource.ShouldBe("HeaderQuery:first-tenant");
         _mockTenantLookupService.Verify(x => x.GetTenantInfoByDomainAsync("first-tenant", It.IsAny<CancellationToken>()), Times.Once);
         _mockTenantLookupService.Verify(x => x.GetTenantInfoByDomainAsync("second-tenant", It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -183,11 +184,11 @@ public class HeaderTenantResolverTests
             .ReturnsAsync(tenantInfo);
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+        var result = await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
         // Assert
         result.TenantId.ShouldBe(tenantGuid);
-        result.ContextSource.ShouldBe($"Header:{tenantDomain}");
+        result.ContextSource.ShouldBe($"HeaderQuery:{tenantDomain}");
     }
 
     [Fact]
@@ -203,7 +204,7 @@ public class HeaderTenantResolverTests
             .ReturnsAsync(tenantInfo);
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+        var result = await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
         // Assert
         result.TenantId.ShouldBe(tenantGuid);
@@ -223,10 +224,10 @@ public class HeaderTenantResolverTests
             .ReturnsAsync(tenantInfo);
 
         // Act
-        var result = await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+        var result = await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
         // Assert
-        result.ContextSource.ShouldBe("Header:header-tenant");
+        result.ContextSource.ShouldBe("HeaderQuery:header-tenant");
         _mockTenantLookupService.Verify(x => x.GetTenantInfoByDomainAsync("header-tenant", It.IsAny<CancellationToken>()), Times.Once);
         _mockTenantLookupService.Verify(x => x.GetTenantInfoByDomainAsync("query-tenant", It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -244,11 +245,11 @@ public class HeaderTenantResolverTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-            _resolver.ResolveTenantAsync(context, CancellationToken.None));
+            _resolver.GetTenantContextAsync(context, CancellationToken.None));
         
-        exception.Message.ShouldBe("No subdomain found in request");
+        exception.Message.ShouldBe("Could not extract tenant from request");
         exception.AttemptedTenantIdentifier.ShouldBe("localhost");
-        exception.ResolutionMethod.ShouldBe("Header");
+        exception.ResolutionMethod.ShouldBe("HeaderQuery");
     }
 
     [Fact]
@@ -260,9 +261,9 @@ public class HeaderTenantResolverTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-            _resolver.ResolveTenantAsync(context, CancellationToken.None));
+            _resolver.GetTenantContextAsync(context, CancellationToken.None));
         
-        exception.Message.ShouldBe("No subdomain found in request");
+        exception.Message.ShouldBe("Could not extract tenant from request");
     }
 
     [Fact]
@@ -274,7 +275,7 @@ public class HeaderTenantResolverTests
 
         // Act & Assert
         await Assert.ThrowsAsync<TenantResolutionException>(() =>
-            _resolver.ResolveTenantAsync(context, CancellationToken.None));
+            _resolver.GetTenantContextAsync(context, CancellationToken.None));
     }
 
     [Fact]
@@ -291,11 +292,11 @@ public class HeaderTenantResolverTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-            _resolver.ResolveTenantAsync(context, CancellationToken.None));
+            _resolver.GetTenantContextAsync(context, CancellationToken.None));
         
-        exception.Message.ShouldBe($"No active tenant found for ID: {tenantGuid}");
+        exception.Message.ShouldBe($"No active tenant found for {tenantGuid}");
         exception.AttemptedTenantIdentifier.ShouldBe(tenantGuid.ToString());
-        exception.ResolutionMethod.ShouldBe("Header");
+        exception.ResolutionMethod.ShouldBe("HeaderQuery");
     }
 
     [Fact]
@@ -311,9 +312,9 @@ public class HeaderTenantResolverTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-            _resolver.ResolveTenantAsync(context, CancellationToken.None));
+            _resolver.GetTenantContextAsync(context, CancellationToken.None));
         
-        exception.Message.ShouldBe($"No active tenant found for ID: {tenantGuid}");
+        exception.Message.ShouldBe($"No active tenant found for {tenantGuid}");
     }
 
     [Fact]
@@ -330,11 +331,11 @@ public class HeaderTenantResolverTests
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<TenantResolutionException>(() =>
-            _resolver.ResolveTenantAsync(context, CancellationToken.None));
+            _resolver.GetTenantContextAsync(context, CancellationToken.None));
         
-        exception.Message.ShouldBe($"No active tenant found for domain: {tenantDomain}");
+        exception.Message.ShouldBe($"No active tenant found for {tenantDomain}");
         exception.AttemptedTenantIdentifier.ShouldBe(tenantDomain);
-        exception.ResolutionMethod.ShouldBe("Header");
+        exception.ResolutionMethod.ShouldBe("HeaderQuery");
     }
 
     #endregion
@@ -354,7 +355,7 @@ public class HeaderTenantResolverTests
             .ReturnsAsync(tenantInfo);
 
         // Act
-        await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+        await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
         // Assert
         _mockTenantLookupService.Verify(x => x.GetTenantInfoAsync(tenantGuid, It.IsAny<CancellationToken>()), Times.Once);
@@ -374,7 +375,7 @@ public class HeaderTenantResolverTests
             .ReturnsAsync(tenantInfo);
 
         // Act
-        await _resolver.ResolveTenantAsync(context, CancellationToken.None);
+        await _resolver.GetTenantContextAsync(context, CancellationToken.None);
 
         // Assert
         _mockTenantLookupService.Verify(x => x.GetTenantInfoByDomainAsync(tenantDomain, It.IsAny<CancellationToken>()), Times.Once);
@@ -389,7 +390,7 @@ public class HeaderTenantResolverTests
     public async Task ResolveTenantAsync_WithCustomHeaders_UsesCustomConfiguration()
     {
         // Arrange
-        var customOptions = new HeaderTenantResolverOptions
+        var customOptions = new HeaderQueryTenantResolverOptions
         {
             IncludedHeaders = ["Custom-Tenant", "App-Tenant"],
             IncludedQueryParameters = ["custom_tenant"],
@@ -398,7 +399,7 @@ public class HeaderTenantResolverTests
         };
         _mockOptions.Setup(x => x.Value).Returns(customOptions);
         
-        var resolver = new HeaderTenantResolver(_mockLogger.Object, _mockTenantLookupService.Object, _mockOptions.Object);
+        var resolver = new HeaderQueryTenantResolver(_mockLogger.Object, _mockTenantLookupService.Object, _mockOptions.Object);
         var context = CreateHttpContext();
         context.Request.Headers["Custom-Tenant"] = "custom-value";
         
@@ -407,29 +408,29 @@ public class HeaderTenantResolverTests
             .ReturnsAsync(tenantInfo);
 
         // Act
-        var result = await resolver.ResolveTenantAsync(context, CancellationToken.None);
+        var result = await resolver.GetTenantContextAsync(context, CancellationToken.None);
 
         // Assert
-        result.ContextSource.ShouldBe("Header:custom-value");
+        result.ContextSource.ShouldBe("HeaderQuery:custom-value");
     }
 
     [Fact]
     public async Task ResolveTenantAsync_WithCustomSystemAdminConfig_RecognizesCustomAdmin()
     {
         // Arrange
-        var customOptions = new HeaderTenantResolverOptions
+        var customOptions = new HeaderQueryTenantResolverOptions
         {
             SystemAdminClaimTypes = ["custom_role"],
             SystemAdminClaimValue = "SuperAdmin"
         };
         _mockOptions.Setup(x => x.Value).Returns(customOptions);
         
-        var resolver = new HeaderTenantResolver(_mockLogger.Object, _mockTenantLookupService.Object, _mockOptions.Object);
+        var resolver = new HeaderQueryTenantResolver(_mockLogger.Object, _mockTenantLookupService.Object, _mockOptions.Object);
         var context = CreateHttpContext();
         context.User = CreateClaimsPrincipal(new Claim("custom_role", "SuperAdmin"));
 
         // Act
-        var result = await resolver.ResolveTenantAsync(context, CancellationToken.None);
+        var result = await resolver.GetTenantContextAsync(context, CancellationToken.None);
 
         // Assert
         result.IsSystemContext.ShouldBeTrue();
