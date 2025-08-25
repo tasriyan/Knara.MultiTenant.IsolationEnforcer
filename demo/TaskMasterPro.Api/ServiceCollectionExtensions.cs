@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Multitenant.Enforcer.DependencyInjection;
+using Multitenant.Enforcer.Extensions;
 using Multitenant.Enforcer.TenantResolvers.Strategies;
 using MultiTenant.Enforcer.EntityFramework;
 using TaskMasterPro.Api.DataAccess;

@@ -10,12 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Analyzers\RepositoryRequiredAnalyzer.cs" />
-    <Compile Remove="Analyzers\TenantDbContextAnalyzer.cs" />
-    <Compile Remove="TenantIsolationCodeFixProvider.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0">
       <PrivateAssets>all</PrivateAssets>

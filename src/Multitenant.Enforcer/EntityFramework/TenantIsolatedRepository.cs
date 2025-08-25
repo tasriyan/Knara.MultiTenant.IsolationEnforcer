@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Multitenant.Enforcer.Core;
+using Multitenant.Enforcer.EntityFramework;
 using System.Linq.Expressions;
 
 namespace MultiTenant.Enforcer.EntityFramework;

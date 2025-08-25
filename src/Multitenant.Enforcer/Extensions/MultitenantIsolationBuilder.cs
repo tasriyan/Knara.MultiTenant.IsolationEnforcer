@@ -6,7 +6,7 @@ using Multitenant.Enforcer.PerformanceMonitor;
 using Multitenant.Enforcer.TenantResolvers;
 using Multitenant.Enforcer.TenantResolvers.Strategies;
 
-namespace Multitenant.Enforcer.DependencyInjection;
+namespace Multitenant.Enforcer.Extensions;
 
 public class MultitenantIsolationBuilder(IServiceCollection services)
 {
@@ -226,7 +226,7 @@ public class MultitenantIsolationBuilder(IServiceCollection services)
 	{
 		if (configure != null)
 		{
-			_services.Configure<PerformanceMonitoringOptions>(configure);
+			_services.Configure(configure);
 		}
 		
 		_services.Replace(ServiceDescriptor.Scoped<ITenantMetricsCollector, TCollector>());

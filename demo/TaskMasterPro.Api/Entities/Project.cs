@@ -1,4 +1,5 @@
 ﻿using Multitenant.Enforcer.Core;
+using Multitenant.Enforcer.EntityFramework;
 
 namespace TaskMasterPro.Api.Entities;
 

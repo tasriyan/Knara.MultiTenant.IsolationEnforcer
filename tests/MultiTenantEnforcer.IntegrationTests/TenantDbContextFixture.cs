@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Multitenant.Enforcer.DependencyInjection;
+using Multitenant.Enforcer.Extensions;
 using Testcontainers.PostgreSql;
 
 namespace MultiTenantEnforcer.IntegrationTests;

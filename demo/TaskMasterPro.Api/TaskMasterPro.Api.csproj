@@ -5,8 +5,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>d8fdf61e-59ff-4ab3-9a6f-f8ded4063812</UserSecretsId>
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>Generated\$(TargetFramework)</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,9 +20,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Multitenant.Enforcer.DependencyInjection\Multitenant.Enforcer.DependencyInjection.csproj" />
-    <ProjectReference Include="..\..\src\Multitenant.Enforcer.PerformanceMonitor\Multitenant.Enforcer.PerformanceMonitor.csproj" />
-    <ProjectReference Include="..\..\src\Multitenant.Enforcer.Roslyn\Multitenant.Enforcer.Roslyn.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <!-- Reference the main library as a regular project reference -->
+    <ProjectReference Include="..\..\src\Multitenant.Enforcer\Multitenant.Enforcer.csproj" />
+    
+    <!-- Reference the analyzer project as an analyzer -->
+    <ProjectReference Include="..\..\src\Multitenant.Enforcer.Analyzers\Multitenant.Enforcer.Analyzers.csproj" 
+                      OutputItemType="Analyzer" 
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

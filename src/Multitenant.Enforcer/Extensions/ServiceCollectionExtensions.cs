@@ -5,7 +5,7 @@ using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.PerformanceMonitor;
 using Multitenant.Enforcer.TenantResolvers;
 
-namespace Multitenant.Enforcer.DependencyInjection;
+namespace Multitenant.Enforcer.Extensions;
 
 public static class ServiceCollectionExtensions
 {

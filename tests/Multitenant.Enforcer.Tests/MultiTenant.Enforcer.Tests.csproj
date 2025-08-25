@@ -28,9 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Multitenant.Enforcer.AspNetCore\Multitenant.Enforcer.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\src\Multitenant.Enforcer.Cache\Multitenant.Enforcer.Cache.csproj" />
-    <ProjectReference Include="..\..\src\Multitenant.Enforcer.PerformanceMonitor\Multitenant.Enforcer.PerformanceMonitor.csproj" />
+    <ProjectReference Include="..\..\src\Multitenant.Enforcer\Multitenant.Enforcer.csproj" />
   </ItemGroup>
 
   <ItemGroup>

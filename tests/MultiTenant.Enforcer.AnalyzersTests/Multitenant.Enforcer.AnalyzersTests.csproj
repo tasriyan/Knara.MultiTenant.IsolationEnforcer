@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Multitenant.Enforcer.Roslyn\Multitenant.Enforcer.Roslyn.csproj" />
+    <ProjectReference Include="..\..\src\Multitenant.Enforcer.Analyzers\Multitenant.Enforcer.Analyzers.csproj" />
   </ItemGroup>
 
   <ItemGroup>
