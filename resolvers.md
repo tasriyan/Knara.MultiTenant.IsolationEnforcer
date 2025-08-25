@@ -195,21 +195,12 @@ services.AddMultiTenantIsolation()
 **Development vs Production:**
 - Use header resolver for development (easy testing)
 - Use subdomain resolver for production (better UX)
-- Use composite resolver during migration periods
 
 **Error Handling:**
 - All resolvers throw `TenantResolutionException` on failure
 - Middleware catches these and returns structured error responses
 - Check logs for resolution failures during development
 
-**Performance:**
-- Enable caching in resolver options when available
-- Composite resolvers have overhead - order them by likelihood of success
-- System admin checks happen first in all resolvers (fast path)
-
-**Security:**
-- Don't rely on headers or query parameters alone in production
-- Validate JWT signatures if using JWT resolver
-- System admin claims should be properly secured in your identity system
+---
 
 The resolvers handle the common cases, but they're not magic. You still need to set up your DNS, configure your authentication properly, and handle edge cases in your application code.

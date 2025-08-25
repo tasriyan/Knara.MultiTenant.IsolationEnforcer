@@ -10,7 +10,6 @@ This opinionated multi-tenant isolation library is designed to prevent the commo
 - **JWT token claims**: Extract tenant from authentication tokens  
 - **HTTP headers**: `X-Tenant-ID` or custom headers
 - **URL path segments**: `/tenant1/api/users` → Tenant ID
-- **Composite strategies**: Try multiple resolution methods with fallback
 
 The middleware catches resolution failures and returns structured error responses. This eliminates the "forgot to check the tenant" problem by making tenant context available automatically.
 
@@ -99,15 +98,32 @@ Both approaches provide compile-time safety through Roslyn analyzers and runtime
 - **Operation timing** to track privileged operation performance
 - **User attribution** for compliance and debugging
 
+### Flexible Metrics Collection
+
+**Basic logging collector included** with options for custom telemetry:
+
+- **Default**: `LoggingMetricsCollector` outputs structured logs for all metrics
+- **Custom collectors**: Implement `ITenantMetricsCollector` for your telemetry targets
+- **Popular integrations**: OpenTelemetry, Application Insights, Prometheus, Datadog
+
 ```csharp
-// Monitoring cannot be disabled - it's built into the library
+// Default setup - uses logging-based metrics collection
 services.AddMultiTenantIsolation()
     .WithPerformanceMonitoring(options =>
     {
         options.SlowQueryThresholdMs = 1000;
         options.CollectMetrics = true; // Always required
     });
+
+// Custom collector for your telemetry platform
+services.AddScoped<ITenantMetricsCollector, YourCustomMetricsCollector>();
 ```
+
+**Why monitoring is mandatory:**
+- Tenant isolation violations are **security incidents**, not just performance issues
+- Early detection prevents data leaks from becoming compliance problems
+- Performance degradation often indicates attempted bypass attacks
+- Audit trails are required for forensic analysis
 
 ## 🔧 Roslyn Code Analyzers
 

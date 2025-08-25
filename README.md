@@ -31,10 +31,30 @@ public async Task<List<Order>> GetOrders()
 
 ## 🚀 Quick Start
 
-### 1. Install the Package
+### 1. Get the Library
+
+**Option A: Clone and Reference (Recommended)**
 ```bash
-dotnet add package MultiTenant.Enforcer
+git clone https://github.com/yourusername/multitenant-enforcer.git
+cd multitenant-enforcer
+dotnet build
 ```
+
+Then add a project reference to your application:
+```xml
+<ProjectReference Include="../path/to/MultiTenant.Enforcer/MultiTenant.Enforcer.csproj" />
+```
+
+**Option B: Build from Source**
+```bash
+git clone https://github.com/yourusername/multitenant-enforcer.git
+cd multitenant-enforcer
+dotnet pack -c Release
+```
+
+Then reference the generated .nupkg file in your project.
+
+> **📦 Coming Soon**: NuGet package will be available once the library reaches stable release.
 
 ### 2. Configure Services
 ```csharp
@@ -167,9 +187,9 @@ public async Task<AdminReport> GetGlobalReport()
 
 ## 📚 Documentation
 
-- **[Configuration Guide](configuration.md)** - Complete setup and configuration options
-- **[Features Overview](features.md)** - What the library does and why
-- **[Tenant Resolvers](resolvers.md)** - How tenant detection works
+- **[Configuration Guide](Configuration.md)** - Complete setup and configuration options
+- **[Features Overview](Features.md)** - What the library does and why
+- **[Tenant Resolvers](TenantResolvers.md)** - How tenant detection works
 
 ## 🔧 Tenant Resolution Strategies
 
@@ -188,11 +208,6 @@ The library includes several built-in ways to determine which tenant a request b
 // URL path: /tenant1/api/users → tenant1
 .WithPathResolutionStrategy()
 
-// Multiple strategies with fallback
-.WithCompositeResolutionStrategy(
-    typeof(JwtTenantResolver),
-    typeof(SubdomainTenantResolver)
-)
 ```
 
 See the [Tenant Resolvers Guide](TenantResolvers.md) for details on each approach.
@@ -242,3 +257,4 @@ The Roslyn analyzers will catch most issues during the migration process.
 ## 📄 License
 
 MIT License - see the [LICENSE](LICENSE) file for details.
+

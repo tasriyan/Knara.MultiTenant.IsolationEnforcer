@@ -163,60 +163,95 @@ services.AddMultiTenantIsolation()
 
 > **⚠️ IMPORTANT**: Performance monitoring is **MANDATORY** and cannot be disabled. This is an opinionated design choice to prevent performance-related tenant isolation issues.
 
-### Basic Performance Monitoring
+### Default Configuration
+
+Performance monitoring is **automatically enabled** with these defaults:
+
+```csharp
+services.AddMultiTenantIsolation(); // Monitoring enabled by default
+
+// Default settings applied:
+// - Enabled = true (cannot be disabled)
+// - SlowQueryThresholdMs = 1000  
+// - CollectMetrics = true
+// - Uses LoggingMetricsCollector for output
+```
+
+### Custom Performance Monitoring Options
 
 ```csharp
 services.AddMultiTenantIsolation()
     .WithPerformanceMonitoring(options =>
     {
         options.Enabled = true; // Always true, cannot be disabled
-        options.SlowQueryThresholdMs = 1000;
-        options.CollectMetrics = true;
-    })
-    // ... other configuration
+        options.SlowQueryThresholdMs = 500; // Override default threshold
+        options.CollectMetrics = true; // Always true, cannot be disabled
+        options.LogQueryPlans = false; // Optional - debug mode
+    });
 ```
 
-### Custom Metrics Collector
+### Custom Metrics Collectors
+
+**Default**: The library uses `LoggingMetricsCollector` which outputs structured logs.
+
+**Custom Collector Registration** (before calling AddMultiTenantIsolation):
 
 ```csharp
-// Simple registration
-services.AddMultiTenantIsolation()
-    .WithCustomMetricsCollector<PrometheusMetricsCollector>()
-    // ... other configuration
+// Replace default logging collector with custom implementation
+services.AddScoped<ITenantMetricsCollector, YourCustomMetricsCollector>();
 
-// Factory-based registration
 services.AddMultiTenantIsolation()
-    .WithCustomMetricsCollector<PrometheusMetricsCollector>(provider =>
-        new PrometheusMetricsCollector(
-            provider.GetRequiredService<IMetricServer>()
-        ))
-    // ... other configuration
+    .WithPerformanceMonitoring(options =>
+    {
+        options.SlowQueryThresholdMs = 1000;
+    });
+```
+
+**Available Integration Examples**:
+
+```csharp
+// OpenTelemetry integration
+services.AddScoped<ITenantMetricsCollector, OpenTelemetryMetricsCollector>();
+
+// Application Insights integration  
+services.AddScoped<ITenantMetricsCollector, LoggingMetricsCollector>();
+
 ```
 
 ### Custom Performance Monitor
 
 ```csharp
+// Override the entire performance monitoring service
+services.AddScoped<ITenantPerformanceMonitor, YourCustomPerformanceMonitor>();
+
 services.AddMultiTenantIsolation()
-    .WithCustomPerformanceMonitor<CustomPerformanceMonitor>()
-    // ... other configuration
+    .WithPerformanceMonitoring(options =>
+    {
+        options.SlowQueryThresholdMs = 500;
+    });
 ```
 
-### Complete Custom Performance Monitoring
+### Complete Custom Monitoring Setup
 
 ```csharp
+// Custom services registered before AddMultiTenantIsolation
+services.AddScoped<ITenantMetricsCollector, PrometheusMetricsCollector>();
+services.AddScoped<ITenantPerformanceMonitor, CustomPerformanceMonitor>();
+
 services.AddMultiTenantIsolation()
-    .WithCustomPerformanceMonitoring<CustomPerformanceMonitor, CustomMetricsCollector>(options =>
+    .WithPerformanceMonitoring(options =>
     {
         options.SlowQueryThresholdMs = 500;
         options.CollectMetrics = true;
-    })
-    // ... other configuration
+        options.LogQueryPlans = true;
+    });
 ```
 
-**Requirements**: 
+**Implementation Requirements**: 
 - Custom monitors must implement `ITenantPerformanceMonitor`
 - Custom collectors must implement `ITenantMetricsCollector`
 - Security monitoring (violations, audit trails) must still be implemented
+- Performance monitoring can be configured but **never disabled**
 
 ## Configuration Validation
 
@@ -301,24 +336,12 @@ services.AddMultiTenantIsolation(options =>
     .Build();
 ```
 
-### API with Multiple Resolution Strategies
-
-```csharp
-services.AddMultiTenantIsolation()
-    .WithInMemoryTenantCache()
-    .WithTenantsStore<ApiTenantStore>()
-    .WithCompositeResolutionStrategy(
-        typeof(JwtTenantResolver),
-        typeof(HeaderTenantResolver),
-        typeof(SubdomainTenantResolver)
-    )
-    .WithCustomMetricsCollector<PrometheusMetricsCollector>()
-    .Build();
-```
-
 ### Microservice with Redis Cache
 
 ```csharp
+// Application Insights integration for microservices
+services.AddScoped<ITenantMetricsCollector, ApplicationInsightsMetricsCollector>();
+
 services.AddMultiTenantIsolation()
     .WithTenantDomainCache<RedisTenantCache>(provider =>
         new RedisTenantCache(provider.GetRequiredService<IConnectionMultiplexer>()))
