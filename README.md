@@ -6,9 +6,9 @@
 
 ## 🎯 What This Solves
 
-**The Problem**: Your team will accidentally create tenant data leaks. It's not a matter of "if" but "when."
+***The Problem:*** Tenant data leaks are one of the most common and costly mistakes in multi-tenant applications.
 
-**The Solution**: This library makes it **impossible** to deploy code that violates tenant isolation.
+***The Solution:*** This library catches the most common tenant isolation mistakes before they reach production, through compile-time analysis and runtime safeguards.
 
 ### ❌ Before (Dangerous)
 ```csharp
@@ -225,9 +225,9 @@ public async Task<AdminReport> GetGlobalReport()
 
 ## 📚 Documentation
 
-- **[Configuration Guide](Configuration.md)** - Complete setup and configuration options
-- **[Features Overview](Features.md)** - What the library does and why
-- **[Tenant Resolvers](TenantResolvers.md)** - How tenant detection works
+- **[Configuration Guide](configuration.md)** - Complete setup and configuration options
+- **[Features Overview](features.md)** - What the library does and why
+- **[Tenant Resolvers](resolvers.md)** - How tenant detection works
 
 ## 🔧 Tenant Resolution Strategies
 
@@ -245,15 +245,9 @@ The library includes several built-in ways to determine which tenant a request b
 
 // URL path: /tenant1/api/users → tenant1
 .WithPathResolutionStrategy()
-
-// Multiple strategies with fallback
-.WithCompositeResolutionStrategy(
-    typeof(JwtTenantResolver),
-    typeof(SubdomainTenantResolver)
-)
 ```
 
-See the [Tenant Resolvers Guide](TenantResolvers.md) for details on each approach.
+See the [Tenant Resolvers Guide](resolvers.md) for details on each approach.
 
 ## 🧪 Testing Support
 
@@ -300,7 +294,3 @@ The Roslyn analyzers will catch most issues during the migration process.
 ## 📄 License
 
 MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-**The goal**: Make tenant data leaks impossible to deploy, not just unlikely.
