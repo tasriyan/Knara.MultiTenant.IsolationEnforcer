@@ -1,5 +1,5 @@
-﻿### Scenario 1: SAFE DbContext derived from TenantDbContext
-A db context that is derived from `TenantDbContext` is considered SAFE and should compile without issues when used anywhere.
+﻿### Scenario 1: SAFE DbContext derived from TenantIsolatedDbContext
+A db context that is derived from `TenantIsolatedDbContext` is considered SAFE and should compile without issues when used anywhere.
 ```csharp
 public class Company
 {
@@ -30,10 +30,10 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
 		builder.Property(p => p.Name).IsRequired().HasMaxLength(200);
 	}
 }
-// THIS SHOULD COMPILE OK BECAUSE SafeDbContext is derived from TenantDbContext
+// THIS SHOULD COMPILE OK BECAUSE SafeDbContext is derived from TenantIsolatedDbContext
 public class SafeDbContext(DbContextOptions<SafeDbContext> options,
 						ITenantContextAccessor tenantAccessor,
-						ILogger<SafeDbContext> logger) : TenantDbContext(options, tenantAccessor, logger)
+						ILogger<SafeDbContext> logger) : TenantIsolatedDbContext(options, tenantAccessor, logger)
 {
 	public DbSet<Company> Companies { get; set; }
 	public DbSet<Project> Projects { get; set; }
@@ -96,9 +96,9 @@ public class SafeDbContext(DbContextOptions<SafeDbContext> options) : DbContext(
 }
 ```
 
-### Scenario 3: UNSAFE DbContext that contains ITenantIsolated implements and is not derived from TenantDbContext
-A db context that is not derived from `TenantDbContext` is considered UNSAFE and should only be used in scenarios where tenant isolation is not required,
-such as operations marked with AllowCrossTenantAccess or when used in a repository that is derived from `TenantRepository`.
+### Scenario 3: UNSAFE DbContext that contains ITenantIsolated implements and is not derived from TenantIsolatedDbContext
+A db context that is not derived from `TenantIsolatedDbContext` is considered UNSAFE and should only be used in scenarios where tenant isolation is not required,
+such as operations marked with AllowCrossTenantAccess or when used in a repository that is derived from `TenantIsolatedRepository`.
 ```csharp
 public class Project : ITenantIsolated
 {
@@ -127,8 +127,8 @@ public class UnsafeDbContext(DbContextOptions<UnsafeDbContext> options) : DbCont
 }
 ```
 
-### Scenario 4: SAFE Repository derived from TenantRepository
-A repository that is derived from `TenantRepository` is considered SAFE even when it uses UNSAFE db context,
+### Scenario 4: SAFE Repository derived from TenantIsolatedRepository
+A repository that is derived from `TenantIsolatedRepository` is considered SAFE even when it uses UNSAFE db context,
 and should compile without issues when used anywhere.
 ```csharp
 public class Project : ITenantIsolated
@@ -157,11 +157,11 @@ public class UnsafeDbContext(DbContextOptions<UnsafeDbContext> options) : DbCont
 	}
 }
 // Uses UNSAFE db context
-// HOWEVER: SHOULD COMPILE because it derives from TenantRepository THAT ENSURES TENANT ISOLATION
+// HOWEVER: SHOULD COMPILE because it derives from TenantIsolatedRepository THAT ENSURES TENANT ISOLATION
 public sealed class SafeRepository(UnsafeDbContext context, 
 		ITenantContextAccessor tenantAccessor, 
 		ILogger<SafeRepository> logger)
-		: TenantRepository<Project, UnsafeDbContext>(context, tenantAccessor, logger)
+		: TenantIsolatedRepository<Project, UnsafeDbContext>(context, tenantAccessor, logger)
 {
 	public async Task<Project?> GetByIdAsync(Guid id)
 	{
@@ -214,8 +214,8 @@ public sealed class SafeRepository(UnsafeDbContext context,
 }
 ```
 
-### # Scenario 5: SAFE Repository that uses TenantDbContext implements
-A repository that uses a db context derived from `TenantDbContext` is considered safe and should compile without issues when used anywhere.
+### # Scenario 5: SAFE Repository that uses TenantIsolatedDbContext implements
+A repository that uses a db context derived from `TenantIsolatedDbContext` is considered safe and should compile without issues when used anywhere.
 ```csharp
 public class Project : ITenantIsolated
 {
@@ -235,7 +235,7 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
 
 public class SafeDbContext(DbContextOptions<SafeDbContext> options,
 						ITenantContextAccessor tenantAccessor,
-						ILogger<SafeDbContext> logger) : TenantDbContext(options, tenantAccessor, logger)
+						ILogger<SafeDbContext> logger) : TenantIsolatedDbContext(options, tenantAccessor, logger)
 {
 	public DbSet<Project> Projects { get; set; }
 
@@ -245,8 +245,8 @@ public class SafeDbContext(DbContextOptions<SafeDbContext> options,
 		modelBuilder.ApplyConfiguration(new ProjectConfiguration());
 	}
 }
-// Using dbcontext directly - not using TenantRepository
-// SHOULD COMPILE because SafeDbContext is derived from TenantDbContext THAT ENSURES TENANT ISOLATION
+// Using dbcontext directly - not using TenantIsolatedRepository
+// SHOULD COMPILE because SafeDbContext is derived from TenantIsolatedDbContext THAT ENSURES TENANT ISOLATION
 public class SomeSafeService(SafeDbContext context)
 {
 	public async Task<Project?> GetByIdAsync(Guid id)
@@ -265,7 +265,7 @@ public class SomeSafeService(SafeDbContext context)
 ```
 
 ### Scenario 6: UNSAFE Repository
-A repository that is not derived from TenantRepository and uses an UNSAFE db context is considered unsafe repository
+A repository that is not derived from TenantIsolatedRepository and uses an UNSAFE db context is considered unsafe repository
 and should not compile if it contains tenant-isolated entities.
 ```csharp
 public class Project : ITenantIsolated
@@ -295,7 +295,7 @@ public class UnsafeDbContext(DbContextOptions<UnsafeDbContext> options) : DbCont
 }
 
 // Uses UNSAFE db context
-// SHOULD NOT COMPILE because it does not derive from TenantRepository or uses a dbcontext derived from TenantDbContext
+// SHOULD NOT COMPILE because it does not derive from TenantIsolatedRepository or uses a dbcontext derived from TenantIsolatedDbContext
 // ERRORS EXPECTED: Either MTI001 or MTI004 or MTI006
 public class UnsafeRepository(UnsafeDbContext context)
 {

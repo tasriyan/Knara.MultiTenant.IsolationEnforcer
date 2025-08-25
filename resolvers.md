@@ -65,33 +65,56 @@ services.AddMultiTenantIsolation()
 
 ## JWT Resolver
 
-**Extracts tenant from JWT token claims**
+**Extracts tenant from JWT token claims with flexible tenant formats and domain validation**
 
 ```csharp
 services.AddMultiTenantIsolation()
     .WithJwtResolutionStrategy(options =>
     {
-        options.TenantIdClaimTypes = new[] { "tenant_id", "tid" };
+        options.TenantIdClaimTypes = new[] { "tenant_id", "allowed_tenants", "tid" };
         options.SystemAdminClaimValue = "SystemAdmin";
+        options.DomainValidationMode = TenantDomainValidationMode.ValidateAgainstSubdomain;
     });
 ```
 
 **How it works:**
-1. Checks for system admin claims in JWT
-2. Looks for tenant ID in configured claim types
-3. Validates that JWT tenant has rights to the current domain (using subdomain resolver)
-4. Returns tenant context from JWT claim
+1. Checks for system admin claims in JWT (returns system context if found)
+2. Looks for tenant information in configured claim types
+3. **Supports multiple tenant formats:**
+   - **GUID format**: `"tenant_id": "123e4567-e89b-12d3-a456-426614174000"`
+   - **Domain format**: `"allowed_tenants": "acme,contoso,tenant1"`
+   - **Mixed format**: `"allowed_tenants": "acme.com,acme,contoso,tenant1.example.com"`
+4. **Handles multiple tenants per claim**: Splits comma/space/semicolon separated values
+5. **Validates domain access**: Confirms JWT tenant has rights to current request domain
+6. Returns the first valid, active tenant that matches current domain
+
+**Domain Validation Modes:**
+- `None`: Accept any tenant from JWT without domain validation
+- `ValidateAgainstSubdomain`: Validate tenant can access current subdomain
+- `ValidateAgainstPath`: Validate against URL path segment
+- `ValidateAgainstHeaderOrQuery`: Validate against header/query parameter
+
+**Example JWT claims:**
+```json
+{
+  "sub": "user@example.com",
+  "tenant_id": "123e4567-e89b-12d3-a456-426614174000",
+  "allowed_tenants": "acme,contoso,tenant1",
+  "role": "Admin"
+}
+```
 
 **Use cases:**
-- Applications with JWT-based authentication
-- When tenant membership is part of user identity
-- API scenarios where authentication and tenant resolution are linked
+- Applications with JWT-based authentication where users belong to multiple tenants
+- B2B scenarios where users can switch between different client organizations
+- API scenarios where tenant access rights are encoded in authentication tokens
+- Multi-tenant SaaS where user permissions vary by tenant
 
 **Limitations:**
-- Requires JWT authentication to be set up
-- Depends on subdomain resolver for domain validation
-- JWT tokens need to include tenant information
-- Token refresh scenarios need to maintain tenant claims
+- Requires JWT authentication to be configured
+- Depends on domain validation to prevent unauthorized tenant access (though domain validation can be set to `TenantDomainValidationMode.NoOp`)
+- JWT tokens must include tenant information in expected claim format
+- Token refresh scenarios need to maintain tenant claims correctly
 
 ## Path Resolver
 
@@ -120,35 +143,6 @@ services.AddMultiTenantIsolation()
 - Changes your URL structure (`/tenant/feature` instead of `/feature`)
 - Affects routing and URL generation throughout your app
 - Path segment conflicts with application routes
-
-## Composite Resolver
-
-**Tries multiple resolvers in order until one succeeds**
-
-```csharp
-services.AddMultiTenantIsolation()
-    .WithCompositeResolutionStrategy(
-        typeof(JwtTenantResolver),
-        typeof(SubdomainTenantResolver),
-        typeof(HeaderTenantResolver)
-    );
-```
-
-**How it works:**
-1. Tries each resolver in the order specified
-2. Returns the first successful tenant resolution
-3. Logs failed attempts for debugging
-4. Throws exception if all resolvers fail
-
-**Use cases:**
-- Supporting multiple client types (web app + API + mobile)
-- Migration scenarios where you're changing resolution strategies
-- Development vs. production differences
-
-**Limitations:**
-- More complex debugging when resolution fails
-- Performance overhead of trying multiple strategies
-- Potential for unexpected behavior if multiple resolvers could match
 
 ## System Admin Context
 

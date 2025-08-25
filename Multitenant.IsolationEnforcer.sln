@@ -13,10 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskMasterPro.Api", "demo\T
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
-		multitenant_configuration.md = multitenant_configuration.md
-		multitenant_features.md = multitenant_features.md
+		configuration.md = configuration.md
 		README.md = README.md
-		tenant_resolvers.md = tenant_resolvers.md
+		features.md = features.md
+		resolvers.md = resolvers.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiTenant.Enforcer.RoslynTests", "tests\MultiTenant.Enforcer.RoslynTests\MultiTenant.Enforcer.RoslynTests.csproj", "{83FBCB4E-598C-423F-A4CA-4AD1B0219ECF}"

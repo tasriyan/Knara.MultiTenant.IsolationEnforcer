@@ -159,20 +159,6 @@ services.AddMultiTenantIsolation()
 
 **Requirements**: Your resolver must implement `ITenantResolver`.
 
-### Composite Resolution (Multiple Strategies)
-
-```csharp
-services.AddMultiTenantIsolation()
-    .WithCompositeResolutionStrategy(
-        typeof(JwtTenantResolver),      // Try JWT first
-        typeof(SubdomainTenantResolver), // Then subdomain
-        typeof(HeaderTenantResolver)     // Finally header
-    )
-    // ... other configuration
-```
-
-**Use Case**: Fallback strategies when different clients use different resolution methods.
-
 ## Performance Monitoring Configuration
 
 > **⚠️ IMPORTANT**: Performance monitoring is **MANDATORY** and cannot be disabled. This is an opinionated design choice to prevent performance-related tenant isolation issues.
@@ -351,19 +337,6 @@ services.AddMultiTenantIsolation()
 ```
 
 ## Best Practices
-
-### Security Considerations
-
-1. **Always validate tenant access** - The library enforces this through mandatory performance monitoring
-2. **Use HTTPS in production** - Configure JWT and header resolvers accordingly
-3. **Implement proper audit logging** - Use custom metrics collectors for compliance
-
-### Performance Considerations
-
-1. **Enable tenant caching** - Reduces database load for tenant lookups
-2. **Set appropriate cache expiration** - Balance between performance and data freshness
-3. **Monitor slow queries** - Use the mandatory performance monitoring to identify bottlenecks
-4. **Consider distributed caching** - For multi-instance deployments
 
 ### Development Workflow
 

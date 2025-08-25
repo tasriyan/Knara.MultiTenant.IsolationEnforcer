@@ -36,38 +36,46 @@ Nothing fancy here - just standard caching to avoid hitting the tenant store rep
 
 ## 🔒 Database Isolation Enforcement
 
-### TenantIsolatedDbContext
-**Automatic query filtering** that prevents tenant data leaks:
+You have two alternative approaches for ensuring tenant isolation:
+
+### Option A: TenantIsolatedDbContext (Automatic Filtering)
+**Global query filters** that automatically prevent tenant data leaks:
 
 ```csharp
 public class YourDbContext : TenantIsolatedDbContext
 {
-    // Applies global query filters to ITenantIsolated entities
+    // Automatically applies WHERE TenantId = @currentTenant to all queries
     // Validates tenant IDs during SaveChanges
     // Throws exceptions on cross-tenant violations
 }
+
+// Use DbContext directly - tenant filtering is automatic
+var orders = await context.Orders.ToListAsync(); // ✅ Safe - filters applied automatically
 ```
 
-**What it prevents:**
-- Queries returning data from the wrong tenant
-- Saving entities with incorrect tenant IDs
-- Modifying or deleting entities from other tenants
-- Accidental system context usage
-
-### TenantIsolatedRepository
-**Repository pattern** that adds manual tenant filtering:
+### Option B: TenantIsolatedRepository (Manual Filtering)
+**Repository pattern** that adds explicit tenant filtering even with unsafe DbContext:
 
 ```csharp
 public class ProjectRepository : TenantIsolatedRepository<Project, YourDbContext>
 {
-    // Queries include explicit tenant filtering
+    // Queries include explicit WHERE TenantId = @currentTenant clauses
     // Validates ownership before updates/deletes
     // Auto-assigns tenant ID to new entities
 }
+
+// Repository handles tenant filtering manually
+var orders = await repository.GetAllAsync(); // ✅ Safe - repository filters explicitly
 ```
 
+**When to use each approach:**
+- **TenantIsolatedDbContext**: Simpler, works with existing code patterns, relies on EF Core global filters
+- **TenantIsolatedRepository**: More explicit, works with any DbContext, doesn't depend on global filters
+
+Both approaches provide compile-time safety through Roslyn analyzers and runtime validation.
+
 **Key protections:**
-- Doesn't rely solely on global filters - adds explicit WHERE clauses
+- Doesn't rely solely on global filters - adds explicit WHERE clauses (Repository approach)
 - Checks entity ownership before allowing modifications
 - Throws `TenantIsolationViolationException` when violations are detected
 - Logs all operations for audit purposes
@@ -148,7 +156,7 @@ The analyzers distinguish between safe and unsafe usage automatically:
 - **Unauthorized cross-tenant operations**: Missing required attributes
 - **Manual tenant filtering**: Easy to forget or implement incorrectly
 
-## 🌐 Cross-Tenant Operation Management
+## 🌍 Cross-Tenant Operation Management
 
 **Controlled access** for legitimate system operations:
 

@@ -51,7 +51,11 @@ app.UseAuthentication();
 app.UseMultiTenantIsolation(); 
 ```
 
-### 3. Update Your DbContext
+### 3. Choose Your Isolation Approach
+
+You have two options for tenant isolation:
+
+**Option A: Use TenantIsolatedDbContext (Automatic)**
 ```csharp
 // Change this:
 public class YourDbContext : DbContext
@@ -63,6 +67,31 @@ public class YourDbContext : TenantIsolatedDbContext
         ITenantContextAccessor tenantAccessor, 
         ILogger<YourDbContext> logger) 
         : base(options, tenantAccessor, logger) { }
+}
+
+// Then use DbContext directly - automatic tenant filtering
+public class OrderService
+{
+    private readonly YourDbContext _context;
+    
+    public async Task<List<Order>> GetOrders()
+    {
+        return await _context.Orders.ToListAsync(); // ✅ Automatically tenant-filtered
+    }
+}
+```
+
+**Option B: Use TenantIsolatedRepository (Manual)**
+```csharp
+// Keep your existing DbContext, use repositories for safety
+public class OrderService
+{
+    private readonly TenantIsolatedRepository<Order, YourDbContext> _orderRepo;
+    
+    public async Task<List<Order>> GetOrders()
+    {
+        return await _orderRepo.GetAllAsync(); // ✅ Manually tenant-filtered
+    }
 }
 ```
 
@@ -138,9 +167,9 @@ public async Task<AdminReport> GetGlobalReport()
 
 ## 📚 Documentation
 
-- **[Configuration Guide](Configuration.md)** - Complete setup and configuration options
-- **[Features Overview](Features.md)** - What the library does and why
-- **[Tenant Resolvers](TenantResolvers.md)** - How tenant detection works
+- **[Configuration Guide](configuration.md)** - Complete setup and configuration options
+- **[Features Overview](features.md)** - What the library does and why
+- **[Tenant Resolvers](resolvers.md)** - How tenant detection works
 
 ## 🔧 Tenant Resolution Strategies
 
@@ -189,9 +218,9 @@ public async Task Repository_Should_Filter_By_Tenant()
 ## 🛠️ Migration from Existing Apps
 
 1. **Install package and configure services**
-2. **Change DbContext base class**: `DbContext` → `TenantIsolatedDbContext`  
+2. **Choose your approach**: TenantIsolatedDbContext OR TenantIsolatedRepository
 3. **Add ITenantIsolated interface** to tenant entities
-4. **Replace direct DbContext usage** with repositories
+4. **Replace direct DbContext usage** with repositories (if using Option B)
 5. **Fix compilation errors** (the analyzers will guide you)
 6. **Add database migration** for TenantId columns
 
@@ -213,7 +242,3 @@ The Roslyn analyzers will catch most issues during the migration process.
 ## 📄 License
 
 MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-**The goal**: Make tenant data leaks impossible to deploy, not just unlikely.
