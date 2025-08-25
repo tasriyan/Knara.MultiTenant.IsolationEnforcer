@@ -31,6 +31,8 @@ public async Task<List<Order>> GetOrders()
 
 ## 🚀 Quick Start
 
+> **⚠️ Requirements**: .NET 8.0 or later
+
 ### 1. Get the Library
 
 **Option A: Clone and Reference (Recommended)**
@@ -40,9 +42,23 @@ cd multitenant-enforcer
 dotnet build
 ```
 
-Then add a project reference to your application:
+Then add project references to your application:
 ```xml
-<ProjectReference Include="../path/to/MultiTenant.Enforcer/MultiTenant.Enforcer.csproj" />
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework> <!-- or net9.0 -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Main library reference -->
+    <ProjectReference Include="../path/to/Multitenant.Enforcer/Multitenant.Enforcer.csproj" />
+    
+    <!-- Compile-time safety analyzers (highly recommended) -->
+    <ProjectReference Include="../path/to/Multitenant.Enforcer.Analyzers/Multitenant.Enforcer.Analyzers.csproj" 
+                      OutputItemType="Analyzer" 
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+</Project>
 ```
 
 **Option B: Build from Source**
@@ -52,9 +68,29 @@ cd multitenant-enforcer
 dotnet pack -c Release
 ```
 
-Then reference the generated .nupkg file in your project.
+Then reference the generated .nupkg files in your project.
 
-> **📦 Coming Soon**: NuGet package will be available once the library reaches stable release.
+**Option C: NuGet Packages (Coming Soon)**
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Main library -->
+    <PackageReference Include="Multitenant.Enforcer" Version="1.0.0" />
+    
+    <!-- Compile-time safety analyzers -->
+    <PackageReference Include="Multitenant.Enforcer.Analyzers" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>
+```
+
+> **📦 Coming Soon**: NuGet packages will be available once the library reaches stable release.
 
 ### 2. Configure Services
 ```csharp
@@ -187,9 +223,9 @@ public async Task<AdminReport> GetGlobalReport()
 
 ## 📚 Documentation
 
-- **[Configuration Guide](configuration.md)** - Complete setup and configuration options
-- **[Features Overview](features.md)** - What the library does and why
-- **[Tenant Resolvers](resolvers.md)** - How tenant detection works
+- **[Configuration Guide](Configuration.md)** - Complete setup and configuration options
+- **[Features Overview](Features.md)** - What the library does and why
+- **[Tenant Resolvers](TenantResolvers.md)** - How tenant detection works
 
 ## 🔧 Tenant Resolution Strategies
 
@@ -208,6 +244,11 @@ The library includes several built-in ways to determine which tenant a request b
 // URL path: /tenant1/api/users → tenant1
 .WithPathResolutionStrategy()
 
+// Multiple strategies with fallback
+.WithCompositeResolutionStrategy(
+    typeof(JwtTenantResolver),
+    typeof(SubdomainTenantResolver)
+)
 ```
 
 See the [Tenant Resolvers Guide](TenantResolvers.md) for details on each approach.
@@ -258,3 +299,6 @@ The Roslyn analyzers will catch most issues during the migration process.
 
 MIT License - see the [LICENSE](LICENSE) file for details.
 
+---
+
+**The goal**: Make tenant data leaks impossible to deploy, not just unlikely.
