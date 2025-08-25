@@ -187,9 +187,9 @@ public async Task<AdminReport> GetGlobalReport()
 
 ## 📚 Documentation
 
-- **[Configuration Guide](Configuration.md)** - Complete setup and configuration options
-- **[Features Overview](Features.md)** - What the library does and why
-- **[Tenant Resolvers](TenantResolvers.md)** - How tenant detection works
+- **[Configuration Guide](configuration.md)** - Complete setup and configuration options
+- **[Features Overview](features.md)** - What the library does and why
+- **[Tenant Resolvers](resolvers.md)** - How tenant detection works
 
 ## 🔧 Tenant Resolution Strategies
 
