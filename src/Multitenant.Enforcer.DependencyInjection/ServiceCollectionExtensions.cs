@@ -36,6 +36,7 @@ public static class ServiceCollectionExtensions
 		});
 		
 		services.TryAddScoped<ICurrentUserService, CurrentUserService>();
+		// add default implementation of ITenantMetricsCollector but allow override with any custom ITenantMetricsCollector implementation
 		services.TryAddScoped<ITenantMetricsCollector, LoggingMetricsCollector>();
 		services.TryAddScoped<ITenantPerformanceMonitor, TenantPerformanceMonitor>();
 
