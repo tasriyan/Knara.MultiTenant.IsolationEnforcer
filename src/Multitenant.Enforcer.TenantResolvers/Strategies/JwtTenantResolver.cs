@@ -92,7 +92,7 @@ public class JwtTenantResolverOptions : TenantResolverOptions
 
 public enum TenantDomainValidationMode
 {
-	None,
+	NoOp,
 	ValidateAgainstPath,
 	ValidateAgainstHeaderOrQuery,
 	ValidateAgainstSubdomain
