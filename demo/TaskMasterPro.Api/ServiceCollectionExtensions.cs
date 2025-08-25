@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Multitenant.Enforcer.Core;
 using Multitenant.Enforcer.DependencyInjection;
 using Multitenant.Enforcer.TenantResolvers.Strategies;
 using MultiTenant.Enforcer.EntityFramework;
@@ -8,7 +6,6 @@ using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Features.Admin;
 using TaskMasterPro.Api.Features.Projects;
-using TaskMasterPro.Api.Features.Tasks;
 
 namespace TaskMasterPro.Api;
 
