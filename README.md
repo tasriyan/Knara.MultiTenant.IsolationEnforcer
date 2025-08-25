@@ -1,5 +1,7 @@
 # 🛡️ Multi-Tenant Data Isolation Enforcer
 
+![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0-512BD4?style=flat&logo=dotnet&logoColor=white)
+
 **Multi-tenant data isolation for .NET applications with compile-time enforcement**
 
 ## 🎯 What This Solves
