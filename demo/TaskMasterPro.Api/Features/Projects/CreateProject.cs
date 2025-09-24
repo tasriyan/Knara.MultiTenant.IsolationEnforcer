@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Multitenant.Enforcer.Core;
+﻿using Knara.MultiTenant.IsolationEnforcer.Core;
+using Microsoft.AspNetCore.Mvc;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
 
@@ -66,15 +66,15 @@ public sealed class CreateProject : IEndpoint
 	})
 		.RequireAuthorization(AuthorizationPolicies.ProjectManager);
 	}
-}
 
 	// This method should be caught by analyzer
-	/* ANALYZER VIOLATION EXAMPLE:
-    [HttpGet("bad-example")]
-    public async Task<ActionResult> BadExample()
-    {
-        // This would trigger MTI001 error: Direct DbSet access on tenant-isolated entity
-        var projects = await _context.Set<Project>().ToListAsync();
-        return Ok(projects);
-    }
-    */
+	// ANALYZER VIOLATION EXAMPLE:
+	//[HttpGet("bad-example")]
+	//public async Task<ActionResult> BadExample()
+	//{
+	//	// This would trigger MTI001 error: Direct DbSet access on tenant-isolated entity
+	//	var projects = await _context.Set<Project>().ToListAsync();
+	//	return Ok(projects);
+	//}
+}
+    

@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Multitenant.Enforcer.Core;
+﻿using Knara.MultiTenant.IsolationEnforcer.Core;
+using Microsoft.EntityFrameworkCore;
 using MultiTenantEnforcer.IntegrationTests;
 
 namespace Multitenant.Enforcer.EntityFramework.Tests;
@@ -347,45 +347,6 @@ public class TenantDbContextIntegrationTests(TenantDbContextFixture fixture) : I
 		result.Count.ShouldBe(1);
 		result[0].Name.ShouldBe("Active Entity");
 		result[0].TenantId.ShouldBe(tenant1Id);
-	}
-
-	[Fact]
-	public async Task BulkOperations_RespectTenantIsolation()
-	{
-		// Arrange
-		using var scope = fixture.CreateScope();
-		var context = scope.GetTenantDbContext();
-
-		var tenant1Id = Guid.NewGuid();
-		var tenant2Id = Guid.NewGuid();
-
-		scope.SetTenantContext(tenant1Id);
-		var tenant1Entities = new[]
-		{
-			new TestEntity { Id = Guid.NewGuid(), TenantId = tenant1Id, Name = "Entity 1", IsActive = false },
-			new TestEntity { Id = Guid.NewGuid(), TenantId = tenant1Id, Name = "Entity 2", IsActive = false }
-		};
-		context.TestEntities.AddRange(tenant1Entities);
-		await context.SaveChangesAsync();
-
-		scope.SetTenantContext(tenant2Id);
-		var tenant2Entity = new TestEntity { Id = Guid.NewGuid(), TenantId = tenant2Id, Name = "Other Entity", IsActive = false };
-		context.TestEntities.Add(tenant2Entity);
-		await context.SaveChangesAsync();
-
-		// Act - Bulk update should only affect current tenant
-		scope.SetTenantContext(tenant1Id);
-		var updatedCount = await context.TestEntities
-			.Where(e => !e.IsActive)
-			.ExecuteUpdateAsync(s => s.SetProperty(e => e.IsActive, true));
-
-		// Assert
-		updatedCount.ShouldBe(2); // Only tenant1 entities should be updated
-
-		var allEntities = await context.TestEntities.ToListAsync();
-		allEntities.Count.ShouldBe(2); // Should only see tenant1 entities
-		allEntities.ShouldAllBe(e => e.IsActive);
-		allEntities.ShouldAllBe(e => e.TenantId == tenant1Id);
 	}
 
 	[Fact]

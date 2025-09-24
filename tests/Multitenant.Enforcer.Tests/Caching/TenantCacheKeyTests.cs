@@ -1,4 +1,4 @@
-using Multitenant.Enforcer.Cache;
+using Knara.MultiTenant.IsolationEnforcer.Cache;
 
 namespace MultiTenant.Enforcer.Tests.Caching;
 

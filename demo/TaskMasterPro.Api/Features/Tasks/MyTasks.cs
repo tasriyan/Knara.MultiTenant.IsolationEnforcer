@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Multitenant.Enforcer.Core;
-using MultiTenant.Enforcer.EntityFramework;
+﻿using Knara.MultiTenant.IsolationEnforcer.Core;
+using Knara.MultiTenant.IsolationEnforcer.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;

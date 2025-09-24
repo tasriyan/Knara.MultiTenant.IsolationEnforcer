@@ -20,13 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Reference the main library as a regular project reference -->
-    <ProjectReference Include="..\..\src\Multitenant.Enforcer\Multitenant.Enforcer.csproj" />
-    
-    <!-- Reference the analyzer project as an analyzer -->
-    <ProjectReference Include="..\..\src\Multitenant.Enforcer.Analyzers\Multitenant.Enforcer.Analyzers.csproj" 
+    <ProjectReference Include="..\..\src\Knara.MultiTenant.IsolationEnforcer.Analyzers\Knara.MultiTenant.IsolationEnforcer.Analyzers.csproj"
                       OutputItemType="Analyzer" 
-                      ReferenceOutputAssembly="false" />
+                      ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\..\src\Knara.MultiTenant.IsolationEnforcer\Knara.MultiTenant.IsolationEnforcer.csproj" />
   </ItemGroup>
 
 </Project>

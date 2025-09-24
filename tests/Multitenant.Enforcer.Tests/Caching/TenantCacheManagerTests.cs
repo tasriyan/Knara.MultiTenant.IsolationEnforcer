@@ -1,8 +1,8 @@
+using Knara.MultiTenant.IsolationEnforcer.Cache;
+using Knara.MultiTenant.IsolationEnforcer.Core;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Multitenant.Enforcer.Cache;
-using Multitenant.Enforcer.Core;
 
 namespace MultiTenant.Enforcer.Tests.Caching;
 

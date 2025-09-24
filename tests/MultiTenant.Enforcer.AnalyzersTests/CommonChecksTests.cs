@@ -1,6 +1,6 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
+﻿using Knara.MultiTenant.IsolationEnforcer.Analyzers.Analyzers;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Multitenant.Enforcer.Roslyn;
 
 namespace MultiTenant.Enforcer.RoslynTests;
 

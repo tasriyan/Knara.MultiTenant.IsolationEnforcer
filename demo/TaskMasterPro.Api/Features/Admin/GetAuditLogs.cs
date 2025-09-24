@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Knara.MultiTenant.IsolationEnforcer.AspNetCore;
+using Knara.MultiTenant.IsolationEnforcer.Core;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Multitenant.Enforcer.AspnetCore;
-using Multitenant.Enforcer.Core;
 using TaskMasterPro.Api.Shared;
 
 namespace TaskMasterPro.Api.Features.Admin;

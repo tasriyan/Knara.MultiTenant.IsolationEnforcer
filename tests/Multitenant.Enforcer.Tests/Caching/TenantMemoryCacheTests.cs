@@ -1,5 +1,5 @@
+using Knara.MultiTenant.IsolationEnforcer.Cache;
 using Microsoft.Extensions.Caching.Memory;
-using Multitenant.Enforcer.Cache;
 
 namespace MultiTenant.Enforcer.Tests.Caching;
 

@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Multitenant.Enforcer.Analyzers\Multitenant.Enforcer.Analyzers.csproj" />
+    <ProjectReference Include="..\..\src\Knara.MultiTenant.IsolationEnforcer.Analyzers\Knara.MultiTenant.IsolationEnforcer.Analyzers.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,4 @@
-﻿using Multitenant.Enforcer.Core;
-
-namespace TaskMasterPro.Api.Entities;
+﻿namespace TaskMasterPro.Api.Entities;
 
 public class Company
 {

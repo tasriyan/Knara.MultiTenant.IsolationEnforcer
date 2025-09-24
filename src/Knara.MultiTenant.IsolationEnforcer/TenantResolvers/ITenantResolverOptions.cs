@@ -1,0 +1,18 @@
+using System.Security.Claims;
+
+namespace Knara.MultiTenant.IsolationEnforcer.TenantResolvers;
+
+public interface ITenantResolverOptions
+{
+}
+
+public class TenantResolverOptions : ITenantResolverOptions
+{
+	public bool CacheMappings { get; set; } = true;
+
+	public int CacheExpirationMinutes { get; set; } = 15;
+
+	public string[] SystemAdminClaimTypes { get; set; } = ["role", ClaimTypes.Role];
+
+	public string SystemAdminClaimValue { get; set; } = "SystemAdmin";
+}

@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Multitenant.Enforcer.Core;
-using MultiTenant.Enforcer.EntityFramework;
+﻿using Knara.MultiTenant.IsolationEnforcer.Core;
+using Knara.MultiTenant.IsolationEnforcer.EntityFramework;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MultiTenantEnforcer.IntegrationTests;
 

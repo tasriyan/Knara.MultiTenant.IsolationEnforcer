@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Knara.MultiTenant.IsolationEnforcer.EntityFramework;
+using Knara.MultiTenant.IsolationEnforcer.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Multitenant.Enforcer.Extensions;
-using MultiTenant.Enforcer.EntityFramework;
 using Testcontainers.PostgreSql;
 
 namespace MultiTenantEnforcer.IntegrationTests;

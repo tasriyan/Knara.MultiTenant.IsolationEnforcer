@@ -1,13 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Knara.MultiTenant.IsolationEnforcer.Core;
+using Knara.MultiTenant.IsolationEnforcer.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.EntityFramework;
 
 namespace MultiTenantEnforcer.IntegrationTests;
 
 public class TenantIsolatedDbContext(DbContextOptions<TenantIsolatedDbContext> options, 
 	ITenantContextAccessor tenantAccessor, 
-	ILogger<TenantIsolatedDbContext> logger) : Multitenant.Enforcer.EntityFramework.TenantIsolatedDbContext(options, tenantAccessor, logger)
+	ILogger<TenantIsolatedDbContext> logger) : Knara.MultiTenant.IsolationEnforcer.EntityFramework.TenantIsolatedDbContext(options, tenantAccessor, logger)
 {
 	public DbSet<TestEntity> TestEntities { get; set; }
 

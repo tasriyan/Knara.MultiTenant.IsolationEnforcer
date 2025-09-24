@@ -1,8 +1,8 @@
+using Knara.MultiTenant.IsolationEnforcer.AspNetCore.Middleware;
+using Knara.MultiTenant.IsolationEnforcer.Core;
+using Knara.MultiTenant.IsolationEnforcer.TenantResolvers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Multitenant.Enforcer.AspnetCore;
-using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.TenantResolvers;
 using System.Text.Json;
 
 namespace MultiTenant.Enforcer.Tests.AspnetCore;

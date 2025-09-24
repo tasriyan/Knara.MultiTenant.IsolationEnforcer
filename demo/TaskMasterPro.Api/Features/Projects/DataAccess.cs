@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Multitenant.Enforcer.Core;
-using MultiTenant.Enforcer.EntityFramework;
+﻿using Knara.MultiTenant.IsolationEnforcer.Core;
+using Knara.MultiTenant.IsolationEnforcer.EntityFramework;
+using Microsoft.EntityFrameworkCore;
 using TaskMasterPro.Api.DataAccess;
 using TaskMasterPro.Api.Entities;
 
@@ -131,77 +131,77 @@ public class TenantIsolatedProjectRepositorySecondOption(TaskMasterDbContext con
 // SHOULD NOT COMPILE because it does not derive from TenantRepository or uses a dbcontext derived from TenantDbContext
 // ERRORS EXPECTED: Either MTI001 or MTI004
 
-//public class UnsafeProjectRepository(UnsafeDbContext context) : IProjectRepository
-//{
-//	// ERRORS EXPECTED: Either MTI001 or MTI004
-//	// BECAUSE:
-//	//		Project entity is derived from ITenantIsolated
-//	//		and UnsafeDbContext is not derived from TenantDbContext
-//	public async Task<Project?> GetByIdAsync(Guid id)
-//	{
-//		return await context.Projects.FirstOrDefaultAsync(p => p.Id == id);
-//	}
-
-//	// ERRORS EXPECTED: Either MTI001 or MTI004
-//	// BECAUSE:
-//	//		Project entity is derived from ITenantIsolated
-//	//		and UnsafeDbContext is not derived from TenantDbContext
-//	public async Task<List<Project>> GetProjectsByManagerAsync(Guid managerId)
-//	{
-//		// Global query filter automatically applies tenant isolation
-//		return await context.Projects
-//			.AsNoTracking()
-//			.Include(p => p.ProjectManager)
-//			.Where(p => p.ProjectManagerId == managerId)
-//			.OrderBy(p => p.Name)
-//			.ToListAsync();
-//	}
-
-//	// ERRORS EXPECTED: Either MTI001 or MTI004
-//	// BECAUSE:
-//	//		Project entity is derived from ITenantIsolated
-//	//		and UnsafeDbContext is not derived from TenantDbContext
-//	public async Task<List<Project>> GetProjectsAsync(string filter = "all")
-//	{
-//		return filter switch
-//		{
-//			"active" => await context.Projects
-//								.AsNoTracking()
-//								.Include(p => p.ProjectManager)
-//								.Where(p => p.Status == ProjectStatus.Active)
-//								.OrderBy(p => p.StartDate)
-//								.ToListAsync(),
-//			_ => await context.Projects
-//										.AsNoTracking()
-//										.Include(p => p.ProjectManager)
-//										.OrderBy(p => p.StartDate)
-//										.ToListAsync(),
-//		};
-//	}
-
-//	// ERRORS EXPECTED: Either MTI001 or MTI004
-//	// BECAUSE:
-//	//		Project entity is derived from ITenantIsolated
-//	//		and UnsafeDbContext is not derived from TenantDbContext
-//	public async Task<Project?> GetProjectWithTasksAsync(Guid projectId)
-//	{
-//		return await context.Projects
-//			.AsNoTracking()
-//			.Include(p => p.ProjectManager)
-//			.Include(p => p.Tasks)
-//			.ThenInclude(t => t.AssignedTo)
-//			.FirstOrDefaultAsync(p => p.Id == projectId);
-//	}
-
-//	// ERRORS EXPECTED: Either MTI001 or MTI004
-//	// BECAUSE:
-//	//		Project entity is derived from ITenantIsolated
-//	//		and UnsafeDbContext is not derived from TenantDbContext
-//	public async Task AddAsync(Project project)
-//	{
-//		context.Projects.Add(project);
-//		await context.SaveChangesAsync();
-//	}
-//}
+// public class UnsafeProjectRepository(UnsafeDbContext context) : IProjectRepository
+// {
+// 	// ERRORS EXPECTED: Either MTI001 or MTI004
+// 	// BECAUSE:
+// 	//		Project entity is derived from ITenantIsolated
+// 	//		and UnsafeDbContext is not derived from TenantDbContext
+// 	public async Task<Project?> GetByIdAsync(Guid id)
+// 	{
+// 		return await context.Projects.FirstOrDefaultAsync(p => p.Id == id);
+// 	}
+//
+// 	// ERRORS EXPECTED: Either MTI001 or MTI004
+// 	// BECAUSE:
+// 	//		Project entity is derived from ITenantIsolated
+// 	//		and UnsafeDbContext is not derived from TenantDbContext
+// 	public async Task<List<Project>> GetProjectsByManagerAsync(Guid managerId)
+// 	{
+// 		// Global query filter automatically applies tenant isolation
+// 		return await context.Projects
+// 			.AsNoTracking()
+// 			.Include(p => p.ProjectManager)
+// 			.Where(p => p.ProjectManagerId == managerId)
+// 			.OrderBy(p => p.Name)
+// 			.ToListAsync();
+// 	}
+//
+// 	// ERRORS EXPECTED: Either MTI001 or MTI004
+// 	// BECAUSE:
+// 	//		Project entity is derived from ITenantIsolated
+// 	//		and UnsafeDbContext is not derived from TenantDbContext
+// 	public async Task<List<Project>> GetProjectsAsync(string filter = "all")
+// 	{
+// 		return filter switch
+// 		{
+// 			"active" => await context.Projects
+// 								.AsNoTracking()
+// 								.Include(p => p.ProjectManager)
+// 								.Where(p => p.Status == ProjectStatus.Active)
+// 								.OrderBy(p => p.StartDate)
+// 								.ToListAsync(),
+// 			_ => await context.Projects
+// 										.AsNoTracking()
+// 										.Include(p => p.ProjectManager)
+// 										.OrderBy(p => p.StartDate)
+// 										.ToListAsync(),
+// 		};
+// 	}
+//
+// 	// ERRORS EXPECTED: Either MTI001 or MTI004
+// 	// BECAUSE:
+// 	//		Project entity is derived from ITenantIsolated
+// 	//		and UnsafeDbContext is not derived from TenantDbContext
+// 	public async Task<Project?> GetProjectWithTasksAsync(Guid projectId)
+// 	{
+// 		return await context.Projects
+// 			.AsNoTracking()
+// 			.Include(p => p.ProjectManager)
+// 			.Include(p => p.Tasks)
+// 			.ThenInclude(t => t.AssignedTo)
+// 			.FirstOrDefaultAsync(p => p.Id == projectId);
+// 	}
+//
+// 	// ERRORS EXPECTED: Either MTI001 or MTI004
+// 	// BECAUSE:
+// 	//		Project entity is derived from ITenantIsolated
+// 	//		and UnsafeDbContext is not derived from TenantDbContext
+// 	public async Task AddAsync(Project project)
+// 	{
+// 		context.Projects.Add(project);
+// 		await context.SaveChangesAsync();
+// 	}
+// }
 #endregion
 

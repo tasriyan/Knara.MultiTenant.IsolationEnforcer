@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Knara.MultiTenant.IsolationEnforcer.Core;
+using Knara.MultiTenant.IsolationEnforcer.PerformanceMonitor;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.PerformanceMonitor;
 using System.Diagnostics;
 
 namespace Multitenant.Enforcer.Tests.PerformanceMonitor;

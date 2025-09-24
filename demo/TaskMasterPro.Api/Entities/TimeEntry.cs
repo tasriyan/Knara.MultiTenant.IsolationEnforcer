@@ -1,5 +1,4 @@
-﻿using Multitenant.Enforcer.Core;
-using Multitenant.Enforcer.EntityFramework;
+﻿using Knara.MultiTenant.IsolationEnforcer.EntityFramework;
 
 namespace TaskMasterPro.Api.Entities;
 

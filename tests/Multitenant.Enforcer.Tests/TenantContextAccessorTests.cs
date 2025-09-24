@@ -1,4 +1,4 @@
-using Multitenant.Enforcer.Core;
+using Knara.MultiTenant.IsolationEnforcer.Core;
 
 namespace MultiTenant.Enforcer.Tests;
 

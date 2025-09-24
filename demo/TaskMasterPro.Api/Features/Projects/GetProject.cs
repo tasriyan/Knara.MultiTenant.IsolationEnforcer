@@ -1,4 +1,4 @@
-﻿using Multitenant.Enforcer.Core;
+﻿using Knara.MultiTenant.IsolationEnforcer.Core;
 using TaskMasterPro.Api.Entities;
 using TaskMasterPro.Api.Shared;
 
