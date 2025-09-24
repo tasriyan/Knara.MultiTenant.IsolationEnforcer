@@ -52,21 +52,21 @@ jobs:
           dotnet restore src/Knara.MultiTenant.IsolationEnforcer/Knara.MultiTenant.IsolationEnforcer.csproj
           dotnet restore src/Knara.MultiTenant.IsolationEnforcer.Analyzers/Knara.MultiTenant.IsolationEnforcer.Analyzers.csproj
           
-          dotnet restore tests/Multitenant.Enforcer.AnalyzersTests/Multitenant.Enforcer.AnalyzersTests.csproj
-          dotnet restore tests/Multitenant.Enforcer.Tests/Multitenant.Enforcer.Tests.csproj
-          dotnet restore tests/MultitenantEnforcer.IntegrationTests/MultitenantEnforcer.IntegrationTests.csproj
-          
+          dotnet restore tests/AnalyzersTests/AnalyzersTests.csproj
+          dotnet restore tests/IntegrationTests/IntegrationTests.csproj        
+          dotnet restore tests/UnitTests/UnitTests.csproj
+  
       - name: Build
         run: |
           dotnet build src/Knara.MultiTenant.IsolationEnforcer/Knara.MultiTenant.IsolationEnforcer.csproj --configuration Release --no-restore
           dotnet build src/Knara.MultiTenant.IsolationEnforcer.Analyzers/Knara.MultiTenant.IsolationEnforcer.Analyzers.csproj --configuration Release --no-restore
 
-          dotnet build tests/Multitenant.Enforcer.AnalyzersTests/Multitenant.Enforcer.AnalyzersTests.csproj --configuration Release --no-restore
-          dotnet build tests/Multitenant.Enforcer.Tests/Multitenant.Enforcer.Tests.csproj --configuration Release --no-restore
-          dotnet build tests/MultitenantEnforcer.IntegrationTests/MultitenantEnforcer.IntegrationTests.csproj --configuration Release --no-restore
+          dotnet build tests/AnalyzersTests/AnalyzersTests.csproj --configuration Release --no-restore
+          dotnet build tests/IntegrationTests/IntegrationTests.csproj --configuration Release --no-restore
+          dotnet build tests/UnitTests/UnitTests.csproj --configuration Release --no-restore
 
       - name: Test
         run: |
-          dotnet test tests/Multitenant.Enforcer.AnalyzersTests/Multitenant.Enforcer.AnalyzersTests.csproj --configuration Release --no-build --verbosity normal
-          dotnet test tests/Multitenant.Enforcer.Tests/Multitenant.Enforcer.Tests.csproj --configuration Release --no-build --verbosity normal
-          dotnet test tests/MultitenantEnforcer.IntegrationTests/MultitenantEnforcer.IntegrationTests.csproj --configuration Release --no-build --verbosity normal
+          dotnet test tests/AnalyzersTests/AnalyzersTests.csproj --configuration Release --no-build --verbosity normal
+          dotnet test tests/IntegrationTests/IntegrationTests.csproj --configuration Release --no-build --verbosity normal
+          dotnet test tests/UnitTests/UnitTests.csproj --configuration Release --no-build --verbosity normal

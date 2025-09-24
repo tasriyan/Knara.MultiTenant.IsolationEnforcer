@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Multitenant.Enforcer.Tests", "tests\Multitenant.Enforcer.Tests\Multitenant.Enforcer.Tests.csproj", "{8A719C28-BF35-BAAE-45DA-C823AB1E0978}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "tests\UnitTests\UnitTests.csproj", "{8A719C28-BF35-BAAE-45DA-C823AB1E0978}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "demo", "demo", "{D2AEAAC9-9C4D-411E-9C23-08022A41B13D}"
 EndProject
@@ -21,9 +21,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C167D8E8-6283-492E-AC33-CB2E928487CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultitenantEnforcer.IntegrationTests", "tests\MultiTenantEnforcer.IntegrationTests\MultitenantEnforcer.IntegrationTests.csproj", "{C2716667-104C-D921-0E39-69CC9B2363E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "tests\IntegrationTests\IntegrationTests.csproj", "{C2716667-104C-D921-0E39-69CC9B2363E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Multitenant.Enforcer.AnalyzersTests", "tests\MultiTenant.Enforcer.AnalyzersTests\Multitenant.Enforcer.AnalyzersTests.csproj", "{761058A8-8A1B-DED2-11DC-80993CC3EDCC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyzersTests", "tests\AnalyzersTests\AnalyzersTests.csproj", "{761058A8-8A1B-DED2-11DC-80993CC3EDCC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Knara.MultiTenant.IsolationEnforcer", "src\Knara.MultiTenant.IsolationEnforcer\Knara.MultiTenant.IsolationEnforcer.csproj", "{21A6EE37-DA89-24DE-A4B0-B03F1B6E46A6}"
 EndProject
