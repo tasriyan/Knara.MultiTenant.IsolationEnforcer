@@ -1,0 +1,72 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**/*.cs'
+      - '**/*.csproj'
+      - '**/*.sln'
+      - '**/*.config'
+      - '**/Directory.Build.props'
+      - '**/Directory.Build.targets'
+      - 'global.json'
+      - 'nuget.config'
+      - '.github/workflows/build.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**/*.cs'
+      - '**/*.csproj'
+      - '**/*.sln'
+      - '**/*.config'
+      - '**/Directory.Build.props'
+      - '**/Directory.Build.targets'
+      - 'global.json'
+      - 'nuget.config'
+      - '.github/workflows/build.yml'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual build'
+        required: false
+        default: 'Manual trigger'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            8.0.x
+
+      - name: Restore dependencies
+        run: |
+          dotnet restore src/Knara.MultiTenant.IsolationEnforcer/Knara.MultiTenant.IsolationEnforcer.csproj
+          dotnet restore src/Knara.MultiTenant.IsolationEnforcer.Analyzers/Knara.MultiTenant.IsolationEnforcer.Analyzers.csproj
+          
+          dotnet restore tests/Multitenant.Enforcer.AnalyzersTests/Multitenant.Enforcer.AnalyzersTests.csproj
+          dotnet restore tests/Multitenant.Enforcer.Tests/Multitenant.Enforcer.Tests.csproj
+          dotnet restore tests/MultitenantEnforcer.IntegrationTests/MultitenantEnforcer.IntegrationTests.csproj
+          
+      - name: Build
+        run: |
+          dotnet build src/Knara.MultiTenant.IsolationEnforcer/Knara.MultiTenant.IsolationEnforcer.csproj --configuration Release --no-restore
+          dotnet build src/Knara.MultiTenant.IsolationEnforcer.Analyzers/Knara.MultiTenant.IsolationEnforcer.Analyzers.csproj --configuration Release --no-restore
+
+          dotnet build tests/Multitenant.Enforcer.AnalyzersTests/Multitenant.Enforcer.AnalyzersTests.csproj --configuration Release --no-restore
+          dotnet build tests/Multitenant.Enforcer.Tests/Multitenant.Enforcer.Tests.csproj --configuration Release --no-restore
+          dotnet build tests/MultitenantEnforcer.IntegrationTests/MultitenantEnforcer.IntegrationTests.csproj --configuration Release --no-restore
+
+      - name: Test
+        run: |
+          dotnet test tests/Multitenant.Enforcer.AnalyzersTests/Multitenant.Enforcer.AnalyzersTests.csproj --configuration Release --no-build --verbosity normal
+          dotnet test tests/Multitenant.Enforcer.Tests/Multitenant.Enforcer.Tests.csproj --configuration Release --no-build --verbosity normal
+          dotnet test tests/MultitenantEnforcer.IntegrationTests/MultitenantEnforcer.IntegrationTests.csproj --configuration Release --no-build --verbosity normal
