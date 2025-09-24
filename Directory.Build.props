@@ -12,6 +12,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="knara.png" Pack="true" PackagePath="\" />
+        <None Include="$(MSBuildThisFileDirectory)knara.png" Pack="true" PackagePath="knara.png" />
     </ItemGroup>
 </Project>
