@@ -1,6 +1,6 @@
 ﻿<Project>
     <PropertyGroup>
-        <Version>1.0.0</Version>
+        <Version>1.0.1</Version>
         <Authors>Tatyana Asriyan</Authors>
         <PackageProjectUrl>https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer</PackageProjectUrl>
         <RepositoryUrl>https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer</RepositoryUrl>
@@ -8,5 +8,10 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageTags>multi-tenant;isolation;analyzers;entity framework;aspnetcore</PackageTags>
         <IsPackable>false</IsPackable>
+        <PackageIcon>knara.png</PackageIcon>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="knara.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
 </Project>
