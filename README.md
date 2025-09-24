@@ -1,5 +1,6 @@
 # 🛡️ Multi-Tenant Data Isolation Enforcer
 
+[![Build and Test](https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer/actions/workflows/build.yml)
 ![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0-512BD4?style=flat&logo=dotnet&logoColor=white)
 
 **Multi-tenant data isolation for .NET applications with compile-time enforcement**
@@ -37,11 +38,45 @@ public async Task<List<Order>> GetOrders()
 
 ### 1. Get the Library
 
-**Option A: Clone and Reference (Recommended)**
+**Option A: NuGet Packages**
 ```bash
-git clone https://github.com/yourusername/multitenant-enforcer.git
-cd multitenant-enforcer
+
+dotnet add package Knara.MultiTenant.IsolationEnforcer
+dotnet add package Knara.MultiTenant.IsolationEnforcer.Analyzers
+
+```
+
+Then reference the generated .nupkg files in your project.
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Main library -->
+    <PackageReference Include="Knara.MultiTenant.IsolationEnforcer" Version="1.0.0" />
+    
+    <!-- Compile-time safety analyzers -->
+    <PackageReference Include="Knara.MultiTenant.IsolationEnforcer.Analyzers" Version="1.0.0" OutputItemType="Analyzer" ReferenceOutputAssembly="false" >
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>
+```
+
+**Option B: Clone and Reference**
+```bash
+
+git clone https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer
+cd Knara.MultiTenant.IsolationEnforcer
 dotnet build
+
+cd Knara.MultiTenant.IsolationEnforcer.Analyzers
+dotnet build
+
 ```
 
 Then add project references to your application:
@@ -53,46 +88,15 @@ Then add project references to your application:
 
   <ItemGroup>
     <!-- Main library reference -->
-    <ProjectReference Include="../path/to/Multitenant.Enforcer/Multitenant.Enforcer.csproj" />
+    <ProjectReference Include="../path/to/Knara.MultiTenant.IsolationEnforcer/Knara.MultiTenant.IsolationEnforcer.csproj" />
     
     <!-- Compile-time safety analyzers (highly recommended) -->
-    <ProjectReference Include="../path/to/Multitenant.Enforcer.Analyzers/Multitenant.Enforcer.Analyzers.csproj" 
+    <ProjectReference Include="../path/to/Knara.MultiTenant.IsolationEnforcer.Analyzers/Knara.MultiTenant.IsolationEnforcer.Analyzers.csproj" 
                       OutputItemType="Analyzer" 
                       ReferenceOutputAssembly="false" />
   </ItemGroup>
 </Project>
 ```
-
-**Option B: Build from Source**
-```bash
-git clone https://github.com/yourusername/multitenant-enforcer.git
-cd multitenant-enforcer
-dotnet pack -c Release
-```
-
-Then reference the generated .nupkg files in your project.
-
-**Option C: NuGet Packages (Coming Soon)**
-```xml
-<Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- Main library -->
-    <PackageReference Include="Multitenant.Enforcer" Version="1.0.0" />
-    
-    <!-- Compile-time safety analyzers -->
-    <PackageReference Include="Multitenant.Enforcer.Analyzers" Version="1.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-</Project>
-```
-
-> **📦 Coming Soon**: NuGet packages will be available once the library reaches stable release.
 
 ### 2. Configure Services
 ```csharp
@@ -177,6 +181,12 @@ public class OrderService
 }
 ```
 
+## 📚 Documentation
+
+- **[Configuration Guide](configuration.md)** - Complete setup and configuration options
+- **[Features Overview](features.md)** - What the library does and why
+- **[Tenant Resolvers](resolvers.md)** - How tenant detection works
+
 ## 🛡️ What Makes This Different
 
 **Compared to other multi-tenant libraries** (like Finbuckle.MultiTenant), this one is more paranoid:
@@ -222,12 +232,6 @@ public async Task<AdminReport> GetGlobalReport()
     }, "Global admin reporting");
 }
 ```
-
-## 📚 Documentation
-
-- **[Configuration Guide](configuration.md)** - Complete setup and configuration options
-- **[Features Overview](features.md)** - What the library does and why
-- **[Tenant Resolvers](resolvers.md)** - How tenant detection works
 
 ## 🔧 Tenant Resolution Strategies
 

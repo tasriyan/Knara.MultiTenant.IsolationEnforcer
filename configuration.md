@@ -1,6 +1,6 @@
 # Multi-Tenant Isolation Configuration Guide
 
-This guide covers all configuration options for the Multi-Tenant Isolation library. The library is **opinionated by design** to prevent critical tenant isolation errors commonly made by development teams.
+This guide covers all configuration options for Knara muti-tenant isolation library. The library is **opinionated by design** to prevent critical tenant isolation errors commonly made by development teams.
 
 ## Quick Start
 
