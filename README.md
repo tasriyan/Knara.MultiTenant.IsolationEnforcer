@@ -2,7 +2,11 @@
 
 [![Build and Test](https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer/actions/workflows/build.yml)
 [![Publish NuGet Packages](https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer/actions/workflows/publish.yml/badge.svg)](https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer/actions/workflows/publish.yml)
+[![NuGet](https://img.shields.io/nuget/v/Knara.MultiTenant.IsolationEnforcer.svg)](https://www.nuget.org/packages/Knara.MultiTenant.IsolationEnforcer/)
+[![NuGet](https://img.shields.io/nuget/dt/Knara.MultiTenant.IsolationEnforcer.svg)](https://www.nuget.org/packages/Knara.MultiTenant.IsolationEnforcer/)
 ![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0-512BD4?style=flat&logo=dotnet&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 
 **Multi-tenant data isolation for .NET applications with compile-time enforcement**
 
