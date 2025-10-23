@@ -1,8 +1,8 @@
 ﻿<Project>
     <PropertyGroup>
-        <Version>1.0.3</Version>
+        <Version>1.0.4</Version>
         <Authors>Tatyana Asriyan</Authors>
-        <PackageProjectUrl>https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/tasriyan</PackageProjectUrl>
         <RepositoryUrl>https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>

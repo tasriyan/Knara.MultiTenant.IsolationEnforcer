@@ -1,109 +1,71 @@
-# 🛡️ Multi-Tenant Data Isolation Enforcer
+# Multi-Tenant Data Isolation Enforcer
 
 [![Build and Test](https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer/actions/workflows/build.yml)
-[![Publish NuGet Packages](https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer/actions/workflows/publish.yml/badge.svg)](https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer/actions/workflows/publish.yml)
 [![NuGet](https://img.shields.io/nuget/v/Knara.MultiTenant.IsolationEnforcer.svg)](https://www.nuget.org/packages/Knara.MultiTenant.IsolationEnforcer/)
-[![NuGet](https://img.shields.io/nuget/dt/Knara.MultiTenant.IsolationEnforcer.svg)](https://www.nuget.org/packages/Knara.MultiTenant.IsolationEnforcer/)
 ![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0-512BD4?style=flat&logo=dotnet&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+Multi-tenant data isolation for .NET applications with compile-time enforcement.
 
-**Multi-tenant data isolation for .NET applications with compile-time enforcement**
+## Problem and Solution
 
-## What This Solves
+**Problem:** Tenant data leaks are among the most common and costly mistakes in multi-tenant applications.
 
-***The Problem:*** Tenant data leaks are one of the most common and costly mistakes in multi-tenant applications.
+**Solution:** This library prevents tenant isolation errors through compile-time analysis via Roslyn analyzers and runtime safeguards.
 
-***The Solution:*** This library catches the most common tenant isolation mistakes before they reach production, through compile-time analysis and runtime safeguards.
-
-### ❌ Before (Dangerous)
+### Before (Unsafe)
 ```csharp
-// This compiles but leaks data across tenants
 public async Task<List<Order>> GetOrders()
 {
-    return await _context.Orders.ToListAsync(); // 💀 Returns ALL tenants' data
+    return await _context.Orders.ToListAsync(); // Returns ALL tenants' data
 }
 ```
 
-### ✅ After (Protected)
+### After (Protected)
 ```csharp
-// This is the only way your team CAN write code
 public async Task<List<Order>> GetOrders()
 {
-    return await _orderRepository.GetAllAsync(); // 🛡️ Automatically tenant-filtered
+    return await _orderRepository.GetAllAsync(); // Automatically tenant-filtered
 }
 
-// Trying the old way gives COMPILE ERROR:
+// Attempting direct DbSet access produces:
 // Error MTI001: Use ITenantIsolatedRepository<Order> instead of direct DbSet access
+```
+
+## Requirements
+
+- .NET 8.0 or later
+
+## Installation
+
+### NuGet Packages
+```bash
+dotnet add package Knara.MultiTenant.IsolationEnforcer
+dotnet add package Knara.MultiTenant.IsolationEnforcer.Analyzers
+```
+
+```xml
+<ItemGroup>
+  <PackageReference Include="Knara.MultiTenant.IsolationEnforcer" Version="1.0.0" />
+  <PackageReference Include="Knara.MultiTenant.IsolationEnforcer.Analyzers" Version="1.0.0" 
+                    OutputItemType="Analyzer" 
+                    ReferenceOutputAssembly="false">
+    <PrivateAssets>all</PrivateAssets>
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+  </PackageReference>
+</ItemGroup>
+```
+
+### Clone and Build
+```bash
+git clone https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer
+cd Knara.MultiTenant.IsolationEnforcer
+dotnet build
 ```
 
 ## Quick Start
 
-> **⚠️ Requirements**: .NET 8.0 or later
-
-### 1. Get the Library
-
-**Option A: NuGet Packages**
-```bash
-
-dotnet add package Knara.MultiTenant.IsolationEnforcer
-dotnet add package Knara.MultiTenant.IsolationEnforcer.Analyzers
-
-```
-
-Then reference the generated .nupkg files in your project.
-
-```xml
-<Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- Main library -->
-    <PackageReference Include="Knara.MultiTenant.IsolationEnforcer" Version="1.0.0" />
-    
-    <!-- Compile-time safety analyzers -->
-    <PackageReference Include="Knara.MultiTenant.IsolationEnforcer.Analyzers" Version="1.0.0" OutputItemType="Analyzer" ReferenceOutputAssembly="false" >
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-</Project>
-```
-
-**Option B: Clone and Reference**
-```bash
-
-git clone https://github.com/tasriyan/Knara.MultiTenant.IsolationEnforcer
-cd Knara.MultiTenant.IsolationEnforcer
-dotnet build
-
-cd Knara.MultiTenant.IsolationEnforcer.Analyzers
-dotnet build
-
-```
-
-Then add project references to your application:
-```xml
-<Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework> <!-- or net9.0 -->
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- Main library reference -->
-    <ProjectReference Include="../path/to/Knara.MultiTenant.IsolationEnforcer/Knara.MultiTenant.IsolationEnforcer.csproj" />
-    
-    <!-- Compile-time safety analyzers (highly recommended) -->
-    <ProjectReference Include="../path/to/Knara.MultiTenant.IsolationEnforcer.Analyzers/Knara.MultiTenant.IsolationEnforcer.Analyzers.csproj" 
-                      OutputItemType="Analyzer" 
-                      ReferenceOutputAssembly="false" />
-  </ItemGroup>
-</Project>
-```
-
-### 2. Configure Services
+### 1. Configure Services
 ```csharp
 services.AddMultiTenantIsolation()
     .WithInMemoryTenantCache()
@@ -113,21 +75,14 @@ services.AddMultiTenantIsolation()
         options.ExcludedSubdomains = new[] { "www", "api", "admin" };
     });
 
-// Add middleware
 app.UseAuthentication();
-app.UseMultiTenantIsolation(); 
+app.UseMultiTenantIsolation();
 ```
 
-### 3. Choose Your Isolation Approach
+### 2. Choose Isolation Approach
 
-You have two options for tenant isolation:
-
-**Option A: Use TenantIsolatedDbContext (Automatic)**
+**Option A: TenantIsolatedDbContext (Automatic Filtering)**
 ```csharp
-// Change this:
-public class YourDbContext : DbContext
-
-// To this:
 public class YourDbContext : TenantIsolatedDbContext
 {
     public YourDbContext(DbContextOptions<YourDbContext> options, 
@@ -136,169 +91,119 @@ public class YourDbContext : TenantIsolatedDbContext
         : base(options, tenantAccessor, logger) { }
 }
 
-// Then use DbContext directly - automatic tenant filtering
-public class OrderService
+// Use DbContext directly
+public async Task<List<Order>> GetOrders()
 {
-    private readonly YourDbContext _context;
-    
-    public async Task<List<Order>> GetOrders()
-    {
-        return await _context.Orders.ToListAsync(); // ✅ Automatically tenant-filtered
-    }
+    return await _context.Orders.ToListAsync(); // Automatically filtered
 }
 ```
 
-**Option B: Use TenantIsolatedRepository (Manual)**
+**Option B: TenantIsolatedRepository (Manual Filtering)**
 ```csharp
-// Keep your existing DbContext, use repositories for safety
 public class OrderService
 {
     private readonly TenantIsolatedRepository<Order, YourDbContext> _orderRepo;
     
     public async Task<List<Order>> GetOrders()
     {
-        return await _orderRepo.GetAllAsync(); // ✅ Manually tenant-filtered
+        return await _orderRepo.GetAllAsync(); // Manually filtered
     }
 }
 ```
 
-### 4. Mark Your Entities
+### 3. Mark Entities
 ```csharp
 public class Order : ITenantIsolated
 {
     public Guid Id { get; set; }
-    public Guid TenantId { get; set; } // Required - auto-assigned
+    public Guid TenantId { get; set; } // Auto-assigned
     public string CustomerName { get; set; }
-    // ... other properties
-}
-```
-
-### 5. Use Repositories (Enforced by Roslyn Analyzers)
-```csharp
-public class OrderService
-{
-    private readonly TenantIsolatedRepository<Order, YourDbContext> _orderRepo;
-    
-    public async Task<List<Order>> GetOrders()
-    {
-        return await _orderRepo.GetAllAsync(); // ✅ Automatically tenant-filtered
-    }
 }
 ```
 
 ## Documentation
 
-- **[Configuration Guide](configuration.md)** - Complete setup and configuration options
-- **[Features Overview](features.md)** - What the library does and why
-- **[Tenant Resolvers](resolvers.md)** - How tenant detection works
+- [Configuration Guide](docs/configuration.md) - Setup and configuration options
+- [Features Overview](docs/features.md) - Library capabilities
+- [Tenant Resolvers](docs/resolvers.md) - Tenant detection strategies
+- [Demo Project](demo/TaskMasterPro.Api) - Working example showing all library features
 
-## What Makes This Different
+## Key Features
 
-**Compared to other multi-tenant libraries** (like Finbuckle.MultiTenant), this one is more paranoid:
+### Compile-Time Enforcement
+- **MTI001**: Direct DbSet access prohibited
+- **MTI002**: Cross-tenant authorization required
+- **MTI003**: Filter bypass warnings
+- **MTI005**: System context authorization required
 
-- **Compile-time enforcement**: Roslyn analyzers prevent unsafe code from building
-- **Mandatory monitoring**: Performance tracking is required, not optional
-- **Opinionated approach**: Fewer choices, more guardrails
-
-Most multi-tenant libraries give you flexible tools assuming competent developers. Mine assumes they'll screw up and tries to make that impossible.
-
-
-## Protection Layers
-
-### 1. Compile-Time (Roslyn Analyzers)
-- **MTI001**: Direct DbSet access → Compilation ERROR
-- **MTI002**: Missing cross-tenant authorization → Compilation ERROR  
-- **MTI003**: Potential filter bypasses → WARNING
-- **MTI005**: Unauthorized system context → Compilation ERROR
-
-### 2. Runtime Protection
-- Global query filters: `WHERE TenantId = @currentTenant` on all queries
+### Runtime Protection
+- Global query filters: `WHERE TenantId = @currentTenant`
 - SaveChanges validation prevents cross-tenant modifications
-- Automatic TenantId assignment for new entities
-- Exception throwing on tenant violations
+- Automatic TenantId assignment
+- Exception throwing on violations
 
-### 3. Performance Monitoring
-- Mandatory query performance tracking
-- Tenant isolation violation logging
+### Mandatory Monitoring
+- Query performance tracking
+- Violation logging
 - Cross-tenant operation auditing
 
-## Cross-Tenant Operations (Admin Functions)
+## Cross-Tenant Operations
 
-For legitimate cross-tenant access:
+For legitimate administrative operations:
 
 ```csharp
-[AllowCrossTenantAccess("Admin needs to view all tenants", "SystemAdmin")]
+[AllowCrossTenantAccess("Admin reporting", "SystemAdmin")]
 public async Task<AdminReport> GetGlobalReport()
 {
-    return await _crossTenantManager.ExecuteCrossTenantOperationAsync(async () =>
-    {
-        // This runs in system context - can access all tenants
-        return await GenerateReport();
-    }, "Global admin reporting");
+    return await _crossTenantManager.ExecuteCrossTenantOperationAsync(
+        async () => await GenerateReport(), 
+        "Global admin reporting"
+    );
 }
 ```
 
-## Tenant Resolution Strategies
+## Tenant Resolution
 
-The library includes several built-in ways to determine which tenant a request belongs to:
-
-```csharp
-// Subdomain: tenant1.yourapp.com → tenant1
-.WithSubdomainResolutionStrategy()
-
-// JWT claims: Extract from authentication token  
-.WithJwtResolutionStrategy()
-
-// HTTP headers: X-Tenant-ID header
-.WithHeaderResolutionStrategy()
-
-// URL path: /tenant1/api/users → tenant1
-.WithPathResolutionStrategy()
-```
-
-See the [Tenant Resolvers Guide](resolvers.md) for details on each approach.
-
-## Testing Support
+Built-in strategies:
 
 ```csharp
-[Test]
-public async Task Repository_Should_Filter_By_Tenant()
-{
-    // Arrange
-    var tenantId = Guid.NewGuid();
-    _tenantAccessor.SetContext(TenantContext.ForTenant(tenantId, "Test"));
-    
-    // Act
-    var orders = await _orderRepository.GetAllAsync();
-    
-    // Assert
-    orders.Should().AllSatisfy(o => o.TenantId.Should().Be(tenantId));
-}
+.WithSubdomainResolutionStrategy()  // tenant1.yourapp.com
+.WithJwtResolutionStrategy()         // JWT claims
+.WithHeaderResolutionStrategy()      // X-Tenant-ID header
+.WithPathResolutionStrategy()        // /tenant1/api/users
 ```
 
-## Migration from Existing Apps
+## Comparison to Other Libraries
 
-1. **Install package and configure services**
-2. **Choose your approach**: TenantIsolatedDbContext OR TenantIsolatedRepository
-3. **Add ITenantIsolated interface** to tenant entities
-4. **Replace direct DbContext usage** with repositories (if using Option B)
-5. **Fix compilation errors** (the analyzers will guide you)
-6. **Add database migration** for TenantId columns
+Compared to libraries like Finbuckle.MultiTenant, this library is more restrictive:
 
-The Roslyn analyzers will catch most issues during the migration process.
+- Compile-time enforcement via Roslyn analyzers
+- Mandatory performance monitoring
+- Opinionated design with fewer configuration options
 
-## When to Use This
+This library assumes developers will make mistakes and attempts to prevent them at compile time.
+
+## Migration from Existing Applications
+
+1. Install package and configure services
+2. Choose TenantIsolatedDbContext or TenantIsolatedRepository
+3. Add ITenantIsolated interface to entities
+4. Replace direct DbContext usage with repositories (Option B only)
+5. Fix compilation errors guided by analyzers
+6. Add database migration for TenantId columns
+
+## When to Use
 
 **Good fit:**
-- Your team keeps making tenant isolation mistakes
-- You want compile-time safety over flexibility
-- You're building a new multi-tenant application
-- You prefer opinionated tools with fewer configuration options
+- Teams frequently making tenant isolation mistakes
+- Preference for compile-time safety over flexibility
+- New multi-tenant applications
+- Opinionated tools with fewer configuration options
 
-**Not a good fit:**  
-- You need maximum flexibility in your multi-tenant approach
-- You have complex tenant resolution requirements that don't fit the built-in resolvers
-- You're working with a large existing codebase that can't easily adopt the repository pattern
+**Not suitable:**
+- Need for maximum flexibility
+- Complex tenant resolution requirements beyond built-in resolvers
+- Large existing codebases resistant to repository pattern adoption
 
 ## License
 

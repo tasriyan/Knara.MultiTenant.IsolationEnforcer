@@ -94,7 +94,7 @@ public static class ServiceCollectionExtensions
 
 	public static IServiceCollection AddTaskMasterProServices(this IServiceCollection services, IConfiguration config)
 	{
-		// Admin requeired services
+		// Admin required services
 		services.AddDbContext<NotTenantIsolatedAdminDbContext>(options =>
 			options.UseSqlite(config.GetConnectionString("DefaultConnection"), sqliteOptions =>
 			{
