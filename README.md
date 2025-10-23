@@ -10,7 +10,7 @@
 
 **Multi-tenant data isolation for .NET applications with compile-time enforcement**
 
-## 🎯 What This Solves
+## What This Solves
 
 ***The Problem:*** Tenant data leaks are one of the most common and costly mistakes in multi-tenant applications.
 
@@ -37,7 +37,7 @@ public async Task<List<Order>> GetOrders()
 // Error MTI001: Use ITenantIsolatedRepository<Order> instead of direct DbSet access
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 > **⚠️ Requirements**: .NET 8.0 or later
 
@@ -186,13 +186,13 @@ public class OrderService
 }
 ```
 
-## 📚 Documentation
+## Documentation
 
 - **[Configuration Guide](configuration.md)** - Complete setup and configuration options
 - **[Features Overview](features.md)** - What the library does and why
 - **[Tenant Resolvers](resolvers.md)** - How tenant detection works
 
-## 🛡️ What Makes This Different
+## What Makes This Different
 
 **Compared to other multi-tenant libraries** (like Finbuckle.MultiTenant), this one is more paranoid:
 
@@ -203,7 +203,7 @@ public class OrderService
 Most multi-tenant libraries give you flexible tools assuming competent developers. Mine assumes they'll screw up and tries to make that impossible.
 
 
-## 📋 Protection Layers
+## Protection Layers
 
 ### 1. Compile-Time (Roslyn Analyzers)
 - **MTI001**: Direct DbSet access → Compilation ERROR
@@ -222,7 +222,7 @@ Most multi-tenant libraries give you flexible tools assuming competent developer
 - Tenant isolation violation logging
 - Cross-tenant operation auditing
 
-## 🚨 Cross-Tenant Operations (Admin Functions)
+## Cross-Tenant Operations (Admin Functions)
 
 For legitimate cross-tenant access:
 
@@ -238,7 +238,7 @@ public async Task<AdminReport> GetGlobalReport()
 }
 ```
 
-## 🔧 Tenant Resolution Strategies
+## Tenant Resolution Strategies
 
 The library includes several built-in ways to determine which tenant a request belongs to:
 
@@ -258,7 +258,7 @@ The library includes several built-in ways to determine which tenant a request b
 
 See the [Tenant Resolvers Guide](resolvers.md) for details on each approach.
 
-## 🧪 Testing Support
+## Testing Support
 
 ```csharp
 [Test]
@@ -276,7 +276,7 @@ public async Task Repository_Should_Filter_By_Tenant()
 }
 ```
 
-## 🛠️ Migration from Existing Apps
+## Migration from Existing Apps
 
 1. **Install package and configure services**
 2. **Choose your approach**: TenantIsolatedDbContext OR TenantIsolatedRepository
@@ -287,7 +287,7 @@ public async Task Repository_Should_Filter_By_Tenant()
 
 The Roslyn analyzers will catch most issues during the migration process.
 
-## 🎯 When to Use This
+## When to Use This
 
 **Good fit:**
 - Your team keeps making tenant isolation mistakes
@@ -300,6 +300,6 @@ The Roslyn analyzers will catch most issues during the migration process.
 - You have complex tenant resolution requirements that don't fit the built-in resolvers
 - You're working with a large existing codebase that can't easily adopt the repository pattern
 
-## 📄 License
+## License
 
-MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License. Copyright 2025 Tatyana Asriyan
